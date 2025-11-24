@@ -1,0 +1,29 @@
+# Node
+node_modules/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Env files
+.env
+.env.local
+Server/.env
+Web/.env
+
+# Vite
+Web/dist/
+Web/.vite/
+
+# TypeScript build
+Server/dist/
+*.tsbuildinfo
+
+# Editor folders
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
