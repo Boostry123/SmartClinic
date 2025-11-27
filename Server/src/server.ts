@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import patientRoutes from "./routes/patientRoutes.js"
 
 // Load environment variables from .env file
 dotenv.config();
@@ -20,7 +21,7 @@ app.get("/", (req, res) => {
   // You can send back a simple message...
   res.send("Welcome to the server page.");
 });
-
+app.use('/users', patientRoutes);
 // --- Server Activation ---
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
