@@ -1,24 +1,29 @@
-// CardComponent.tsx
 import React from "react";
-import type { ReactNode } from "react";
 
-interface CardComponentProps {
+interface CardProps {
+  children: React.ReactNode;
   title: string;
-  children: ReactNode;
   className?: string;
 }
 
-const CardComponent: React.FC<CardComponentProps> = ({
-  title,
-  children,
-  className,
-}) => {
+const Card = ({ title, children, className = "" }: CardProps) => {
   return (
-    <div className={`bg-white rounded-2xl shadow-md p-6 ${className ?? ""}`}>
-      <h2 className="text-xl font-semibold mb-2">{title}</h2>
-      <p className="text-gray-600">{children}</p>
+    <div
+      className={`
+        bg-white 
+        rounded-2xl 
+        border border-slate-200 
+        shadow-sm 
+        p-6 md:p-8
+        hover:shadow-md 
+        transition-shadow duration-300
+        ${className}
+      `}
+    >
+      <h2 className="text-2xl font-semibold mb-4">{title}</h2>
+      {children}
     </div>
   );
 };
 
-export default CardComponent;
+export default Card;

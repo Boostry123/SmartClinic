@@ -5,17 +5,17 @@
   */
 import NavBar from "../components/NavBar";
 import Footer from "../components/Footer";
-import CardComponent from "../components/Card";
+import Card from "../components/Card";
 const DashBoard = () => {
   return (
     <>
       <NavBar />
-      <CardComponent
+      <Card
         title="DashBoard"
         className="flex justify-center flex-col items-center"
       >
-        <CardComponent title="Inner Card Title">inner Card Title</CardComponent>
-      </CardComponent>
+        <Card title="Inner Card Title">inner Card Title</Card>
+      </Card>
 
       <Footer />
     </>
