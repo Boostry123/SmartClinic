@@ -14,7 +14,7 @@ const DashBoard = () => {
         title="DashBoard"
         className="flex justify-center flex-col items-center"
       >
-        <Card title="Inner Card Title">inner Card Title</Card>
+        <Card title="Title"> Title</Card>
       </Card>
 
       <Footer />
