@@ -1,0 +1,6 @@
+#env
+.env
+.env.local
+
+# package-lock
+package-lock.json
