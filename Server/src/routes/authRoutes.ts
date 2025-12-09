@@ -4,7 +4,7 @@ import supabase from "../config/supaDb.js";
 
 const AuthRoutes = Router();
 
-// POST /api/auth/signup
+// POST /auth/signup
 AuthRoutes.post("/signup", async (req, res) => {
   const { email, password, name, last_name } = req.body;
 
@@ -24,7 +24,7 @@ AuthRoutes.post("/signup", async (req, res) => {
   res.json({ user: data.user, session: data.session });
 });
 
-// POST /api/auth/login
+// POST /auth/login
 AuthRoutes.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
