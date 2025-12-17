@@ -4,9 +4,10 @@ import { useAuthStore } from "../store/authStore";
 
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
+  withCredentials: true,
 });
 
-// 1. Request Interceptor (We already did this: Attaches token)
+// 1. Request Interceptor
 apiClient.interceptors.request.use((config) => {
   const token = useAuthStore.getState().token;
   if (token) {

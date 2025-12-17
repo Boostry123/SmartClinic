@@ -13,4 +13,14 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 const supabase: SupabaseClient = createClient(supabaseUrl, supabaseAnonKey);
 
+export const getSupabaseClient = (accessToken?: string) => {
+  return createClient(supabaseUrl, supabaseAnonKey, {
+    global: {
+      headers: {
+        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+      },
+    },
+  });
+};
+
 export default supabase;
