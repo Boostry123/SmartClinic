@@ -13,7 +13,12 @@ const PORT = process.env.PORT || 3001;
 
 // --- Middleware ---
 // Enable Cross-Origin Resource Sharing for requests from your frontend
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.BASE_FRONTEND_URL || "http://localhost:5173",
+    credentials: true,
+  })
+);
 // Parse incoming JSON requests
 app.use(express.json());
 

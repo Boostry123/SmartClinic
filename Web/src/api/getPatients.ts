@@ -1,4 +1,4 @@
-import axios from "axios";
+import apiClient from "../api/axiosClient";
 
 export interface Patient {
   id: string;
@@ -11,7 +11,12 @@ export interface Patient {
 export const getPatients = async (): Promise<Patient[]> => {
   try {
     const baseUrl = import.meta.env.VITE_API_URL;
-    const res = await axios.get<Patient[]>(`${baseUrl}/users/patient`);
+    const res = await apiClient.get<Patient[]>(`${baseUrl}/users`, {
+      params: { role: "patient" },
+    });
+    if (res) {
+      console.log("getPatients response data:", res.data);
+    }
     return res.data;
   } catch (err) {
     console.error("getPatients error:", err);

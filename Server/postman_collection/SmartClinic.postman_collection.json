@@ -13,16 +13,27 @@
 					"name": "get users by role",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsImtpZCI6ImNaVnczL0t4QkR1YVdJdHgiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3Vja2Z2dmxmbXB5eHZud2h4eGJiLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiIyMjU2M2Q0OS0xZTNjLTRkMjQtYTJlNC02ZTBkM2I5MzkxZGUiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzY2MDE2ODc4LCJpYXQiOjE3NjYwMTMyNzgsImVtYWlsIjoidGVzdDJAcGF0aWVudC5jb20iLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsX3ZlcmlmaWVkIjp0cnVlfSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc2NjAxMzI3OH1dLCJzZXNzaW9uX2lkIjoiOTE0MTM4NWEtMDM3ZS00ZGJlLTg0ZGItM2ZjZWVlZGFmNjhiIiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.bWae4w9RXiVL7TLtjyVlT-FCr0aAX8xN1CqvoSIlzlo",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
 						"url": {
-							"raw": "{{baseURL}}users?role={patient | admin | doctor}",
+							"raw": "{{baseURL}}users?role=patient",
 							"host": [
 								"{{baseURL}}users"
 							],
 							"query": [
 								{
 									"key": "role",
-									"value": "{patient | admin | doctor}"
+									"value": "patient"
 								}
 							]
 						}
