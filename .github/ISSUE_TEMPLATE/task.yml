@@ -1,0 +1,28 @@
+name: Task
+description: General development task
+title: "[TASK] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What needs to be done?
+      placeholder: Clear and concise description
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      options:
+        - label: Feature works as expected
+        - label: Tests added/updated
+        - label: No breaking changes
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Optional extra info
