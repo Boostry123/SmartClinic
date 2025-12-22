@@ -45,6 +45,5 @@ body:
     attributes:
       label: Checklist
       options:
-        - label: Bug reproduced locally
-        - label: Fix verified
-        - label: Tests added (if applicable)
+        - label: Bug reproduced locally !
+        - label: Fix verified !
