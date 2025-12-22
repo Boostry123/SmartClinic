@@ -1,0 +1,39 @@
+name: General Issue / Investigation
+description: Something that needs review, discussion, or investigation
+title: "[INVESTIGATE] "
+labels: ["discussion"]
+body:
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: What needs to be looked into?
+      placeholder: Describe the issue or concern
+    validations:
+      required: true
+
+  - type: textarea
+    id: questions
+    attributes:
+      label: Open Questions
+      description: What is unclear or needs investigation?
+      placeholder: List questions or unknowns
+    validations:
+      required: false
+
+  - type: textarea
+    id: suggestions
+    attributes:
+      label: Possible Directions
+      description: Any initial ideas or thoughts?
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: outcome
+    attributes:
+      label: Expected Outcome
+      options:
+        - label: Decision made
+        - label: Follow-up task created
+        - label: No action needed
