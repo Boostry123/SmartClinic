@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 //routes
 import UserRoutes from "./routes/userRoutes.js";
 import AuthRoutes from "./routes/authRoutes.js";
+import PatientRoutes from "./routes/patientRoutes.js";
 
 // Load environment variables from .env file
 dotenv.config();
@@ -31,6 +32,9 @@ app.get("/", (req, res) => {
 
 //the users route
 app.use("/users", UserRoutes);
+
+//the patients route
+app.use("/patients", PatientRoutes);
 //the auth route
 app.use("/auth", AuthRoutes);
 // --- Server Activation ---
