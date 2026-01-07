@@ -1,46 +1,80 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-//css
-import "./App.css";
-//stores
-import { useAuthStore } from "./store/authStore";
-//pages
-import DashBoard from "./pages/DashBoard";
-import { LoginPage } from "./pages/LoginPage";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import NavBar from "./components/NavBar";
+import Footer from "./components/Footer";
+import Login from "./components/Login";
+import { getIsAuthenticated } from "./utils/auth";
 
-function App() {
-  const { getIsAuthenticated } = useAuthStore();
+// Placeholder components
+const Dashboard = () => (
+  <div className="p-8 text-indigo-900">
+    <h1>Dashboard Content</h1>
+  </div>
+);
+const Appointments = () => (
+  <div className="p-8 text-indigo-900">
+    <h1>Appointments Content</h1>
+  </div>
+);
+const Patients = () => (
+  <div className="p-8 text-indigo-900">
+    <h1>Patients List (Coming Soon)</h1>
+  </div>
+);
+
+const App = () => {
   const isAuthenticated = getIsAuthenticated();
+
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* 1. The Root Path: Decide where to go */}
-        <Route
-          path="/"
-          element={
-            isAuthenticated ? (
-              <Navigate to="/dashboard" />
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        />
+    <Router>
+      <div className="min-h-screen bg-slate-50 flex flex-col">
+        {isAuthenticated && <NavBar />}
 
-        {/* 2. The Login Page */}
-        <Route
-          path="/login"
-          element={
-            isAuthenticated ? <Navigate to="/dashboard" /> : <LoginPage />
-          }
-        />
+        <main className={`flex-grow ${isAuthenticated ? "pt-16" : ""}`}>
+          <Routes>
+            <Route path="/login" element={<Login />} />
 
-        {/* 3. The Protected Dashboard */}
-        <Route
-          path="/dashboard"
-          element={isAuthenticated ? <DashBoard /> : <Navigate to="/login" />}
-        />
-      </Routes>
-    </BrowserRouter>
+            {/* Protected Routes */}
+            <Route
+              path="/"
+              element={
+                isAuthenticated ? <Dashboard /> : <Navigate to="/login" />
+              }
+            />
+            <Route
+              path="/appointments"
+              element={
+                isAuthenticated ? <Appointments /> : <Navigate to="/login" />
+              }
+            />
+            <Route
+              path="/patients"
+              element={
+                isAuthenticated ? <Patients /> : <Navigate to="/login" />
+              }
+            />
+            <Route
+              path="/treatments"
+              element={
+                isAuthenticated ? (
+                  <div>Treatments Page</div>
+                ) : (
+                  <Navigate to="/login" />
+                )
+              }
+            />
+          </Routes>
+        </main>
+
+        {/* Footer is displayed only when authenticated */}
+        {isAuthenticated && <Footer />}
+      </div>
+    </Router>
   );
-}
+};
 
 export default App;
