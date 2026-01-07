@@ -11,11 +11,10 @@ import NavBar from "./components/NavBar";
 
 function App() {
   const { getIsAuthenticated } = useAuthStore();
-  
+
   // Check authentication status from store
   const isAuthenticated = getIsAuthenticated();
 
-  
   return (
     <BrowserRouter>
       {/* Render NavBar only if the user is authenticated */}
@@ -54,10 +53,18 @@ function App() {
           />
 
           {/* 4. Placeholder Routes (redirecting to Dashboard for now) */}
-          <Route path="/appointments" element={isAuthenticated ? <DashBoard /> : <Navigate to="/login" />} />
-          <Route path="/patients" element={isAuthenticated ? <DashBoard /> : <Navigate to="/login" />} />
-          <Route path="/treatments" element={isAuthenticated ? <DashBoard /> : <Navigate to="/login" />} />
-
+          <Route
+            path="/appointments"
+            element={isAuthenticated ? <DashBoard /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/patients"
+            element={isAuthenticated ? <DashBoard /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/treatments"
+            element={isAuthenticated ? <DashBoard /> : <Navigate to="/login" />}
+          />
         </Routes>
       </main>
     </BrowserRouter>
