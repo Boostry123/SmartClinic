@@ -8,27 +8,24 @@ const AuthRoutes = Router();
 AuthRoutes.post("/signup", async (req, res) => {
   const { email, password, name, last_name } = req.body;
 
-  // 1. The Node server talks to Supabase
-  //the  role is defauled to 'patient' in the DB trigger
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
-    options: {
-      data: { name, last_name }, // Sends metadata for the DB Trigger
-    },
+    options: { data: { name, last_name } },
   });
 
   if (error) return res.status(400).json({ error: error.message });
 
-  // 2. Send the result back to Frontend
-  res.json({ user: data.user, session: data.session });
+  // Send accessToken so frontend can call setAuth()
+  res.json({
+    accessToken: data.session?.access_token || null,
+    user: data.user,
+  });
 });
 
-// POST /auth/login
 AuthRoutes.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
-  // 1. Authenticate with Supabase
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
@@ -36,11 +33,38 @@ AuthRoutes.post("/login", async (req, res) => {
 
   if (error) return res.status(401).json({ error: error.message });
 
-  // 2. IMPORTANT: Send the Access Token (Bearer) to the Frontend
+  // Send accessToken (matches frontend store) and user
   res.json({
-    token: data.session.access_token,
+    accessToken: data.session.access_token, // renamed
     user: data.user,
   });
+});
+// POST /auth/refresh
+AuthRoutes.post("/refresh", async (req, res) => {
+  try {
+    const { data, error } = await supabase.auth.refreshSession();
+
+    if (error || !data.session)
+      return res.status(401).json({ error: "Unable to refresh session" });
+
+    res.json({
+      accessToken: data.session.access_token,
+      user: data.session.user,
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Refresh failed" });
+  }
+});
+// POST /auth/logout
+AuthRoutes.post("/logout", async (req, res) => {
+  try {
+    // Revoke refresh token on Supabase
+    await supabase.auth.signOut();
+
+    res.json({ message: "Logged out successfully" });
+  } catch (err) {
+    res.status(500).json({ error: "Logout failed" });
+  }
 });
 
 export default AuthRoutes;

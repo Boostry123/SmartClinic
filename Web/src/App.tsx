@@ -12,10 +12,7 @@ import NavBar from "./components/NavBar";
 import Footer from "./components/Footer";
 
 function App() {
-  const { getIsAuthenticated } = useAuthStore();
-
-  // Check authentication status from store
-  const isAuthenticated = getIsAuthenticated();
+  const { isAuthenticated } = useAuthStore();
 
   return (
     <BrowserRouter>

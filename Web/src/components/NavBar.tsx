@@ -12,6 +12,7 @@ import {
   X,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../store/authStore";
 
 const NavBar = () => {
   const [active, setActive] = useState("Home");
@@ -28,6 +29,10 @@ const NavBar = () => {
     { name: "Patients", icon: <Users size={18} />, path: "/patients" },
     { name: "Treatments", icon: <Activity size={18} />, path: "/treatments" },
   ];
+  const handleLogout = () => {
+    console.log("invoking logout");
+    useAuthStore.getState().clearAuth();
+  };
 
   return (
     <>
@@ -101,7 +106,12 @@ const NavBar = () => {
 
             <div className="hidden sm:block w-px h-6 bg-indigo-800 mx-1"></div>
 
-            <button className="hidden sm:flex items-center gap-2 px-4 py-2 text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 rounded-full transition-colors text-xs font-bold border border-rose-500/10">
+            <button
+              onClick={() => {
+                handleLogout();
+              }}
+              className="hidden sm:flex items-center gap-2 px-4 py-2 text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 rounded-full transition-colors text-xs font-bold border border-rose-500/10"
+            >
               <LogOut size={14} />
               <span>Exit</span>
             </button>
@@ -141,7 +151,12 @@ const NavBar = () => {
               </button>
             ))}
             <div className="h-px bg-indigo-500/30 my-2"></div>
-            <button className="flex items-center gap-3 p-3 text-rose-400 hover:bg-rose-500/10 rounded-xl w-full font-medium">
+            <button
+              onClick={() => {
+                handleLogout();
+              }}
+              className="flex items-center gap-3 p-3 text-rose-400 hover:bg-rose-500/10 rounded-xl w-full font-medium"
+            >
               <LogOut size={18} />
               <span>Exit System</span>
             </button>
