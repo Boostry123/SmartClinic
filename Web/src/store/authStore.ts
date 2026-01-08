@@ -2,35 +2,44 @@ import { create } from "zustand";
 import type { User } from "../types/auth";
 
 interface AuthState {
-  token: string | null;
+  accessToken: string | null;
   user: User | null;
+
+  // Derived state
   isAuthenticated: boolean;
 
   // Actions
-  login: (token: string, user: User) => void;
-  logout: () => void;
-  getIsAuthenticated: () => boolean;
+  setAuth: (accessToken: string, user: User) => void;
+  clearAuth: () => void;
 }
 
-export const useAuthStore = create<AuthState>((set, get) => ({
-  // Initialize from localStorage so login persists on refresh
-  token: localStorage.getItem("token"),
+export const useAuthStore = create<AuthState>((set) => ({
+  // Initial state (rehydrated from localStorage)
+  accessToken: localStorage.getItem("accessToken"),
   user: JSON.parse(localStorage.getItem("user") || "null"),
-  isAuthenticated: !!localStorage.getItem("token"),
-  getIsAuthenticated: () => {
-    const states = get();
-    return states.isAuthenticated;
-  },
+  isAuthenticated: !!localStorage.getItem("accessToken"),
 
-  login: (token, user) => {
-    localStorage.setItem("token", token);
+  // Set auth after login or token refresh
+  setAuth: (accessToken, user) => {
+    localStorage.setItem("accessToken", accessToken);
     localStorage.setItem("user", JSON.stringify(user));
-    set({ token, user, isAuthenticated: true });
+
+    set({
+      accessToken,
+      user,
+      isAuthenticated: true,
+    });
   },
 
-  logout: () => {
-    localStorage.removeItem("token");
+  // Clear everything on logout / refresh failure
+  clearAuth: () => {
+    localStorage.removeItem("accessToken");
     localStorage.removeItem("user");
-    set({ token: null, user: null, isAuthenticated: false });
+
+    set({
+      accessToken: null,
+      user: null,
+      isAuthenticated: false,
+    });
   },
 }));

@@ -5,34 +5,34 @@ import { useAuthStore } from "../store/authStore"; // Your Zustand Store
 import { AxiosError } from "axios";
 
 const useLogin = () => {
-  // 1. Local State for the Form
+  // 1️⃣ Local State for the Form
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // 2. Access Global Store & Router
-  const setAuth = useAuthStore((state) => state.login);
+  // 2️⃣ Access Global Store & Router
+  const setAuth = useAuthStore((state) => state.setAuth);
   const navigate = useNavigate();
 
-  // 3. The Submit Logic
+  // 3️⃣ Submit Logic
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
 
     try {
-      // Call your Node.js Backend
+      // Call backend login API
       const data = await loginUser(email, password);
 
-      // Save to Zustand (and LocalStorage via the store logic)
-      setAuth(data.token, data.user);
+      setAuth(data.accessToken, data.user);
 
-      // Redirect to Dashboard
+      // Redirect to dashboard
       navigate("/dashboard");
     } catch (err: unknown) {
       if (err instanceof AxiosError) {
-        setError(err.response?.data?.message ?? "Login failed");
+        // AxiosError: backend message or fallback
+        setError(err.response?.data?.error ?? "Login failed");
       } else {
         setError("Unexpected error");
       }
@@ -42,7 +42,6 @@ const useLogin = () => {
     }
   };
 
-  // 4. Return only what the UI needs
   return {
     email,
     setEmail,

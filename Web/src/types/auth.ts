@@ -11,6 +11,6 @@ export interface User {
 
 // What the Node.js Login endpoint returns
 export interface AuthResponse {
-  token: string; // The Supabase JWT
+  accessToken: string; // The Supabase JWT
   user: User;
 }
