@@ -1,52 +1,72 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-//css
+// CSS
 import "./App.css";
-//stores
+// Stores
 import { useAuthStore } from "./store/authStore";
-//pages
+// Pages
 import DashBoard from "./pages/DashBoard";
 import { LoginPage } from "./pages/LoginPage";
-import PatientsPage from "./pages/Patients";
+// Components
+import NavBar from "./components/NavBar";
 
 function App() {
   const { getIsAuthenticated } = useAuthStore();
+
+  // Check authentication status from store
   const isAuthenticated = getIsAuthenticated();
+
   return (
     <BrowserRouter>
-      <Routes>
-        {/* 1. The Root Path: Decide where to go */}
-        <Route
-          path="/"
-          element={
-            isAuthenticated ? (
-              <Navigate to="/dashboard" />
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        />
+      {/* Render NavBar only if the user is authenticated */}
+      {isAuthenticated && <NavBar />}
 
-        {/* 2. The Login Page */}
-        <Route
-          path="/login"
-          element={
-            isAuthenticated ? <Navigate to="/dashboard" /> : <LoginPage />
-          }
-        />
+      {/* Main Layout Wrapper:
+        Added 'pt-16' (padding-top: 4rem) to match the fixed Navbar height.
+        This prevents content from being hidden behind the header.
+      */}
+      <main className={isAuthenticated ? "pt-16 bg-gray-50 min-h-screen" : ""}>
+        <Routes>
+          {/* 1. Root Path Redirect */}
+          <Route
+            path="/"
+            element={
+              isAuthenticated ? (
+                <Navigate to="/dashboard" />
+              ) : (
+                <Navigate to="/login" />
+              )
+            }
+          />
 
-        {/* 3. The Protected Dashboard */}
-        <Route
-          path="/dashboard"
-          element={isAuthenticated ? <DashBoard /> : <Navigate to="/login" />}
-        />
+          {/* 2. Login Page */}
+          <Route
+            path="/login"
+            element={
+              isAuthenticated ? <Navigate to="/dashboard" /> : <LoginPage />
+            }
+          />
 
-        <Route
-          path="/patients"
-          element={
-            isAuthenticated ? <PatientsPage /> : <Navigate to="/login" />
-          }
-        />
-      </Routes>
+          {/* 3. Protected Dashboard */}
+          <Route
+            path="/dashboard"
+            element={isAuthenticated ? <DashBoard /> : <Navigate to="/login" />}
+          />
+
+          {/* 4. Placeholder Routes (redirecting to Dashboard for now) */}
+          <Route
+            path="/appointments"
+            element={isAuthenticated ? <DashBoard /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/patients"
+            element={isAuthenticated ? <DashBoard /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/treatments"
+            element={isAuthenticated ? <DashBoard /> : <Navigate to="/login" />}
+          />
+        </Routes>
+      </main>
     </BrowserRouter>
   );
 }
