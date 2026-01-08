@@ -9,6 +9,7 @@ import { LoginPage } from "./pages/LoginPage";
 import Patients from "./pages/Patients";
 // Components
 import NavBar from "./components/NavBar";
+import Footer from "./components/Footer";
 
 function App() {
   const { getIsAuthenticated } = useAuthStore();
@@ -68,6 +69,8 @@ function App() {
           />
         </Routes>
       </main>
+
+      <Footer />
     </BrowserRouter>
   );
 }
