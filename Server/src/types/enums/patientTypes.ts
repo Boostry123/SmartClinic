@@ -1,24 +1,25 @@
-export interface patientTypes {
-  PATIENT_ID: string;
-  USER_ID: string;
-  FIRST_NAME: string;
-  LAST_NAME: string;
-  DATE_OF_BIRTH: string;
-  GENDER: string;
-  NATIONAL_ID: string;
-  PHONE_NUMBER: string;
-  ADDRESS: string;
-  BLOOD_TYPE: string;
-  EMERGENCY_CONTACT: string;
-  EMERGENCY_CONTACT_PHONE: string;
-  INSURANCE_PROVIDER: string;
-  INSURANCE_POLICY_NUMBER: string;
+export interface Patient {
+  patient_id: string;
+  user_id: string;
+  first_name: string;
+  last_name: string;
+  date_of_birth: string;
+  gender: string;
+  national_id: string;
+  phone_number: string;
+  users?: { email?: string };
+  address: string;
+  blood_type: string;
+  emergency_contact: string;
+  emergency_contact_phone: string;
+  insurance_provider: string;
+  insurance_policy_number: string;
 }
 export interface patientFilterTypes {
-  PATIENT_ID?: string;
-  USER_ID?: string;
-  NATIONAL_ID?: string;
-  FIRST_NAME?: string;
-  LAST_NAME?: string;
-  PHONE_NUMBER?: string;
+  patient_id?: string;
+  user_id?: string;
+  national_id?: string;
+  first_name?: string;
+  last_name?: string;
+  phone_number?: string;
 }

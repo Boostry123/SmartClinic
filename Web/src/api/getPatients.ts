@@ -1,22 +1,42 @@
-import apiClient from "../api/axiosClient";
+import apiClient from "./axiosClient";
 
 export interface Patient {
-  id: string;
-  created_at: string;
-  name: string;
-  role: string;
+  patient_id: string;
+  user_id: string;
+  first_name: string;
+  last_name: string;
+  date_of_birth: string;
+  gender: string;
+  national_id: string;
+  phone_number: string;
+  users?: { email?: string };
+  address: string;
+  blood_type: string;
+  emergency_contact: string;
+  emergency_contact_phone: string;
+  insurance_provider: string;
+  insurance_policy_number: string;
+}
+
+export interface patientFilterTypes {
+  patient_id?: string;
+  user_id?: string;
+  national_id?: string;
+  first_name?: string;
+  last_name?: string;
+  phone_number?: string;
 }
 
 //this function fetches all users with a role of 'patient' from the backend API
-export const getPatients = async (): Promise<Patient[]> => {
+export const getPatients = async (
+  filter?: patientFilterTypes
+): Promise<Patient[]> => {
   try {
     const baseUrl = import.meta.env.VITE_API_URL;
-    const res = await apiClient.get<Patient[]>(`${baseUrl}/users`, {
-      params: { role: "patient" },
+    const res = await apiClient.get<Patient[]>(`${baseUrl}/patients`, {
+      params: filter,
     });
-    if (res) {
-      console.log("getPatients response data:", res.data);
-    }
+    console.log("getPatients success:", res.data.length, "items found");
     return res.data;
   } catch (err) {
     console.error("getPatients error:", err);
