@@ -3,21 +3,20 @@
     we do not write code directly here, instead we will create sub-components
     for different sections of the dashboard and import them here.
   */
-import NavBar from "../components/NavBar";
+
 import Footer from "../components/Footer";
 import Card from "../components/Card";
-import { getPatients } from "../api/getPatients";
+import { getUsers } from "../api/getUsers";
 const DashBoard = () => {
   return (
     <>
-      <NavBar />
       <Card
         title="DashBoard"
         className="flex justify-center flex-col items-center"
       >
         <Card title="get Patient API test button">
-          <button className="btn btn-primary" onClick={getPatients}>
-            Click Here to test getPatients API (check console for results)
+          <button className="btn btn-primary" onClick={getUsers}>
+            Click Here to test getUsers API (check console for results)
           </button>
         </Card>
       </Card>

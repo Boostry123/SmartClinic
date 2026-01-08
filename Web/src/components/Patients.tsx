@@ -1,31 +1,133 @@
-/*
-    this component will hold a list of patients,
-    the component fetches all patients related to the logged-in doctor
-*/
-import { useEffect, useState } from "react";
-import { getPatients } from "../api/getPatients";
+import { useState, useMemo } from "react";
+import { Eye, EyeOff } from "lucide-react";
+// Hooks
+import usePatients from "../hooks/usePatients";
+// Helpers
+import { getAge } from "../helpers/Dates";
+import { type PatientFilters } from "../hooks/usePatients";
 import type { Patient } from "../api/getPatients";
-const Patients = () => {
-  const [patients, setPatients] = useState<Patient[]>([]);
 
-  useEffect(() => {
-    const fetchPatients = async () => {
-      const data = await getPatients();
-      setPatients(data);
-    };
+const Patients = (filters: PatientFilters) => {
+  const { data: patients, isLoading, error } = usePatients(filters);
+  const [showIds, setShowIds] = useState(false);
 
-    fetchPatients();
-  }, []); // empty deps → runs only once
+  const columns = useMemo(
+    () => [
+      {
+        header: (
+          <div className="flex items-center gap-2">
+            <span>Patient ID</span>
+            <button
+              onClick={() => setShowIds((prev) => !prev)}
+              className="p-1 hover:bg-gray-200 rounded transition-colors text-gray-500"
+              title={showIds ? "Hide IDs" : "Show IDs"}
+              type="button"
+            >
+              {/* Toggle between Lucide icons based on state */}
+              {showIds ? <Eye size={16} /> : <EyeOff size={16} />}
+            </button>
+          </div>
+        ),
+        // Logic: Show ID or mask
+        accessor: (p: Patient) => (showIds ? p.patient_id : "••••"),
+        className: "font-medium font-mono text-gray-600",
+      },
+      { header: "First Name", accessor: (p: Patient) => p.first_name },
+      { header: "Last Name", accessor: (p: Patient) => p.last_name },
+      {
+        header: "Age",
+        accessor: (p: Patient) =>
+          p.date_of_birth ? getAge(p.date_of_birth) : "N/A",
+      },
+      { header: "Gender", accessor: (p: Patient) => p.gender },
+      { header: "National ID", accessor: (p: Patient) => p.national_id },
+      { header: "Phone", accessor: (p: Patient) => p.phone_number },
+      { header: "Email", accessor: (p: Patient) => p.users?.email || "-" },
+      {
+        header: "Address",
+        accessor: (p: Patient) => p.address,
+        className: "max-w-xs truncate",
+      },
+      {
+        header: "Blood Type",
+        accessor: (p: Patient) => (
+          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+            {p.blood_type}
+          </span>
+        ),
+      },
+      {
+        header: "Emerg. Contact",
+        accessor: (p: Patient) => p.emergency_contact,
+      },
+      {
+        header: "Emerg. Phone",
+        accessor: (p: Patient) => p.emergency_contact_phone,
+      },
+      {
+        header: "Insurance Provider",
+        accessor: (p: Patient) => p.insurance_provider,
+      },
+      {
+        header: "Insurance Policy #",
+        accessor: (p: Patient) => p.insurance_policy_number,
+      },
+    ],
+    [showIds]
+  );
+
+  if (isLoading)
+    return <div className="p-6 text-gray-500">Loading patients...</div>;
+  if (error) return <div className="p-6 text-red-500">{error}</div>;
 
   return (
-    <div>
-      {patients.map((patient) => (
-        <div key={patient.id}>
-          <p>Name: {patient.name}</p>
-          <p>Role: {patient.role}</p>
-          <p>Created At: {new Date(patient.created_at).toLocaleDateString()}</p>
-        </div>
-      ))}
+    <div className="p-6 bg-white rounded-lg shadow-md">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-bold text-gray-800">Patients List</h2>
+        <span className="text-sm text-gray-500">
+          Total Patients:{" "}
+          <span className="font-semibold text-gray-800">{patients.length}</span>
+        </span>
+      </div>
+
+      <div className="overflow-x-auto border border-gray-200 rounded-lg">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              {columns.map((col, index) => (
+                <th
+                  key={index}
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap"
+                >
+                  {col.header}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {patients.map((patient: Patient) => (
+              <tr
+                key={patient.patient_id}
+                className="hover:bg-gray-50 transition-colors"
+              >
+                {columns.map((col, index) => (
+                  <td
+                    key={`${patient.patient_id}-${index}`}
+                    className={`px-6 py-4 text-sm text-gray-500 whitespace-nowrap ${
+                      col.className || ""
+                    }`}
+                  >
+                    {typeof col.accessor === "function"
+                      ? col.accessor(patient)
+                      : col.accessor}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

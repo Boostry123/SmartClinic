@@ -6,8 +6,10 @@ import { useAuthStore } from "./store/authStore";
 // Pages
 import DashBoard from "./pages/DashBoard";
 import { LoginPage } from "./pages/LoginPage";
+import Patients from "./pages/Patients";
 // Components
 import NavBar from "./components/NavBar";
+import Footer from "./components/Footer";
 
 function App() {
   const { getIsAuthenticated } = useAuthStore();
@@ -59,7 +61,7 @@ function App() {
           />
           <Route
             path="/patients"
-            element={isAuthenticated ? <DashBoard /> : <Navigate to="/login" />}
+            element={isAuthenticated ? <Patients /> : <Navigate to="/login" />}
           />
           <Route
             path="/treatments"
@@ -67,6 +69,8 @@ function App() {
           />
         </Routes>
       </main>
+
+      <Footer />
     </BrowserRouter>
   );
 }
