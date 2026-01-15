@@ -19,7 +19,7 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
-// 2️⃣ Response interceptor – refresh on 401
+// Response interceptor – refresh on 500
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -36,11 +36,7 @@ apiClient.interceptors.response.use(
         );
 
         const { accessToken, user } = res.data;
-
-        // ✅ Correct store call
         useAuthStore.getState().setAuth(accessToken, user);
-
-        // Retry original request with new token
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
 
         return apiClient(originalRequest);
