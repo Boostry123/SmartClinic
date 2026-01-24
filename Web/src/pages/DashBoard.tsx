@@ -6,7 +6,7 @@
 
 import Footer from "../components/Footer";
 import Card from "../components/Card";
-import { getUsers } from "../api/getUsers";
+
 const DashBoard = () => {
   return (
     <>
@@ -14,9 +14,9 @@ const DashBoard = () => {
         title="DashBoard"
         className="flex justify-center flex-col items-center"
       >
-        <Card title="get Patient API test button">
-          <button className="btn btn-primary" onClick={getUsers}>
-            Click Here to test getUsers API (check console for results)
+        <Card title="">
+          <button className="btn btn-primary">
+            This section will soon include data according to user Role
           </button>
         </Card>
       </Card>

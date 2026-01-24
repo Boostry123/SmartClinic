@@ -1,16 +1,10 @@
 import { useEffect, useState } from "react";
-import { getPatients, type Patient } from "../api/getPatients";
-// --- Types ---
-export interface PatientFilters {
-  patient_id?: string;
-  user_id?: string;
-  national_id?: string;
-  first_name?: string;
-  last_name?: string;
-  phone_number?: string;
-}
+//DEVELOPED
+import { getPatients } from "../api/getPatients";
+//TYPES
+import type { Patient, patientFilterTypes } from "../api/types/patients";
 
-const usePatients = (filters: PatientFilters) => {
+const usePatients = (filters: patientFilterTypes) => {
   const [data, setData] = useState<Patient[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

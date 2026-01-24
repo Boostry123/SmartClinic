@@ -15,6 +15,7 @@ export interface Patient {
   insurance_provider: string;
   insurance_policy_number: string;
 }
+
 export interface patientFilterTypes {
   patient_id?: string;
   user_id?: string;
