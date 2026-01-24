@@ -4,11 +4,12 @@ import { Eye, EyeOff } from "lucide-react";
 import usePatients from "../hooks/usePatients";
 // Helpers
 import { getAge } from "../helpers/Dates";
-import { type PatientFilters } from "../hooks/usePatients";
-import type { Patient } from "../api/getPatients";
+//Types
+import type { patientFilterTypes, Patient } from "../api/types/patients";
 
-const Patients = (filters: PatientFilters) => {
-  const { data: patients, isLoading, error } = usePatients(filters);
+const Patients = (filters: patientFilterTypes) => {
+  // TanStack Query returns 'isError' and a full 'error' object.
+  const { data: patients, isLoading, isError, error } = usePatients(filters);
   const [showIds, setShowIds] = useState(false);
 
   const columns = useMemo(
@@ -23,12 +24,10 @@ const Patients = (filters: PatientFilters) => {
               title={showIds ? "Hide IDs" : "Show IDs"}
               type="button"
             >
-              {/* Toggle between Lucide icons based on state */}
               {showIds ? <Eye size={16} /> : <EyeOff size={16} />}
             </button>
           </div>
         ),
-        // Logic: Show ID or mask
         accessor: (p: Patient) => (showIds ? p.patient_id : "••••"),
         className: "font-medium font-mono text-gray-600",
       },
@@ -76,17 +75,29 @@ const Patients = (filters: PatientFilters) => {
     [showIds],
   );
 
+  // Loading state remains the same
   if (isLoading)
     return <div className="p-6 text-gray-500">Loading patients...</div>;
-  if (error) return <div className="p-6 text-red-500">{error}</div>;
 
+  // Error state now uses isError boolean and error object message
+  if (isError)
+    return (
+      <div className="p-6 text-red-500">
+        {error?.message || "Failed to load patients"}
+      </div>
+    );
+
+  // Note: Added optional chaining (patients?) just in case,
+  // though TanStack Query ensures data is present if isLoading/isError are false.
   return (
     <div className="p-6 bg-white rounded-lg shadow-md">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold text-gray-800">Patients List</h2>
         <span className="text-sm text-gray-500">
           Total Patients:{" "}
-          <span className="font-semibold text-gray-800">{patients.length}</span>
+          <span className="font-semibold text-gray-800">
+            {patients?.length || 0}
+          </span>
         </span>
       </div>
 
@@ -106,7 +117,7 @@ const Patients = (filters: PatientFilters) => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {patients.map((patient: Patient) => (
+            {patients?.map((patient: Patient) => (
               <tr
                 key={patient.patient_id}
                 className="hover:bg-gray-50 transition-colors"
