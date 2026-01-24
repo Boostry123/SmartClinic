@@ -40,7 +40,7 @@ const Patients = (filters: PatientFilters) => {
           p.date_of_birth ? getAge(p.date_of_birth) : "N/A",
       },
       { header: "Gender", accessor: (p: Patient) => p.gender },
-      { header: "National ID", accessor: (p: Patient) => p.national_id },
+      { header: "National ID", accessor: (p: Patient) => p.national_id_number },
       { header: "Phone", accessor: (p: Patient) => p.phone_number },
       { header: "Email", accessor: (p: Patient) => p.users?.email || "-" },
       {
@@ -73,7 +73,7 @@ const Patients = (filters: PatientFilters) => {
         accessor: (p: Patient) => p.insurance_policy_number,
       },
     ],
-    [showIds]
+    [showIds],
   );
 
   if (isLoading)

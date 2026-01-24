@@ -4,7 +4,7 @@ import { getPatients, type Patient } from "../api/getPatients";
 export interface PatientFilters {
   patient_id?: string;
   user_id?: string;
-  national_id?: string;
+  national_id_number?: string;
   first_name?: string;
   last_name?: string;
   phone_number?: string;

@@ -1,46 +1,139 @@
 {
-	"info": {
-		"_postman_id": "20b1b5c6-e8e8-4578-8b7d-60cffa6bb901",
-		"name": "SmartClinic",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "43833420"
-	},
-	"item": [
-		{
-			"name": "Users",
-			"item": [
-				{
-					"name": "get users by role",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer eyJhbGciOiJIUzI1NiIsImtpZCI6ImNaVnczL0t4QkR1YVdJdHgiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3Vja2Z2dmxmbXB5eHZud2h4eGJiLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiIyMjU2M2Q0OS0xZTNjLTRkMjQtYTJlNC02ZTBkM2I5MzkxZGUiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzY2MDE2ODc4LCJpYXQiOjE3NjYwMTMyNzgsImVtYWlsIjoidGVzdDJAcGF0aWVudC5jb20iLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsX3ZlcmlmaWVkIjp0cnVlfSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc2NjAxMzI3OH1dLCJzZXNzaW9uX2lkIjoiOTE0MTM4NWEtMDM3ZS00ZGJlLTg0ZGItM2ZjZWVlZGFmNjhiIiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.bWae4w9RXiVL7TLtjyVlT-FCr0aAX8xN1CqvoSIlzlo",
-								"type": "text"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{baseURL}}users?role=patient",
-							"host": [
-								"{{baseURL}}users"
-							],
-							"query": [
-								{
-									"key": "role",
-									"value": "patient"
-								}
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		}
-	]
+  "info": {
+    "_postman_id": "20b1b5c6-e8e8-4578-8b7d-60cffa6bb901",
+    "name": "SmartClinic",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "43833420"
+  },
+  "item": [
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "get users by role",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsImtpZCI6ImNaVnczL0t4QkR1YVdJdHgiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3Vja2Z2dmxmbXB5eHZud2h4eGJiLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiIyMjU2M2Q0OS0xZTNjLTRkMjQtYTJlNC02ZTBkM2I5MzkxZGUiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzY2MDE2ODc4LCJpYXQiOjE3NjYwMTMyNzgsImVtYWlsIjoidGVzdDJAcGF0aWVudC5jb20iLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsX3ZlcmlmaWVkIjp0cnVlfSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc2NjAxMzI3OH1dLCJzZXNzaW9uX2lkIjoiOTE0MTM4NWEtMDM3ZS00ZGJlLTg0ZGItM2ZjZWVlZGFmNjhiIiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.bWae4w9RXiVL7TLtjyVlT-FCr0aAX8xN1CqvoSIlzlo",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}users?role=patient",
+              "host": [
+                "{{baseURL}}users"
+              ],
+              "query": [
+                {
+                  "key": "role",
+                  "value": "patient"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "create new user",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsImtpZCI6ImNaVnczL0t4QkR1YVdJdHgiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3Vja2Z2dmxmbXB5eHZud2h4eGJiLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiI0ZTkyY2YyNS1jOWM1LTRhMGEtYmNiZS0xNjk1ZmQ3MjZhYTciLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzY5Mjg0MzIzLCJpYXQiOjE3NjkyODA3MjMsImVtYWlsIjoidGVzdEBkb2N0b3IuY29tIiwicGhvbmUiOiIiLCJhcHBfbWV0YWRhdGEiOnsicHJvdmlkZXIiOiJlbWFpbCIsInByb3ZpZGVycyI6WyJlbWFpbCJdfSwidXNlcl9tZXRhZGF0YSI6eyJlbWFpbF92ZXJpZmllZCI6dHJ1ZX0sInJvbGUiOiJhdXRoZW50aWNhdGVkIiwiYWFsIjoiYWFsMSIsImFtciI6W3sibWV0aG9kIjoicGFzc3dvcmQiLCJ0aW1lc3RhbXAiOjE3NjkyODA3MjN9XSwic2Vzc2lvbl9pZCI6ImY4OGJkMDA1LTRhZmYtNDRmOC05NTEwLTliNDdlZTUwYzM4ZSIsImlzX2Fub255bW91cyI6ZmFsc2V9.3X_5-ETXoGAu4LQm7Ab2JAedxCNUWk-nei7KKrP1GIc",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"John@patient.com\",\r\n  \"password\": \"123456\",\r\n  \"role\": \"patient\",\r\n  \"name\": \"John\",\r\n  \"last_name\": \"Doe\",\r\n  \"national_id_number\": \"987654321\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}users/create",
+              "host": [
+                "{{baseURL}}users"
+              ],
+              "path": [
+                "create"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Patients",
+      "item": [
+        {
+          "name": "get pateints",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsImtpZCI6ImNaVnczL0t4QkR1YVdJdHgiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3Vja2Z2dmxmbXB5eHZud2h4eGJiLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiI0ZTkyY2YyNS1jOWM1LTRhMGEtYmNiZS0xNjk1ZmQ3MjZhYTciLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzY3MzAwNDkyLCJpYXQiOjE3NjcyOTY4OTIsImVtYWlsIjoidGVzdEBkb2N0b3IuY29tIiwicGhvbmUiOiIiLCJhcHBfbWV0YWRhdGEiOnsicHJvdmlkZXIiOiJlbWFpbCIsInByb3ZpZGVycyI6WyJlbWFpbCJdfSwidXNlcl9tZXRhZGF0YSI6eyJlbWFpbF92ZXJpZmllZCI6dHJ1ZX0sInJvbGUiOiJhdXRoZW50aWNhdGVkIiwiYWFsIjoiYWFsMSIsImFtciI6W3sibWV0aG9kIjoicGFzc3dvcmQiLCJ0aW1lc3RhbXAiOjE3NjcyOTY4OTJ9XSwic2Vzc2lvbl9pZCI6IjM2MmY1ZjU5LTQ5OWYtNDU4Mi04MWY4LTliZTBkODNmOWRmZiIsImlzX2Fub255bW91cyI6ZmFsc2V9.IXBzHDU3TNarAtLlO0bt84YvJ2g6Tn9ZuQqWxzsWjd8",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}patients?patient_id=92bb5cc4-aaf8-4e70-9710-0c65e4e938df&user_id=\"user_id\"&national_id=\"national_id\"&first_name=\"first_name\"&last_name=\"last_name\"&phone_number=\"phone_number\"",
+              "host": [
+                "{{baseURL}}patients"
+              ],
+              "query": [
+                {
+                  "key": "patient_id",
+                  "value": "92bb5cc4-aaf8-4e70-9710-0c65e4e938df"
+                },
+                {
+                  "key": "user_id",
+                  "value": "\"user_id\""
+                },
+                {
+                  "key": "national_id",
+                  "value": "\"national_id\""
+                },
+                {
+                  "key": "first_name",
+                  "value": "\"first_name\""
+                },
+                {
+                  "key": "last_name",
+                  "value": "\"last_name\""
+                },
+                {
+                  "key": "phone_number",
+                  "value": "\"phone_number\""
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
 }

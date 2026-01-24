@@ -5,7 +5,7 @@ export interface Patient {
   last_name: string;
   date_of_birth: string;
   gender: string;
-  national_id: string;
+  national_id_number: string;
   phone_number: string;
   users?: { email?: string };
   address: string;
@@ -18,7 +18,7 @@ export interface Patient {
 export interface patientFilterTypes {
   patient_id?: string;
   user_id?: string;
-  national_id?: string;
+  national_id_number?: string;
   first_name?: string;
   last_name?: string;
   phone_number?: string;

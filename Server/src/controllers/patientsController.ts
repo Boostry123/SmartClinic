@@ -6,7 +6,7 @@ import type { patientFilterTypes } from "../types/enums/patientTypes.js";
 
 export const getPatients = async (
   token: string,
-  filter: patientFilterTypes
+  filter: patientFilterTypes,
 ) => {
   const { getPatientsService } = PatientsService;
 
