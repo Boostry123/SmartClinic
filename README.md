@@ -8,6 +8,7 @@
 * **Framework:** React (via Vite)
 * **Styling:** Tailwind CSS
 * **State Management:** Zustand
+* **Caching:** React Query
 
 ### Backend
 * **Runtime:** Node.js
