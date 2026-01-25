@@ -101,6 +101,14 @@ UserRoutes.post("/create", authMiddleware, async (req: AuthRequest, res) => {
         .status(403)
         .json({ error: "Access Denied: Insufficient permissions." });
     }
+    if (role === "admin" && callerProfile.role !== "admin") {
+      return res
+        .status(403)
+        .json({
+          error:
+            "Access Denied: Insufficient permissions. Only Admin can make a new Admin user instance",
+        });
+    }
 
     // ==========================================
     // 3. EXECUTION (The "Action")
