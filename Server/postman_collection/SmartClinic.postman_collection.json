@@ -1,0 +1,330 @@
+{
+  "info": {
+    "_postman_id": "20b1b5c6-e8e8-4578-8b7d-60cffa6bb901",
+    "name": "SmartClinic",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "43833420"
+  },
+  "item": [
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "get users by role",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}users?role=patient",
+              "host": [
+                "{{baseURL}}users"
+              ],
+              "query": [
+                {
+                  "key": "role",
+                  "value": "patient"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "create new user",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"Mark@doctor.com\",\r\n  \"password\": \"123456\",\r\n  \"role\": \"doctor\",\r\n  \"name\": \"Mark\",\r\n  \"last_name\": \"Doe\",\r\n  \"national_id_number\": \"555555555\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}users/create",
+              "host": [
+                "{{baseURL}}users"
+              ],
+              "path": [
+                "create"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Patients",
+      "item": [
+        {
+          "name": "get pateints",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}patients",
+              "host": [
+                "{{baseURL}}patients"
+              ],
+              "query": [
+                {
+                  "key": "patient_id",
+                  "value": "92bb5cc4-aaf8-4e70-9710-0c65e4e938df",
+                  "disabled": true
+                },
+                {
+                  "key": "user_id",
+                  "value": "\"user_id\"",
+                  "disabled": true
+                },
+                {
+                  "key": "national_id",
+                  "value": "\"national_id\"",
+                  "disabled": true
+                },
+                {
+                  "key": "first_name",
+                  "value": "\"first_name\"",
+                  "disabled": true
+                },
+                {
+                  "key": "last_name",
+                  "value": "\"last_name\"",
+                  "disabled": true
+                },
+                {
+                  "key": "phone_number",
+                  "value": "\"phone_number\"",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Treatments",
+      "item": [
+        {
+          "name": "Create new treatment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"treatment_name\": \"treatment_name\",\r\n  \"estimated_time\": \"Int , minutes\",\r\n  \"template\": {\r\n    \"field_1\": \"string\",\r\n    \"field_2\": [\r\n      \"string\",\"string\"\r\n    ],\r\n    \"field_3\": \"string\",\r\n    \"notes\": \"string\"\r\n  }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}treatments",
+              "host": [
+                "{{baseURL}}treatments"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Appointments",
+      "item": [
+        {
+          "name": "Create new appointment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"patient_id\":\"8d81417a-b67e-4699-a5c4-67a77d439d1b\",\r\n    \"doctor_id\": \"744fc208-d7af-4fa9-ba62-335f85bbba7b\",\r\n    \"treatment_id\": \"e3b7ba47-da9f-4108-b2dd-fb04c62141e3\",\r\n    \"treatment_data\":{\"notes\": \"\", \"version\": \"2.0\", \"equipment\": \"\", \"exercises\": \"\"}, \r\n    \"start_time\": \"2026-02-12T10:00:00Z\"\r\n    // \"end_time\": ,\r\n    // \"status\": ,\r\n    // \"notes\": ,\r\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}appointments",
+              "host": [
+                "{{baseURL}}appointments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get appointments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}appointments",
+              "host": [
+                "{{baseURL}}appointments"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "appointment_id",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "{| \"scheduled\"| \"confirmed\"| \"checked_in\"| \"completed\"| \"cancelled\"}",
+                  "disabled": true
+                },
+                {
+                  "key": "patient_id",
+                  "value": "patient_id",
+                  "disabled": true
+                },
+                {
+                  "key": "start_time",
+                  "value": "2026-02-12",
+                  "disabled": true
+                },
+                {
+                  "key": "end_time",
+                  "value": "ISO",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update appointment",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"id\":\"504942b9-f1a3-430f-85b3-eea56349ef9a\",\r\n    // \"patient_id\":\"\",\r\n    // \"doctor_id\": \"\",\r\n    // \"treatment_id\": \"\",\r\n    // \"treatment_data\":{\"notes\": \"\", \"version\": \"2.0\", \"equipment\": \"\", \"exercises\": \"\"}, \r\n    // \"start_time\": \"2026-02-12T10:00:00Z\"\r\n    // \"end_time\": ,\r\n    \"status\": \"cancelled\"\r\n    // \"notes\": ,\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}appointments",
+              "host": [
+                "{{baseURL}}appointments"
+              ],
+              "query": [
+                {
+                  "key": "",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "token",
+      "value": "",
+      "type": "default"
+    }
+  ]
+}
