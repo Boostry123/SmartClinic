@@ -134,6 +134,172 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "Treatments",
+      "item": [
+        {
+          "name": "Create new treatment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsImtpZCI6ImNaVnczL0t4QkR1YVdJdHgiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3Vja2Z2dmxmbXB5eHZud2h4eGJiLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiJmNmNhNmMxMS0wZDViLTQzY2YtODYxYi1hZWUxMWU2MzFjMDUiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzcwNjY2ODM5LCJpYXQiOjE3NzA2NjMyMzksImVtYWlsIjoidGVzdEBkb2N0b3IuY29tIiwicGhvbmUiOiIiLCJhcHBfbWV0YWRhdGEiOnsicHJvdmlkZXIiOiJlbWFpbCIsInByb3ZpZGVycyI6WyJlbWFpbCJdfSwidXNlcl9tZXRhZGF0YSI6eyJlbWFpbF92ZXJpZmllZCI6dHJ1ZX0sInJvbGUiOiJhdXRoZW50aWNhdGVkIiwiYWFsIjoiYWFsMSIsImFtciI6W3sibWV0aG9kIjoicGFzc3dvcmQiLCJ0aW1lc3RhbXAiOjE3NzA2NjMyMzl9XSwic2Vzc2lvbl9pZCI6ImU5NDYwNTE4LTM1OTMtNGFlMS1iMzBkLTMxMzUyNTVhMDhhNCIsImlzX2Fub255bW91cyI6ZmFsc2V9.4A2cK3ActmE-t528oklL70J6J-6NR-qXYJtcgKQdpok",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"treatment_name\": \"treatment_name\",\r\n  \"estimated_time\": \"Int , minutes\",\r\n  \"template\": {\r\n    \"field_1\": \"string\",\r\n    \"field_2\": [\r\n      \"string\",\"string\"\r\n    ],\r\n    \"field_3\": \"string\",\r\n    \"notes\": \"string\"\r\n  }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}treatments",
+              "host": [
+                "{{baseURL}}treatments"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Appointments",
+      "item": [
+        {
+          "name": "Create new appointment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsImtpZCI6ImNaVnczL0t4QkR1YVdJdHgiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3Vja2Z2dmxmbXB5eHZud2h4eGJiLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiJmNmNhNmMxMS0wZDViLTQzY2YtODYxYi1hZWUxMWU2MzFjMDUiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzcwNzQ1MzA4LCJpYXQiOjE3NzA3NDE3MDgsImVtYWlsIjoidGVzdEBkb2N0b3IuY29tIiwicGhvbmUiOiIiLCJhcHBfbWV0YWRhdGEiOnsicHJvdmlkZXIiOiJlbWFpbCIsInByb3ZpZGVycyI6WyJlbWFpbCJdfSwidXNlcl9tZXRhZGF0YSI6eyJlbWFpbF92ZXJpZmllZCI6dHJ1ZX0sInJvbGUiOiJhdXRoZW50aWNhdGVkIiwiYWFsIjoiYWFsMSIsImFtciI6W3sibWV0aG9kIjoicGFzc3dvcmQiLCJ0aW1lc3RhbXAiOjE3NzA3NDE3MDh9XSwic2Vzc2lvbl9pZCI6IjgwYTc3OTJiLTRjYzUtNGZhYi05NDkwLWM1NDA2ZjI0M2FhZCIsImlzX2Fub255bW91cyI6ZmFsc2V9.eEf0xJZlAkVNtnXWGv8zLUa53n8bM6gMz76W79-VztY",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"patient_id\":\"8d81417a-b67e-4699-a5c4-67a77d439d1b\",\r\n    \"doctor_id\": \"744fc208-d7af-4fa9-ba62-335f85bbba7b\",\r\n    \"treatment_id\": \"e3b7ba47-da9f-4108-b2dd-fb04c62141e3\",\r\n    \"treatment_data\":{\"notes\": \"\", \"version\": \"2.0\", \"equipment\": \"\", \"exercises\": \"\"}, \r\n    \"start_time\": \"2026-02-12T10:00:00Z\"\r\n    // \"end_time\": ,\r\n    // \"status\": ,\r\n    // \"notes\": ,\r\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}appointments",
+              "host": [
+                "{{baseURL}}appointments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get appointments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsImtpZCI6ImNaVnczL0t4QkR1YVdJdHgiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3Vja2Z2dmxmbXB5eHZud2h4eGJiLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiJjNmM3ZWY3MC1hYmZhLTRmODQtYjliMy05MDFiMGUzYTMyNWEiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzcwNzQ3NTMwLCJpYXQiOjE3NzA3NDM5MzAsImVtYWlsIjoiZGF2aWRAcGF0aWVudC5jb20iLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJsYXN0X25hbWUiOiJEb2UiLCJuYW1lIjoiRGF2aWQiLCJuYXRpb25hbF9pZF9udW1iZXIiOiIxMTExMTExMTEiLCJyb2xlIjoicGF0aWVudCJ9LCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImFhbCI6ImFhbDEiLCJhbXIiOlt7Im1ldGhvZCI6InBhc3N3b3JkIiwidGltZXN0YW1wIjoxNzcwNzQzOTMwfV0sInNlc3Npb25faWQiOiI3ZDk0YjZlYy0wNTdmLTRmNmMtYTkzOC0wZGRhZTQ3ZWVhZTIiLCJpc19hbm9ueW1vdXMiOmZhbHNlfQ.uV1gP7Cw9ZvdNehduHc0SX6Z5zoEtP2HhYdoQeVOA7E",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}appointments",
+              "host": [
+                "{{baseURL}}appointments"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "appointment_id",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "{| \"scheduled\"| \"confirmed\"| \"checked_in\"| \"completed\"| \"cancelled\"}",
+                  "disabled": true
+                },
+                {
+                  "key": "patient_id",
+                  "value": "patient_id",
+                  "disabled": true
+                },
+                {
+                  "key": "start_time",
+                  "value": "2026-02-12",
+                  "disabled": true
+                },
+                {
+                  "key": "end_time",
+                  "value": "ISO",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update appointment",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiIsImtpZCI6ImNaVnczL0t4QkR1YVdJdHgiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3Vja2Z2dmxmbXB5eHZud2h4eGJiLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiIzZTBlMmJlZC05NjBiLTRiYmYtOTMzZi0wNmRhNzMzYTBjZTgiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzcwNzQ3MTExLCJpYXQiOjE3NzA3NDM1MTEsImVtYWlsIjoiam9obkBwYXRpZW50LmNvbSIsInBob25lIjoiIiwiYXBwX21ldGFkYXRhIjp7InByb3ZpZGVyIjoiZW1haWwiLCJwcm92aWRlcnMiOlsiZW1haWwiXX0sInVzZXJfbWV0YWRhdGEiOnsiZW1haWxfdmVyaWZpZWQiOnRydWUsImxhc3RfbmFtZSI6IkRvZSIsIm5hbWUiOiJKb2huIiwibmF0aW9uYWxfaWRfbnVtYmVyIjoiOTg3NjU0MzIxIiwicm9sZSI6InBhdGllbnQifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc3MDc0MzUxMX1dLCJzZXNzaW9uX2lkIjoiNzk1MzhkMTgtYWNmOC00MDUyLThhZjgtZmUyOWM0YjRmZGM3IiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.eR86_fGyh_-BuXimzsnq6jvUehgUllAEOGJfsouFClU",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"id\":\"504942b9-f1a3-430f-85b3-eea56349ef9a\",\r\n    // \"patient_id\":\"\",\r\n    // \"doctor_id\": \"\",\r\n    // \"treatment_id\": \"\",\r\n    // \"treatment_data\":{\"notes\": \"\", \"version\": \"2.0\", \"equipment\": \"\", \"exercises\": \"\"}, \r\n    // \"start_time\": \"2026-02-12T10:00:00Z\"\r\n    // \"end_time\": ,\r\n    \"status\": \"cancelled\"\r\n    // \"notes\": ,\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}appointments",
+              "host": [
+                "{{baseURL}}appointments"
+              ],
+              "query": [
+                {
+                  "key": "",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
     }
   ]
 }
