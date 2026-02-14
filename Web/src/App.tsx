@@ -7,6 +7,8 @@ import { useAuthStore } from "./store/authStore";
 import DashBoard from "./pages/DashBoard";
 import { LoginPage } from "./pages/LoginPage";
 import Patients from "./pages/Patients";
+import Treatments from "./pages/Treatments";
+import AppointmentsPage from "./pages/Appointments";
 // Components
 import NavBar from "./components/NavBar";
 import Footer from "./components/Footer";
@@ -54,7 +56,7 @@ function App() {
           {/* 4. Placeholder Routes (redirecting to Dashboard for now) */}
           <Route
             path="/appointments"
-            element={isAuthenticated ? <DashBoard /> : <Navigate to="/login" />}
+            element={isAuthenticated ? <AppointmentsPage /> : <Navigate to="/login" />}
           />
           <Route
             path="/patients"
@@ -62,7 +64,7 @@ function App() {
           />
           <Route
             path="/treatments"
-            element={isAuthenticated ? <DashBoard /> : <Navigate to="/login" />}
+            element={isAuthenticated ? <Treatments /> : <Navigate to="/login" />}
           />
         </Routes>
       </main>

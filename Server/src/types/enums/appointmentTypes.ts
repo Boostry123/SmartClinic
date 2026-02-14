@@ -16,6 +16,13 @@ export interface Appointment {
   status: AppointmentStatus;
   notes: string;
   created_at: string;
+  patients?: {
+    first_name: string;
+    last_name: string;
+  };
+  doctors?: {
+    specialization: string;
+  };
 }
 
 export type CreateAppointmentDTO = Pick<
