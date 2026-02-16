@@ -7,6 +7,13 @@ export interface Treatment {
   template: Record<string, any> | null;
 }
 
+export interface filterTreatment {
+  treatment_name?: string;
+  estimated_time?: number;
+  created_by?: string;
+  id?: string;
+}
+
 // Data required for creation (id, created_at, created_by are handled by DB)
 export type CreateTreatmentDTO = Pick<
   Treatment,

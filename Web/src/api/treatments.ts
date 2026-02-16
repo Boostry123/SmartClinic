@@ -1,6 +1,25 @@
 import apiClient from "./axiosClient";
-import type { Treatment, CreateTreatmentDTO } from "./types/treatments";
+//Types
+import type {
+  Treatment,
+  filterTreatment,
+  CreateTreatmentDTO,
+} from "./types/treatments";
 
+export const getTreatments = async (
+  filter?: filterTreatment
+): Promise<Treatment[]> => {
+  try {
+    const res = await apiClient.get<Treatment[]>(`treatments`, {
+      params: filter,
+    });
+    console.log("getTreatments success:", res.data.length, "items found");
+    return res.data;
+  } catch (err) {
+    console.error("getTreatments error:", err);
+    throw err;
+  }
+};
 export const createTreatment = async (
   treatmentData: CreateTreatmentDTO
 ): Promise<Treatment> => {

@@ -1,6 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { getAppointments } from "../api/appointments";
-import type { Appointment, AppointmentFilters } from "../api/types/appointments";
+//Types
+import type {
+  Appointment,
+  AppointmentFilters,
+} from "../api/types/appointments";
 
 const useAppointments = (filters: AppointmentFilters) => {
   return useQuery<Appointment[], Error>({

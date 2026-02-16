@@ -20,3 +20,20 @@ export const createTreatment = async (
     return { data: null, error: err?.message ?? "Unknown error" };
   }
 };
+
+export const getTreatments = async (
+  token: string,
+  filter: Record<string, any>
+) => {
+  try {
+    const supabase = getSupabaseClient(token);
+    const { data, error } = await TreatmentsService.getTreatmentsService(
+      supabase,
+      filter
+    );
+    return { data, error };
+  } catch (err: any) {
+    console.error(`Getting treatments failed: ${err?.message ?? err}`);
+    return { data: null, error: err?.message ?? "Unknown error" };
+  }
+};

@@ -1,8 +1,15 @@
 import { Router } from "express";
 import { authMiddleware } from "../middleware/auth.js";
-import { createTreatment } from "../controllers/treatmentsController.js";
+import {
+  createTreatment,
+  getTreatments,
+} from "../controllers/treatmentsController.js";
+//Types
 import type { AuthRequest } from "../middleware/auth.js";
-import type { CreateTreatmentDTO } from "../types/enums/treatmentTypes.js";
+import type {
+  CreateTreatmentDTO,
+  filterTreatment,
+} from "../types/enums/treatmentTypes.js";
 
 const TreatmentRoutes = Router();
 
@@ -30,6 +37,27 @@ TreatmentRoutes.post("/", authMiddleware, async (req: AuthRequest, res) => {
 
     if (error) throw error;
     return res.status(201).json(data);
+  } catch (error: any) {
+    return res.status(500).json({ error: error || "Internal Server Error" });
+  }
+});
+
+TreatmentRoutes.get("/", authMiddleware, async (req: AuthRequest, res) => {
+  const token = req.token;
+  const filter: filterTreatment = req.query;
+
+  if (!token) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  if (filter.id && filter.id.length == 0) {
+    return res.status(400).json({ error: "ID cannot be empty string" });
+  }
+
+  try {
+    const { data, error } = await getTreatments(token, filter);
+
+    if (error) throw error;
+    return res.status(200).json(data);
   } catch (error: any) {
     return res.status(500).json({ error: error || "Internal Server Error" });
   }
