@@ -1,13 +1,37 @@
 import { useState, useMemo } from "react";
-import { Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff } from "lucide-react";
+//Engines
+import AppointmentEngine from "./AppointmentEngine";
 // Hooks
 import useAppointments from "../hooks/useAppointments";
+import useTreatments from "../hooks/useTreatments";
 //Types
-import type { Appointment, AppointmentFilters } from "../api/types/appointments";
+import type {
+  Appointment,
+  AppointmentFilters,
+} from "../api/types/appointments";
 
 const Appointments = (filters: AppointmentFilters) => {
-  const { data: appointments, isLoading, isError, error } = useAppointments(filters);
+  const {
+    data: appointments,
+    isLoading,
+    isError,
+    error,
+  } = useAppointments(filters);
   const [showIds, setShowIds] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] =
+    useState<Appointment | null>(null);
+
+  const { data: treatments } = useTreatments(
+    { id: selectedAppointment?.treatment_id || "" },
+    !!selectedAppointment
+  );
+
+  const handleRowClick = (appointment: Appointment) => {
+    setSelectedAppointment(appointment);
+  };
+
+  const treatmentTemplate = treatments?.[0] || null;
 
   const columns = useMemo(
     () => [
@@ -28,28 +52,52 @@ const Appointments = (filters: AppointmentFilters) => {
         accessor: (a: Appointment) => (showIds ? a.id : "••••"),
         className: "font-medium font-mono text-gray-600",
       },
-      { header: "Patient", accessor: (a: Appointment) => a.patients ? `${a.patients.first_name} ${a.patients.last_name}`: a.patient_id },
-      { header: "Doctor", accessor: (a: Appointment) => a.doctors ? `Dr. ID: ${a.doctor_id} (${a.doctors.specialization})` : a.doctor_id },
+      {
+        header: "Patient",
+        accessor: (a: Appointment) =>
+          a.patients
+            ? `${a.patients.first_name} ${a.patients.last_name}`
+            : a.patient_id,
+      },
+      {
+        header: "Doctor",
+        accessor: (a: Appointment) =>
+          a.doctors
+            ? `Dr. ID: ${a.doctor_id} (${a.doctors.specialization})`
+            : a.doctor_id,
+      },
       {
         header: "Start Time",
         accessor: (a: Appointment) => new Date(a.start_time).toLocaleString(),
       },
       {
         header: "End Time",
-        accessor: (a: Appointment) => a.end_time ? new Date(a.end_time).toLocaleString() : "N/A",
+        accessor: (a: Appointment) =>
+          a.end_time ? new Date(a.end_time).toLocaleString() : "N/A",
       },
-      { header: "Status", accessor: (a: Appointment) => (
-        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-          a.status === 'completed' ? 'bg-green-100 text-green-800' :
-          a.status === 'scheduled' ? 'bg-blue-100 text-blue-800' :
-          'bg-red-100 text-red-800'
-        }`}>
-          {a.status}
-        </span>
-      ) },
-      { header: "Notes", accessor: (a: Appointment) => a.notes || "-", className: "max-w-xs truncate" },
+      {
+        header: "Status",
+        accessor: (a: Appointment) => (
+          <span
+            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+              a.status === "completed"
+                ? "bg-green-100 text-green-800"
+                : a.status === "scheduled"
+                  ? "bg-blue-100 text-blue-800"
+                  : "bg-red-100 text-red-800"
+            }`}
+          >
+            {a.status}
+          </span>
+        ),
+      },
+      {
+        header: "Notes",
+        accessor: (a: Appointment) => a.notes || "-",
+        className: "max-w-xs truncate",
+      },
     ],
-    [showIds],
+    [showIds]
   );
 
   if (isLoading)
@@ -61,7 +109,25 @@ const Appointments = (filters: AppointmentFilters) => {
         {error?.message || "Failed to load appointments"}
       </div>
     );
-
+  if (selectedAppointment && treatmentTemplate) {
+    return (
+      <div className="container mx-auto p-4 animate-fade-in">
+        <button
+          onClick={() => setSelectedAppointment(null)}
+          className="flex items-center gap-2 mb-6 text-sm font-medium text-indigo-600 hover:text-indigo-800 transition-colors"
+        >
+          <ArrowLeft size={16} />
+          Back to Appointments
+        </button>
+        <AppointmentEngine
+          appointmentId={selectedAppointment.id}
+          template={treatmentTemplate}
+          initialData={selectedAppointment.treatment_data}
+          onSuccess={() => setSelectedAppointment(null)}
+        />
+      </div>
+    );
+  }
   return (
     <div className="p-6 bg-white rounded-lg shadow-md">
       <div className="flex justify-between items-center mb-4">
@@ -93,7 +159,8 @@ const Appointments = (filters: AppointmentFilters) => {
             {appointments?.map((appointment: Appointment) => (
               <tr
                 key={appointment.id}
-                className="hover:bg-gray-50 transition-colors"
+                className="hover:bg-gray-50 transition-colors cursor-pointer"
+                onClick={() => handleRowClick(appointment)}
               >
                 {columns.map((col, index) => (
                   <td
