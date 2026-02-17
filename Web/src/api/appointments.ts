@@ -13,7 +13,11 @@ export const createAppointment = async (
   const { user } = useAuthStore.getState();
   const allowedRoles = ["admin", "doctor", "secretary"];
 
-  if (!user || !user.role || !allowedRoles.includes(user.role)) {
+  if (
+    !user ||
+    !user.user_metadata.role ||
+    !allowedRoles.includes(user.user_metadata.role)
+  ) {
     throw new Error(
       "Unauthorized: You do not have permission to create appointments."
     );
@@ -29,6 +33,18 @@ export const createAppointment = async (
 export const updateAppointment = async (
   appointmentData: UpdateAppointmentDTO
 ): Promise<Appointment> => {
+  const { user } = useAuthStore.getState();
+  const allowedRoles = ["admin", "doctor"];
+
+  if (
+    !user ||
+    !user.user_metadata.role ||
+    !allowedRoles.includes(user.user_metadata.role)
+  ) {
+    throw new Error(
+      "Unauthorized: You do not have permission to update appointments."
+    );
+  }
   const response = await apiClient.patch<Appointment>(
     "/appointments",
     appointmentData
