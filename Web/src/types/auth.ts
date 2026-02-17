@@ -1,16 +1,17 @@
-// src/types/auth.ts
+export type ClinicRole = "admin" | "doctor" | "patient" | "secretary";
 
-// What the User looks like (from your DB)
-export interface User {
+export interface UserProfile {
   id: string;
   email: string;
-  name: string;
-  last_name: string;
-  role: "admin" | "doctor" | "patient" | "secretary";
+  user_metadata: {
+    name: string;
+    last_name: string;
+    role: ClinicRole;
+    national_id_number: string;
+  };
 }
 
-// What the Node.js Login endpoint returns
 export interface AuthResponse {
-  accessToken: string; // The Supabase JWT
-  user: User;
+  accessToken: string;
+  user: UserProfile;
 }

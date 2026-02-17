@@ -1,15 +1,15 @@
 import { create } from "zustand";
-import type { User } from "../types/auth";
+import type { UserProfile } from "../types/auth";
 
 interface AuthState {
   accessToken: string | null;
-  user: User | null;
+  user: UserProfile | null;
 
   // Derived state
   isAuthenticated: boolean;
 
   // Actions
-  setAuth: (accessToken: string, user: User) => void;
+  setAuth: (accessToken: string, user: UserProfile) => void;
   clearAuth: () => void;
 }
 
