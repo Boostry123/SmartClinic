@@ -22,6 +22,11 @@ export interface Appointment {
   };
   doctors?: {
     specialization: string;
+    users: {
+      name: string;
+      last_name: string;
+      email: string;
+    };
   };
 }
 

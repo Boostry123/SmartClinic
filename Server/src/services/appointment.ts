@@ -14,7 +14,14 @@ export const AppointmentsService = {
     let query = client.from("appointments").select(`
         *,
         patients ( first_name, last_name ),
-        doctors ( specialization )
+        doctors ( 
+            specialization,
+            users (
+                name,
+                last_name,
+                email
+            )
+        )
       `);
     if (filters?.id) {
       query = query.eq("id", filters.id);
