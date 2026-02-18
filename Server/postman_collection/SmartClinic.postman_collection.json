@@ -70,7 +70,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"email\": \"Mark@doctor.com\",\r\n  \"password\": \"123456\",\r\n  \"role\": \"doctor\",\r\n  \"name\": \"Mark\",\r\n  \"last_name\": \"Doe\",\r\n  \"national_id_number\": \"555555555\"\r\n}",
+              "raw": "{\r\n  \"email\": \"test@secretary.com\",\r\n  \"password\": \"123456\",\r\n  \"role\": \"secretary\",\r\n  \"name\": \"test\",\r\n  \"last_name\": \"tester\",\r\n  \"national_id_number\": \"777777777\"\r\n//   \"doctor_id\":\"20545259-57a5-4c60-ab93-373f8b2c38d4\" //only needed for creating a role of SECRETARY AND if Role admin\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -185,6 +185,53 @@
               "raw": "{{baseURL}}treatments",
               "host": [
                 "{{baseURL}}treatments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Treatments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "treatments?id=\"treatment ID\"&created_by=\" user ID \"&treatment_name=\"treatment_name\"&estimated_time=\"number in minutes\"",
+              "host": [
+                "treatments"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "\"treatment ID\"",
+                  "type": "text"
+                },
+                {
+                  "key": "created_by",
+                  "value": "\" user ID \"",
+                  "type": "text"
+                },
+                {
+                  "key": "treatment_name",
+                  "value": "\"treatment_name\"",
+                  "type": "text"
+                },
+                {
+                  "key": "estimated_time",
+                  "value": "\"number in minutes\"",
+                  "type": "text"
+                }
               ]
             }
           },
@@ -311,6 +358,68 @@
                   "key": "",
                   "value": "",
                   "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Secretary",
+      "item": [
+        {
+          "name": "get Secretaries",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}secretaries?secretary_id=ab93a376-6fe1-4042-817a-75ea7e2ef38c&user_id&doctor_id&national_id_number&phone_number&status=( Active | Inactive )",
+              "host": [
+                "{{baseURL}}secretaries"
+              ],
+              "query": [
+                {
+                  "key": "secretary_id",
+                  "value": "ab93a376-6fe1-4042-817a-75ea7e2ef38c",
+                  "type": "text"
+                },
+                {
+                  "key": "user_id",
+                  "value": null,
+                  "type": "text"
+                },
+                {
+                  "key": "doctor_id",
+                  "value": null,
+                  "type": "text"
+                },
+                {
+                  "key": "national_id_number",
+                  "value": null,
+                  "type": "text"
+                },
+                {
+                  "key": "phone_number",
+                  "value": null,
+                  "type": "text"
+                },
+                {
+                  "key": "status",
+                  "value": "( Active | Inactive )",
+                  "type": "text"
                 }
               ]
             }
