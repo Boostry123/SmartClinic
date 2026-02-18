@@ -1,5 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import useTreatmentEngine from "../hooks/useTreatmentEngine";
+//Stores
+import { useAuthStore } from "../store/authStore";
 //API
 import { updateAppointment } from "../api/appointments";
 //Types
@@ -19,6 +21,8 @@ const AppointmentEngine = ({
   onSuccess,
 }: AppointmentEngineProps) => {
   const queryClient = useQueryClient();
+  const userRole = useAuthStore.getState().user?.user_metadata.role;
+  const userIsDoctorOrAdmin = userRole === "doctor" || userRole === "admin";
   const { values, handleInputChange } = useTreatmentEngine(
     template,
     initialData
@@ -152,20 +156,24 @@ const AppointmentEngine = ({
           ))}
         </div>
         <div className="mt-10 pt-8 border-t border-gray-200 flex items-center gap-4">
-          <button
-            type="button"
-            onClick={handleEditButton}
-            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
-            Update
-          </button>
-          <button
-            type="button"
-            onClick={handleDoneButton}
-            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
-            Done
-          </button>
+          {userIsDoctorOrAdmin ? (
+            <button
+              type="button"
+              onClick={handleEditButton}
+              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              Update
+            </button>
+          ) : null}
+          {userIsDoctorOrAdmin ? (
+            <button
+              type="button"
+              onClick={handleDoneButton}
+              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              Done
+            </button>
+          ) : null}
         </div>
       </form>
     </div>
