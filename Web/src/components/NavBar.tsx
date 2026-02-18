@@ -13,11 +13,13 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
+import { useQueryClient } from "@tanstack/react-query";
 
 const NavBar = () => {
   const [active, setActive] = useState("Home");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const navItems = [
     { name: "Home", icon: <Home size={18} />, path: "/" },
@@ -32,6 +34,7 @@ const NavBar = () => {
   const handleLogout = () => {
     console.log("invoking logout");
     useAuthStore.getState().clearAuth();
+    queryClient.clear();
   };
 
   return (

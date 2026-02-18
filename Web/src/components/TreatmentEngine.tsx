@@ -1,6 +1,8 @@
 import React from "react";
 //Engines
 import useTreatmentEngine from "../hooks/useTreatmentEngine";
+//Stores
+import { useAuthStore } from "../store/authStore";
 //Types
 import type { Treatment, Field } from "../api/types/treatments";
 
@@ -10,6 +12,8 @@ interface TreatmentEngineProps {
 
 const TreatmentEngine = ({ template }: TreatmentEngineProps) => {
   const { values, handleInputChange } = useTreatmentEngine(template);
+  const userRole = useAuthStore.getState().user?.user_metadata.role;
+  const userIsDoctorOrAdmin = userRole === "doctor" || userRole === "admin";
 
   const renderInput = (field: Field) => {
     const commonProps = {
@@ -118,18 +122,22 @@ const TreatmentEngine = ({ template }: TreatmentEngineProps) => {
           ))}
         </div>
         <div className="mt-10 pt-8 border-t border-gray-200 flex items-center gap-4">
-          <button
-            type="submit"
-            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
-            Edit
-          </button>
-          <button
-            type="button"
-            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-          >
-            Delete
-          </button>
+          {userIsDoctorOrAdmin ? (
+            <button
+              type="submit"
+              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              Edit
+            </button>
+          ) : null}
+          {userIsDoctorOrAdmin ? (
+            <button
+              type="button"
+              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+            >
+              Delete
+            </button>
+          ) : null}
         </div>
       </form>
     </div>

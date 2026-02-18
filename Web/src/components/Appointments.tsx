@@ -63,7 +63,7 @@ const Appointments = (filters: AppointmentFilters) => {
         header: "Doctor",
         accessor: (a: Appointment) =>
           a.doctors
-            ? `Dr. ID: ${a.doctor_id} (${a.doctors.specialization})`
+            ? `Dr. ${a.doctors.users.name} ${a.doctors.users.last_name}`
             : a.doctor_id,
       },
       {

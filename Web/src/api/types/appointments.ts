@@ -10,7 +10,7 @@ export interface Appointment {
   patient_id: string;
   doctor_id: string;
   treatment_id: string;
-  treatment_data: Record<string, string | number | boolean>;
+  treatment_data: Record<string, "string | number | boolean">;
   start_time: string; // ISO string
   end_time: string; // ISO string
   status: AppointmentStatus;
@@ -22,6 +22,11 @@ export interface Appointment {
   };
   doctors?: {
     specialization: string;
+    users: {
+      name: string;
+      last_name: string;
+      email: string;
+    };
   };
 }
 
@@ -33,7 +38,7 @@ export interface CreateAppointmentDTO {
   status?: AppointmentStatus;
   notes?: string;
   treatment_id: string;
-  treatment_data: Record<string, unknown>;
+  treatment_data: Record<string, string | number | boolean>;
 }
 
 export interface UpdateAppointmentDTO {
