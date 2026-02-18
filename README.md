@@ -23,11 +23,14 @@
 * **Dashboard:** Real-time overview of clinic metrics and schedules.
 * **Patient Management:** Create, read, update, and delete patient records.
 * **Patient Overview:** Dedicated portal for patients to view their medical history and related information.
+* **Treatments:** Reading custom made treatments from JSON file.
+* **Appointments:** Creating and updating appointments , connected to a chosen custom treatment.
 * **Secure Authentication:** Role-based access control (RBAC) for admins and staff + JWT token from SupaBase.
 
 ### 🚧 Roadmap (Upcoming Features)
 * [ ] **Appointment Management:** Custom appointment handling for doctors.
 * [ ] **Scheduling Management:** Personal schedule management for medical staff.
+* [ ] **Custom Treatment builder:** Doctors will be able to create a custom treatment structure and it will be saved as a json on the DB.
 
 ---
 
@@ -74,6 +77,7 @@ BASE_FRONTEND_URL=http://localhost:5173
 # Supabase Configuration
 SUPABASE_URL={your_supabase_project_url}
 SUPABASE_ANON_KEY={your_supabase_anon_key}
+SUPABASE_SECRET_KEY={your_supabase_SECRET_key}
 ```
 Client Configuration (client/.env)
 ```
