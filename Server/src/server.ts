@@ -7,6 +7,7 @@ import AuthRoutes from "./routes/authRoutes.js";
 import PatientRoutes from "./routes/patientRoutes.js";
 import TreatmentRoutes from "./routes/treatmentRoute.js";
 import AppointmentRoutes from "./routes/appointmentRoutes.js";
+import SecretaryRoutes from "./routes/secretaryRoute.js";
 
 // Load environment variables from .env file
 dotenv.config();
@@ -36,6 +37,8 @@ app.get("/", (req, res) => {
 app.use("/users", UserRoutes);
 //the patients route
 app.use("/patients", PatientRoutes);
+//the secretary route
+app.use("/secretaries", SecretaryRoutes);
 //the treatments route
 app.use("/treatments", TreatmentRoutes);
 //the appointments route

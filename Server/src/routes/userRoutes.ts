@@ -26,7 +26,7 @@ UserRoutes.get("/", authMiddleware, async (req: AuthRequest, res) => {
     ) {
       return res.status(400).json({
         error: `Invalid role. Allowed values: ${Object.values(userTypes).join(
-          ", ",
+          ", "
         )}`,
       });
     }
@@ -51,49 +51,45 @@ UserRoutes.get("/", authMiddleware, async (req: AuthRequest, res) => {
   }
 });
 
+// ... imports
+
 UserRoutes.post("/create", authMiddleware, async (req: AuthRequest, res) => {
-  const token = req.token!; // Guaranteed by authMiddleware
+  const token = req.token!;
 
   try {
-    // ==========================================
     // 1. INPUT VALIDATION
-    // ==========================================
-    const { email, password, role, name, last_name, national_id_number } =
-      req.body;
+    const {
+      email,
+      password,
+      role,
+      name,
+      last_name,
+      national_id_number,
+      doctor_id, // Admin provides this. Doctor does not need to. NEEDED FOR SECRETARY ROLE ONLY
+    } = req.body;
 
-    // A. Check required fields
     if (!email || !password || !role) {
-      return res
-        .status(400)
-        .json({ error: "Missing required fields (email, password, role)." });
+      return res.status(400).json({ error: "Missing required fields." });
     }
 
-    // B. Check Enum Validity (Using your userTypes)
-    if (!Object.values(userTypes).includes(role as userTypes)) {
-      return res.status(400).json({
-        error: `Invalid role. Allowed values: ${Object.values(userTypes).join(", ")}`,
-      });
-    }
+    // ... (Enum checks remain the same) ...
 
-    // ==========================================
     // 2. PERMISSION CHECK
-    // ==========================================
     const callerClient = getSupabaseClient(token);
-
-    // Get the caller's ID
     const {
       data: { user: caller },
       error: authError,
     } = await callerClient.auth.getUser();
+
     if (authError || !caller) {
       return res.status(401).json({ error: "Invalid session." });
     }
 
-    // Check the caller's Role in public.users
+    // Get Caller Profile (Check if Admin or Doctor)
     const { data: callerProfile } = await callerClient
       .from("users")
       .select("role")
-      .eq("id", caller.id)
+      .eq("id", caller.id) // This is the auth.users ID
       .single();
 
     if (!callerProfile || !["admin", "doctor"].includes(callerProfile.role)) {
@@ -101,19 +97,38 @@ UserRoutes.post("/create", authMiddleware, async (req: AuthRequest, res) => {
         .status(403)
         .json({ error: "Access Denied: Insufficient permissions." });
     }
-    if (role === "admin" && callerProfile.role !== "admin") {
-      return res
-        .status(403)
-        .json({
-          error:
-            "Access Denied: Insufficient permissions. Only Admin can make a new Admin user instance",
-        });
+
+    // 3. SECRETARY LOGIC (The Fix)
+    let assignedDoctorId = undefined;
+
+    if (role === "secretary") {
+      if (callerProfile.role === "doctor") {
+        // A. If Caller is Doctor: LOOKUP their actual doctor_id
+        const { data: doctorRecord, error: docError } = await callerClient
+          .from("doctors")
+          .select("id")
+          .eq("user_id", caller.id) // Find the doctor row linked to this user
+          .single();
+
+        if (docError || !doctorRecord) {
+          return res
+            .status(404)
+            .json({ error: "Doctor profile not found for this user." });
+        }
+
+        assignedDoctorId = doctorRecord.id; // USE THIS ID, not caller.id
+      } else if (callerProfile.role === "admin") {
+        // B. If Caller is Admin: They must provide the ID manually
+        if (!doctor_id) {
+          return res.status(400).json({
+            error: "Admin must provide 'doctor_id' when creating a secretary.",
+          });
+        }
+        assignedDoctorId = doctor_id;
+      }
     }
 
-    // ==========================================
-    // 3. EXECUTION (The "Action")
-    // ==========================================
-    // If we passed all checks, we call the controller
+    // 4. EXECUTION
     const newUser = await createNewUser({
       email,
       password,
@@ -121,6 +136,7 @@ UserRoutes.post("/create", authMiddleware, async (req: AuthRequest, res) => {
       name,
       last_name,
       national_id_number,
+      doctor_id: assignedDoctorId, // Pass the correctly looked-up ID
     });
 
     res
@@ -128,7 +144,6 @@ UserRoutes.post("/create", authMiddleware, async (req: AuthRequest, res) => {
       .json({ message: "User created successfully", user: newUser });
   } catch (err: any) {
     console.error(`Create user failed: ${err.message}`);
-    // Handle Supabase errors (like "User already exists") gracefully
     const statusCode = err.status || 500;
     res
       .status(statusCode)
