@@ -1,16 +1,20 @@
 import { useState, useMemo } from "react";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, UserPlus } from "lucide-react";
 // Hooks
 import usePatients from "../hooks/usePatients";
 // Helpers
 import { getAge } from "../helpers/Dates";
 //Types
 import type { patientFilterTypes, Patient } from "../api/types/patients";
+// Components
+import CreatePatientModal from "./CreatePatientModal";
 
 const Patients = (filters: patientFilterTypes) => {
-  // TanStack Query returns 'isError' and a full 'error' object.
   const { data: patients, isLoading, isError, error } = usePatients(filters);
   const [showIds, setShowIds] = useState(false);
+
+  // כאן אנחנו מנהלים את המצב של החלונית (פתוחה או סגורה)
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const columns = useMemo(
     () => [
@@ -75,11 +79,9 @@ const Patients = (filters: patientFilterTypes) => {
     [showIds],
   );
 
-  // Loading state remains the same
   if (isLoading)
     return <div className="p-6 text-gray-500">Loading patients...</div>;
 
-  // Error state now uses isError boolean and error object message
   if (isError)
     return (
       <div className="p-6 text-red-500">
@@ -87,18 +89,27 @@ const Patients = (filters: patientFilterTypes) => {
       </div>
     );
 
-  // Note: Added optional chaining (patients?) just in case,
-  // though TanStack Query ensures data is present if isLoading/isError are false.
   return (
     <div className="p-6 bg-white rounded-lg shadow-md">
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-gray-800">Patients List</h2>
-        <span className="text-sm text-gray-500">
-          Total Patients:{" "}
-          <span className="font-semibold text-gray-800">
-            {patients?.length || 0}
+
+        {/* אזור הכפתור החדש */}
+        <div className="flex items-center gap-6">
+          <span className="text-sm text-gray-500">
+            Total Patients:{" "}
+            <span className="font-semibold text-gray-800">
+              {patients?.length || 0}
+            </span>
           </span>
-        </span>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#4361ee] rounded-md hover:bg-blue-700 transition-colors shadow-sm"
+          >
+            <UserPlus size={16} />
+            Create new patient
+          </button>
+        </div>
       </div>
 
       <div className="overflow-x-auto border border-gray-200 rounded-lg">
@@ -139,6 +150,12 @@ const Patients = (filters: patientFilterTypes) => {
           </tbody>
         </table>
       </div>
+
+      {/* קריאה לחלונית שיצרנו בשלב 1 */}
+      <CreatePatientModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 };
