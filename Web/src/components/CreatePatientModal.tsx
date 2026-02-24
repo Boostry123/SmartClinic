@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { X } from "lucide-react";
+import { createUser } from "../api/users";
 
 interface CreatePatientModalProps {
   isOpen: boolean;
@@ -9,10 +10,11 @@ interface CreatePatientModalProps {
 const CreatePatientModal = ({ isOpen, onClose }: CreatePatientModalProps) => {
   const [formData, setFormData] = useState({
     email: "",
-    firstName: "",
-    lastName: "",
-    nationalId: "",
+    name: "",
+    last_name: "",
+    national_id_number: "",
     password: "",
+    role: "patient",
   });
 
   if (!isOpen) return null;
@@ -22,19 +24,25 @@ const CreatePatientModal = ({ isOpen, onClose }: CreatePatientModalProps) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    console.log("New Patient Data:", formData);
+    try {
+      await createUser(formData as any);
 
-    setFormData({
-      email: "",
-      firstName: "",
-      lastName: "",
-      nationalId: "",
-      password: "",
-    });
-    onClose();
+      setFormData({
+        email: "",
+        name: "",
+        last_name: "",
+        national_id_number: "",
+        password: "",
+        role: "patient",
+      });
+      onClose();
+    } catch (error) {
+      console.error("Failed to create patient:", error);
+      alert("Failed to create patient. Please try again.");
+    }
   };
 
   return (
@@ -74,8 +82,8 @@ const CreatePatientModal = ({ isOpen, onClose }: CreatePatientModalProps) => {
               </label>
               <input
                 type="text"
-                name="firstName"
-                value={formData.firstName}
+                name="name"
+                value={formData.name}
                 onChange={handleChange}
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -87,8 +95,8 @@ const CreatePatientModal = ({ isOpen, onClose }: CreatePatientModalProps) => {
               </label>
               <input
                 type="text"
-                name="lastName"
-                value={formData.lastName}
+                name="last_name"
+                value={formData.last_name}
                 onChange={handleChange}
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -102,8 +110,8 @@ const CreatePatientModal = ({ isOpen, onClose }: CreatePatientModalProps) => {
             </label>
             <input
               type="text"
-              name="nationalId"
-              value={formData.nationalId}
+              name="national_id_number"
+              value={formData.national_id_number}
               onChange={handleChange}
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
