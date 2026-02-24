@@ -13,7 +13,6 @@ const Patients = (filters: patientFilterTypes) => {
   const { data: patients, isLoading, isError, error } = usePatients(filters);
   const [showIds, setShowIds] = useState(false);
 
-  // כאן אנחנו מנהלים את המצב של החלונית (פתוחה או סגורה)
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const columns = useMemo(
@@ -94,7 +93,6 @@ const Patients = (filters: patientFilterTypes) => {
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-gray-800">Patients List</h2>
 
-        {/* אזור הכפתור החדש */}
         <div className="flex items-center gap-6">
           <span className="text-sm text-gray-500">
             Total Patients:{" "}
@@ -151,7 +149,6 @@ const Patients = (filters: patientFilterTypes) => {
         </table>
       </div>
 
-      {/* קריאה לחלונית שיצרנו בשלב 1 */}
       <CreatePatientModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

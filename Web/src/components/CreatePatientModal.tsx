@@ -24,10 +24,9 @@ const CreatePatientModal = ({ isOpen, onClose }: CreatePatientModalProps) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // מדפיס לקונסול כמו שנדרש במשימה למטרות טסטים
+
     console.log("New Patient Data:", formData);
 
-    // איפוס וסגירה
     setFormData({
       email: "",
       firstName: "",
