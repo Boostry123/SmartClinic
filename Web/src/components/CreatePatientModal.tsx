@@ -1,13 +1,24 @@
 import { useState } from "react";
 import { X } from "lucide-react";
 import { createUser } from "../api/users";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface CreatePatientModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+type CreatePatientFormData = {
+  email: string;
+  name: string;
+  last_name: string;
+  national_id_number: string;
+  password: string;
+  role: "patient";
+};
+
 const CreatePatientModal = ({ isOpen, onClose }: CreatePatientModalProps) => {
+  const queryClient = useQueryClient();
   const [formData, setFormData] = useState({
     email: "",
     name: "",
@@ -28,7 +39,7 @@ const CreatePatientModal = ({ isOpen, onClose }: CreatePatientModalProps) => {
     e.preventDefault();
 
     try {
-      await createUser(formData as any);
+      await createUser(formData as CreatePatientFormData);
 
       setFormData({
         email: "",
@@ -38,6 +49,7 @@ const CreatePatientModal = ({ isOpen, onClose }: CreatePatientModalProps) => {
         password: "",
         role: "patient",
       });
+      queryClient.invalidateQueries({ queryKey: ["patients"] });
       onClose();
     } catch (error) {
       console.error("Failed to create patient:", error);
