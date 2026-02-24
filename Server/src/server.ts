@@ -8,6 +8,7 @@ import PatientRoutes from "./routes/patientRoutes.js";
 import TreatmentRoutes from "./routes/treatmentRoute.js";
 import AppointmentRoutes from "./routes/appointmentRoutes.js";
 import SecretaryRoutes from "./routes/secretaryRoute.js";
+import DoctorRoutes from "./routes/doctorRoutes.js";
 
 // Load environment variables from .env file
 dotenv.config();
@@ -21,7 +22,7 @@ app.use(
   cors({
     origin: process.env.BASE_FRONTEND_URL || "http://localhost:5173",
     credentials: true,
-  })
+  }),
 );
 // Parse incoming JSON requests
 app.use(express.json());
@@ -35,6 +36,8 @@ app.get("/", (req, res) => {
 
 //the users route
 app.use("/users", UserRoutes);
+//the doctors route
+app.use("/doctors", DoctorRoutes);
 //the patients route
 app.use("/patients", PatientRoutes);
 //the secretary route
