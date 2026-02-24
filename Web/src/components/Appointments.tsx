@@ -1,7 +1,9 @@
 import { useState, useMemo } from "react";
-import { ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, Loader } from "lucide-react";
 //Engines
 import AppointmentEngine from "./AppointmentEngine";
+//thirdParty
+import { DateTime } from "luxon";
 // Hooks
 import useAppointments from "../hooks/useAppointments";
 import useTreatments from "../hooks/useTreatments";
@@ -10,6 +12,9 @@ import type {
   Appointment,
   AppointmentFilters,
 } from "../api/types/appointments";
+import { statusStyles } from "../api/types/appointments";
+//helpers
+import { dateTimeStructure } from "../helpers/Dates";
 
 const Appointments = (filters: AppointmentFilters) => {
   const {
@@ -24,7 +29,7 @@ const Appointments = (filters: AppointmentFilters) => {
 
   const { data: treatments } = useTreatments(
     { id: selectedAppointment?.treatment_id || "" },
-    !!selectedAppointment
+    !!selectedAppointment,
   );
 
   const handleRowClick = (appointment: Appointment) => {
@@ -68,25 +73,20 @@ const Appointments = (filters: AppointmentFilters) => {
       },
       {
         header: "Start Time",
-        accessor: (a: Appointment) => new Date(a.start_time).toLocaleString(),
+        accessor: (a: Appointment) =>
+          DateTime.fromISO(a.start_time).toFormat(dateTimeStructure),
       },
       {
         header: "End Time",
         accessor: (a: Appointment) =>
-          a.end_time ? new Date(a.end_time).toLocaleString() : "N/A",
+          a.end_time
+            ? DateTime.fromISO(a.end_time).toFormat(dateTimeStructure)
+            : "N/A",
       },
       {
         header: "Status",
         accessor: (a: Appointment) => (
-          <span
-            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-              a.status === "completed"
-                ? "bg-green-100 text-green-800"
-                : a.status === "scheduled"
-                  ? "bg-blue-100 text-blue-800"
-                  : "bg-red-100 text-red-800"
-            }`}
-          >
+          <span className={`text-xs font-semibold ${statusStyles[a.status]}`}>
             {a.status}
           </span>
         ),
@@ -97,11 +97,16 @@ const Appointments = (filters: AppointmentFilters) => {
         className: "max-w-xs truncate",
       },
     ],
-    [showIds]
+    [showIds],
   );
 
-  if (isLoading)
-    return <div className="p-6 text-gray-500">Loading appointments...</div>;
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Loader className="animate-spin text-indigo-500" size={48} />
+      </div>
+    );
+  }
 
   if (isError)
     return (

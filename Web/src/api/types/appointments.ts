@@ -1,3 +1,22 @@
+export const AppointmentStatusEnum = {
+  SCHEDULED: "scheduled",
+  COMPLETED: "completed",
+  CANCELLED: "cancelled",
+  CONFIRMED: "confirmed",
+  CHECKED_IN: "checked_in",
+} as const satisfies Record<string, AppointmentStatus>;
+export const statusStyles: Record<string, string> = {
+  [AppointmentStatusEnum.SCHEDULED]:
+    "px-4 py-2 rounded-md border border-blue-200 bg-blue-50 text-blue-700 border-blue-200",
+  [AppointmentStatusEnum.COMPLETED]:
+    "px-4 py-2 rounded-md border bg-green-50 text-green-700 border-green-200",
+  [AppointmentStatusEnum.CANCELLED]:
+    " px-4 py-2 rounded-md border bg-red-50 text-red-700 border-red-200",
+  [AppointmentStatusEnum.CONFIRMED]:
+    "px-4 py-2 rounded-md border bg-purple-50 text-purple-700 border-purple-200",
+  [AppointmentStatusEnum.CHECKED_IN]:
+    "px-4 py-2 rounded-md border bg-orange-100 text-orange-800 border-orange-300",
+};
 export type AppointmentStatus =
   | "scheduled"
   | "completed"
