@@ -1,10 +1,13 @@
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import type { Doctor } from "../api/types/doctors";
-import { useAppointmentsForDoctor } from "../hooks/useAppointments";
 import type { DateSelectArg, DateUnselectArg } from "@fullcalendar/core";
 import type { EventDragStopArg } from "@fullcalendar/interaction";
+//hooks
+import { useAppointmentsForDoctor } from "../hooks/useAppointments";
+//types
+import type { Doctor } from "../api/types/doctors";
+import useTreatments from "../hooks/useTreatments";
 
 interface Props {
   doctor?: Doctor;
@@ -27,6 +30,21 @@ const CreateAppointmentCalendar = ({
     isLoading,
     isError,
   } = useAppointmentsForDoctor({ doctor_id: doctor ? doctor.id : undefined });
+  const { data: treatments } = useTreatments({});
+
+  const events =
+    existingAppointments && existingAppointments.length > 0
+      ? existingAppointments.map((app) => ({
+          id: app.id,
+          start: app.start_time,
+          end: app.end_time,
+          title: treatments?.find((t) => t.id === app.treatment_id)
+            ?.treatment_name,
+          backgroundColor: "#ef4444",
+          borderColor: "#ef4444",
+          editable: false,
+        }))
+      : [];
 
   const addMinutes = (date: Date, minutes: number) => {
     return new Date(date.getTime() + minutes * 60000);
@@ -165,7 +183,7 @@ const CreateAppointmentCalendar = ({
           select={handleSelect}
           unselect={handleUnselect}
           eventDrop={handleEventDrop}
-          events={existingAppointments}
+          events={events}
           eventClassNames="rounded-md border-none shadow-sm text-xs font-medium px-1 cursor-pointer"
           eventBackgroundColor="#E0E7FF"
           eventTextColor="#4338CA"
