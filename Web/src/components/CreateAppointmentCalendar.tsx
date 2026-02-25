@@ -1,8 +1,11 @@
 import FullCalendar from "@fullcalendar/react";
+import { Loader } from "lucide-react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import type { DateSelectArg, DateUnselectArg } from "@fullcalendar/core";
 import type { EventDragStopArg } from "@fullcalendar/interaction";
+//config
+import UIconfig from "../../UIConfig";
 //hooks
 import { useAppointmentsForDoctor } from "../hooks/useAppointments";
 //types
@@ -40,9 +43,10 @@ const CreateAppointmentCalendar = ({
           end: app.end_time,
           title: treatments?.find((t) => t.id === app.treatment_id)
             ?.treatment_name,
-          backgroundColor: "#ef4444",
-          borderColor: "#ef4444",
-          editable: false,
+          backgroundColor: UIconfig.existingEvent.backgroundColor,
+          borderColor: UIconfig.existingEvent.borderColor,
+          textColor: UIconfig.existingEvent.textColor,
+          editable: UIconfig.existingEvent.editable,
         }))
       : [];
 
@@ -57,7 +61,7 @@ const CreateAppointmentCalendar = ({
 
     // Check for overlaps with the forced duration
     const isOverlapping = calendarApi.getEvents().some((event) => {
-      if (event.id === "new-appointment" || event.display === "background")
+      if (event.id === UIconfig.newEvent.id || event.display === "background")
         return false;
       const eventStart = event.start;
       const eventEnd = event.end || event.start;
@@ -74,16 +78,16 @@ const CreateAppointmentCalendar = ({
     calendarApi.unselect();
 
     calendarApi.addEvent({
-      id: "new-appointment",
-      title: "New Appointment",
+      id: UIconfig.newEvent.id,
+      title: UIconfig.newEvent.title,
       start: startTime,
       end: endTime,
       allDay: false,
-      backgroundColor: "#4338CA",
-      borderColor: "#4338CA",
-      textColor: "#ffffff",
-      editable: true,
-      durationEditable: false,
+      backgroundColor: UIconfig.newEvent.backgroundColor,
+      borderColor: UIconfig.newEvent.borderColor,
+      textColor: UIconfig.newEvent.textColor,
+      editable: UIconfig.newEvent.editable,
+      durationEditable: UIconfig.newEvent.durationEditable,
     });
 
     onSlotSelect(selectInfo.startStr);
@@ -91,7 +95,7 @@ const CreateAppointmentCalendar = ({
 
   const handleUnselect = (arg: DateUnselectArg) => {
     const calendarApi = arg.view.calendar;
-    const existingEvent = calendarApi.getEventById("new-appointment");
+    const existingEvent = calendarApi.getEventById(UIconfig.newEvent.id);
     if (existingEvent) {
       existingEvent.remove();
       onSlotSelect("");
@@ -99,7 +103,7 @@ const CreateAppointmentCalendar = ({
   };
 
   const handleEventDrop = (arg: EventDragStopArg) => {
-    if (arg.event.id === "new-appointment") {
+    if (arg.event.id === UIconfig.newEvent.id) {
       onSlotSelect(arg.event.start?.toISOString() || "");
     }
   };
@@ -120,11 +124,10 @@ const CreateAppointmentCalendar = ({
     );
   }
 
-  // 2. Handle the loading state while fetching the selected doctor's schedule
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-[550px] bg-slate-50 rounded-xl">
-        <p className="text-slate-500">Loading schedule...</p>
+      <div className="flex justify-center items-center h-64">
+        <Loader className="animate-spin text-indigo-500" size={48} />
       </div>
     );
   }
@@ -154,10 +157,10 @@ const CreateAppointmentCalendar = ({
           }}
           titleFormat={{ year: "numeric", month: "short", day: "numeric" }}
           allDaySlot={false}
-          slotMinTime="08:00:00"
-          slotMaxTime="19:00:00"
+          slotMinTime={UIconfig.slotMinTime}
+          slotMaxTime={UIconfig.slotMaxTime}
           // --- Key Duration Logic ---
-          slotDuration="00:10:00"
+          slotDuration={UIconfig.slotDuration}
           snapDuration={snapDurationStr}
           defaultTimedEventDuration="00:20:00" // Default for quick clicks
           forceEventDuration={true} // Prevents events from shrinking to slot size
@@ -168,12 +171,8 @@ const CreateAppointmentCalendar = ({
             meridiem: "short",
           }}
           firstDay={0}
-          hiddenDays={[6]}
-          businessHours={{
-            daysOfWeek: [0, 1, 2, 3, 4, 5],
-            startTime: "08:00",
-            endTime: "18:00",
-          }}
+          hiddenDays={UIconfig.hiddenDays}
+          businessHours={UIconfig.BUSINESSHOURS}
           selectConstraint="businessHours"
           selectable={selectAble}
           selectOverlap={false}
@@ -184,6 +183,7 @@ const CreateAppointmentCalendar = ({
           unselect={handleUnselect}
           eventDrop={handleEventDrop}
           events={events}
+          eventConstraint="businessHours"
           eventClassNames="rounded-md border-none shadow-sm text-xs font-medium px-1 cursor-pointer"
           eventBackgroundColor="#E0E7FF"
           eventTextColor="#4338CA"

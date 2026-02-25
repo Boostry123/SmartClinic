@@ -1,0 +1,20 @@
+.fc-event {
+  border-width: 2px; /* Set the border width */
+  border-style: dotted; /* Set the border style */
+  border-radius: 5px; /* Add a border radius if needed */
+  /* If default styles are overriding, you might need `!important` as a last resort */
+}
+.fc .fc-prev-button .fc-icon,
+.fc .fc-next-button .fc-icon {
+  color: white; /* Your desired arrow color */
+}
+
+.fc .fc-button-primary {
+  background-color: #4338ca !important;
+  margin: 1rem;
+  color: #fff !important;
+}
+
+.fc .fc-button-primary:hover {
+  background-color: #4f46e5 !important;
+}
