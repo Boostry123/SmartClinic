@@ -27,16 +27,18 @@ const Appointments = (filters: AppointmentFilters) => {
   const [selectedAppointment, setSelectedAppointment] =
     useState<Appointment | null>(null);
 
-  const { data: treatments } = useTreatments(
-    { id: selectedAppointment?.treatment_id || "" },
-    !!selectedAppointment,
-  );
+  const { data: treatments } = useTreatments({});
 
   const handleRowClick = (appointment: Appointment) => {
     setSelectedAppointment(appointment);
   };
 
-  const treatmentTemplate = treatments?.[0] || null;
+  const treatmentTemplate = useMemo(
+    () =>
+      treatments?.find((t) => t.id === selectedAppointment?.treatment_id) ||
+      null,
+    [treatments, selectedAppointment],
+  );
 
   const columns = useMemo(
     () => [
@@ -72,6 +74,14 @@ const Appointments = (filters: AppointmentFilters) => {
             : a.doctor_id,
       },
       {
+        header: "Treatment",
+        accessor: (a: Appointment) => {
+          const treatment = treatments?.find((t) => t.id === a.treatment_id);
+
+          return treatment ? treatment.treatment_name : "N/A";
+        },
+      },
+      {
         header: "Start Time",
         accessor: (a: Appointment) =>
           DateTime.fromISO(a.start_time).toFormat(dateTimeStructure),
@@ -97,7 +107,7 @@ const Appointments = (filters: AppointmentFilters) => {
         className: "max-w-xs truncate",
       },
     ],
-    [showIds],
+    [showIds, treatments],
   );
 
   if (isLoading) {

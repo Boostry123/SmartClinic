@@ -1,17 +1,31 @@
 import React, { useState } from "react";
+import { X } from "lucide-react";
+import { DateTime } from "luxon";
+import { useQueryClient } from "@tanstack/react-query";
+//hooks
 import usePatients from "../../hooks/usePatients";
 import useTreatments from "../../hooks/useTreatments";
 import useDoctors from "../../hooks/useDoctors";
-import { createAppointment } from "../../api/appointments";
-import { useQueryClient } from "@tanstack/react-query";
-import { DateTime } from "luxon";
-import type { Treatment } from "../../api/types/treatments";
+//developed
 import CreateAppointmentCalendar from "../CreateAppointmentCalendar";
+//types
+import { createAppointment } from "../../api/appointments";
+import type { Treatment } from "../../api/types/treatments";
 
 interface CreateAppointmentModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
+
+const initFormData = {
+  doctor_id: "",
+  patient_id: "",
+  treatment_id: "",
+  treatment_data: {} as Record<string, string | number | boolean>,
+  start_time: "",
+  end_time: "",
+  notes: "",
+};
 
 const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
   isOpen,
@@ -33,15 +47,7 @@ const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
     isLoading: doctorsLoading,
     isError: doctorError,
   } = useDoctors({});
-  const [formData, setFormData] = useState({
-    doctor_id: "",
-    patient_id: "",
-    treatment_id: "",
-    treatment_data: {} as Record<string, string | number | boolean>,
-    start_time: "",
-    end_time: "",
-    notes: "",
-  });
+  const [formData, setFormData] = useState(initFormData);
   const [selectedTreatment, setSelectedTreatment] = useState<
     Treatment | undefined
   >(undefined);
@@ -117,6 +123,10 @@ const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
     } catch (error) {
       console.log(error);
     }
+  };
+  const handleCancel = () => {
+    setFormData(initFormData);
+    onClose();
   };
 
   const renderContent = () => {
@@ -215,7 +225,7 @@ const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
             <textarea
               id="notes"
               name="notes"
-              rows={3}
+              rows={12}
               value={formData.notes}
               onChange={handleChange}
               className="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
@@ -224,7 +234,7 @@ const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
           <div className="mt-6 flex justify-end">
             <button
               type="button"
-              onClick={onClose}
+              onClick={handleCancel}
               className="mr-2 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-gray-700 bg-gray-200 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
             >
               Cancel
@@ -245,6 +255,7 @@ const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
               `(Selected: ${DateTime.fromISO(formData.start_time).toLocaleString(DateTime.DATETIME_SHORT)})`}
           </label>
           <CreateAppointmentCalendar
+            selectAble={selectedTreatment ? true : false}
             doctor={selectedDoctor}
             treatmentDuration={selectedTreatment?.estimated_time}
             onSlotSelect={handleSlotSelect}
@@ -265,22 +276,10 @@ const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">New Appointment</h2>
           <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-800"
+            onClick={handleCancel}
+            className="text-gray-400 hover:text-gray-600 transition-colors"
           >
-            <svg
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
+            <X size={20} />
           </button>
         </div>
         {renderContent()}
