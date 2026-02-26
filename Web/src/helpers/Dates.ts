@@ -11,3 +11,4 @@ export const getAge = (dob: string) => {
   }
   return age;
 };
+export const dateTimeStructure = "dd-MM-yyyy | HH:mm";

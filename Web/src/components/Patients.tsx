@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Eye, EyeOff, UserPlus } from "lucide-react";
+import { Eye, EyeOff, Loader, UserPlus } from "lucide-react";
 // Hooks
 import usePatients from "../hooks/usePatients";
 // Helpers
@@ -78,8 +78,14 @@ const Patients = (filters: patientFilterTypes) => {
     [showIds],
   );
 
-  if (isLoading)
-    return <div className="p-6 text-gray-500">Loading patients...</div>;
+  // Loading state remains the same
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Loader className="animate-spin text-indigo-500" size={48} />
+      </div>
+    );
+  }
 
   if (isError)
     return (

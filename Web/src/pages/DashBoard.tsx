@@ -4,7 +4,6 @@
     for different sections of the dashboard and import them here.
   */
 
-import Footer from "../components/Footer";
 import Card from "../components/Card";
 
 const DashBoard = () => {
@@ -20,8 +19,6 @@ const DashBoard = () => {
           </button>
         </Card>
       </Card>
-
-      <Footer />
     </>
   );
 };
