@@ -1,5 +1,6 @@
-import FullCalendar from "@fullcalendar/react";
+import { lazy } from "react";
 import { Loader } from "lucide-react";
+const FullCalendar = lazy(() => import("@fullcalendar/react"));
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import type { DateSelectArg, DateUnselectArg } from "@fullcalendar/core";

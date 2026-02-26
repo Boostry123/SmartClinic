@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { X } from "lucide-react";
+import React, { useState, Suspense } from "react";
+import { Loader, X } from "lucide-react";
 import { DateTime } from "luxon";
 import { useQueryClient } from "@tanstack/react-query";
 //hooks
@@ -131,7 +131,11 @@ const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
 
   const renderContent = () => {
     if (patientsLoading || treatmentsLoading || doctorsLoading) {
-      return <p>Loading...</p>;
+      return (
+        <div className="flex justify-center items-center h-64">
+          <Loader className="animate-spin text-indigo-500" size={48} />
+        </div>
+      );
     }
 
     if (patientsError || treatmentsError || doctorError) {
@@ -254,12 +258,20 @@ const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
             {formData.start_time &&
               `(Selected: ${DateTime.fromISO(formData.start_time).toLocaleString(DateTime.DATETIME_SHORT)})`}
           </label>
-          <CreateAppointmentCalendar
-            selectAble={selectedTreatment ? true : false}
-            doctor={selectedDoctor}
-            treatmentDuration={selectedTreatment?.estimated_time}
-            onSlotSelect={handleSlotSelect}
-          />
+          <Suspense
+            fallback={
+              <div className="flex justify-center items-center h-64">
+                <Loader className="animate-spin text-indigo-500" size={48} />
+              </div>
+            }
+          >
+            <CreateAppointmentCalendar
+              selectAble={selectedTreatment ? true : false}
+              doctor={selectedDoctor}
+              treatmentDuration={selectedTreatment?.estimated_time}
+              onSlotSelect={handleSlotSelect}
+            />
+          </Suspense>
           {!formData.start_time && (
             <p className="text-xs text-red-500 mt-2">
               Please select a slot on the calendar
