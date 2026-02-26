@@ -7,13 +7,21 @@ import { getAge } from "../helpers/Dates";
 //Types
 import type { patientFilterTypes, Patient } from "../api/types/patients";
 // Components
-import CreatePatientModal from "./CreatePatientModal";
+import CreatePatientModal from "./modals/CreatePatientModal";
+import PatientModal from "./modals/PatientModal";
 
 const Patients = (filters: patientFilterTypes) => {
   const { data: patients, isLoading, isError, error } = usePatients(filters);
   const [showIds, setShowIds] = useState(false);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isPatientModalOpen, setIsPatientModalOpen] = useState(false);
+  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+
+  const handlePatientClick = (patient: Patient) => {
+    setSelectedPatient(patient);
+    setIsPatientModalOpen(true);
+  };
 
   const columns = useMemo(
     () => [
@@ -60,7 +68,7 @@ const Patients = (filters: patientFilterTypes) => {
       },
       {
         header: "Emerg. Contact",
-        accessor: (p: Patient) => p.emergency_contact,
+        accessor: (p: Patient) => p.emergency_contact_name,
       },
       {
         header: "Emerg. Phone",
@@ -107,7 +115,7 @@ const Patients = (filters: patientFilterTypes) => {
             </span>
           </span>
           <button
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => setIsCreateModalOpen(true)}
             className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#4361ee] rounded-md hover:bg-blue-700 transition-colors shadow-sm"
           >
             <UserPlus size={16} />
@@ -135,7 +143,8 @@ const Patients = (filters: patientFilterTypes) => {
             {patients?.map((patient: Patient) => (
               <tr
                 key={patient.patient_id}
-                className="hover:bg-gray-50 transition-colors"
+                onClick={() => handlePatientClick(patient)}
+                className="hover:bg-gray-50 transition-colors cursor-pointer"
               >
                 {columns.map((col, index) => (
                   <td
@@ -156,9 +165,21 @@ const Patients = (filters: patientFilterTypes) => {
       </div>
 
       <CreatePatientModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
       />
+      <div>
+        {selectedPatient ? (
+          <PatientModal
+            isOpen={isPatientModalOpen}
+            onClose={() => {
+              setIsPatientModalOpen(false);
+              setSelectedPatient(null);
+            }}
+            patient={selectedPatient}
+          />
+        ) : null}
+      </div>
     </div>
   );
 };
