@@ -150,6 +150,35 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "New Request",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"patient_id\":\"8d81417a-b67e-4699-a5c4-67a77d439d1b\",\r\n  \"first_name\": \"string\",\r\n  \"last_name\": \"string\",\r\n  \"date_of_birth\": \"ISO string\",\r\n  \"gender\": \"male\",\r\n  \"national_id_number\": \"string\",\r\n  \"phone_number\": \"string\",\r\n  \"address\": \"string\",\r\n  \"blood_type\": \"[A+ | A- | B+ | B- | AB+ | AB- | O+ | O-]\",\r\n  \"emergency_contact_name\": \"string\", \r\n  \"emergency_contact_phone\": \"string\",\r\n  \"insurance_provider\": \"string\",\r\n  \"insurance_policy_number\":\"string\"\r\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}patients",
+              "host": [
+                "{{baseURL}}patients"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
@@ -174,7 +203,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"treatment_name\": \"treatment_name\",\r\n  \"estimated_time\": \"Int , minutes\",\r\n  \"template\": {\r\n    \"field_1\": \"string\",\r\n    \"field_2\": [\r\n      \"string\",\"string\"\r\n    ],\r\n    \"field_3\": \"string\",\r\n    \"notes\": \"string\"\r\n  }\r\n}",
+              "raw": "{\r\n  \"treatment_name\": \"Botox - Glabellar Lines\",\r\n  \"estimated_time\": 20,\r\n  \"template\": {\r\n    \"version\": \"1.0\",\r\n    \"fields\": [\r\n      {\r\n        \"id\": \"units_administered\",\r\n        \"label\": \"Total Units Administered\",\r\n        \"type\": \"number\",\r\n        \"required\": true,\r\n        \"placeholder\": \"e.g. 20\"\r\n      },\r\n      {\r\n        \"id\": \"injection_sites\",\r\n        \"label\": \"Injection Sites Identified\",\r\n        \"type\": \"textarea\",\r\n        \"required\": true,\r\n        \"placeholder\": \"Describe specific placement...\"\r\n      },\r\n      {\r\n        \"id\": \"product_brand\",\r\n        \"label\": \"Brand Used\",\r\n        \"type\": \"select\",\r\n        \"options\": [\"Botox\", \"Dysport\", \"Xeomin\", \"Jeuveau\"],\r\n        \"defaultValue\": \"Botox\"\r\n      },\r\n      {\r\n        \"id\": \"post_care_provided\",\r\n        \"label\": \"Post-Care Instructions Given\",\r\n        \"type\": \"checkbox\",\r\n        \"defaultValue\": true\r\n      }\r\n    ]\r\n  }\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
