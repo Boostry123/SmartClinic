@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 //DEVELOPED
-import { getPatients } from "../api/getPatients";
+import { getPatients } from "../api/patients";
 //TYPES
 import type { Patient, patientFilterTypes } from "../api/types/patients";
 

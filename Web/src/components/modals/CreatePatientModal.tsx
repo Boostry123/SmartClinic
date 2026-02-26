@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { X } from "lucide-react";
-import { createUser } from "../api/users";
+import { createUser } from "../../api/users";
 import { useQueryClient } from "@tanstack/react-query";
 
 interface CreatePatientModalProps {

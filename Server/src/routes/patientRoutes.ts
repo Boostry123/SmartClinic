@@ -1,16 +1,22 @@
 import { Router } from "express";
 import { authMiddleware } from "../middleware/auth.js";
-import { getPatients } from "../controllers/patientsController.js";
+import {
+  getPatients,
+  updatePatient,
+} from "../controllers/patientsController.js";
 // types
 import type { AuthRequest } from "../middleware/auth.js";
-import type { patientFilterTypes } from "../types/enums/patientTypes.js";
+import type {
+  patientFilterTypes,
+  PatientUpdate,
+} from "../types/enums/patientTypes.js";
 
 const PatientRoutes = Router();
 
 const ALLOWED_FILTERS = [
   "patient_id",
   "user_id",
-  "national_id",
+  "national_id_number",
   "first_name",
   "last_name",
   "phone_number",
@@ -53,7 +59,7 @@ PatientRoutes.get("/", authMiddleware, async (req: AuthRequest, res) => {
     // Pass the `cleanFilter` which now only contains valid, non-empty keys
     const { data, error } = await getPatients(
       token,
-      cleanFilter as patientFilterTypes
+      cleanFilter as patientFilterTypes,
     );
 
     if (error) {
@@ -63,6 +69,32 @@ PatientRoutes.get("/", authMiddleware, async (req: AuthRequest, res) => {
   } catch (error: any) {
     console.error(`Fetching patients failed:`, error);
     return res.status(500).json({ error: error || "Unknown error" });
+  }
+});
+
+PatientRoutes.patch("/", authMiddleware, async (req: AuthRequest, res) => {
+  const token = req.token;
+  const data = req.body as PatientUpdate;
+
+  if (!token) {
+    return res.status(401).json({ error: "Unauthorized: No token provided" });
+  }
+
+  if (!data.patient_id) {
+    return res.status(400).json({ error: "Patient ID is required" });
+  }
+
+  try {
+    const { data: updatedPatient, error } = await updatePatient(token, data);
+
+    if (error) {
+      return res.status(400).json({ error });
+    }
+
+    return res.status(200).json(updatedPatient);
+  } catch (error: any) {
+    console.error(`Updating patient failed:`, error);
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
