@@ -28,8 +28,8 @@
 * **Secure Authentication:** Role-based access control (RBAC) for admins and staff + JWT token from SupaBase.
 
 ### 🚧 Roadmap (Upcoming Features)
-* [ ] **Appointment Management:** Custom appointment handling for doctors.
-* [ ] **Scheduling Management:** Personal schedule management for medical staff.
+* [ ] **AI chat BOT** The chat bot will be a perssonal assistant of the doctor, It will have access to the premade APIs to fetch data.
+* [ ] **Scheduling Management:** Personal schedule management for medical staff ( Mostly complete ongoing improvments ).
 * [ ] **Custom Treatment builder:** Doctors will be able to create a custom treatment structure and it will be saved as a json on the DB.
 
 ---
