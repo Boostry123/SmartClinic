@@ -93,12 +93,6 @@ export const Login = () => {
             )}
           </button>
         </form>
-
-        <div className="mt-8 pt-6 border-t border-slate-100 text-center">
-          <p className="text-slate-400 text-xs">
-            &copy; 2026 SmartClinic AI Systems. All rights reserved.
-          </p>
-        </div>
       </div>
     </div>
   );
