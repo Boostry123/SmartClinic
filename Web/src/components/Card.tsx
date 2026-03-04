@@ -2,25 +2,28 @@ import React from "react";
 
 interface CardProps {
   children: React.ReactNode;
-  title: string;
+  title?: React.ReactNode;
   className?: string;
+  onClick?: () => void;
 }
 
-const Card = ({ title, children, className = "" }: CardProps) => {
+const Card = ({ title, children, className = "", onClick }: CardProps) => {
   return (
     <div
+      onClick={onClick}
       className={`
         bg-white 
         rounded-2xl 
-        border border-slate-200 
+        border border-slate-200/60 
         shadow-sm 
-        p-6 md:p-8
-        hover:shadow-md 
-        transition-shadow duration-300
+        p-5 md:p-6
+        hover:shadow-md hover:border-indigo-100
+        transition-all duration-300
+        ${onClick ? "cursor-pointer" : ""}
         ${className}
       `}
     >
-      <h2 className="text-2xl font-semibold mb-4">{title}</h2>
+      {title && <div className="mb-4">{title}</div>}
       {children}
     </div>
   );
