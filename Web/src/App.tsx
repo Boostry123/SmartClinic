@@ -12,6 +12,7 @@ import AppointmentsPage from "./pages/Appointments";
 // Components
 import NavBar from "./components/NavBar";
 import Footer from "./components/Footer";
+import Chat from "./components/Chat";
 
 function App() {
   const { isAuthenticated } = useAuthStore();
@@ -20,6 +21,7 @@ function App() {
     <BrowserRouter>
       {/* Render NavBar only if the user is authenticated */}
       {isAuthenticated && <NavBar />}
+      {isAuthenticated && <Chat />}
 
       {/* Main Layout Wrapper:
         Added 'pt-16' (padding-top: 4rem) to match the fixed Navbar height.
