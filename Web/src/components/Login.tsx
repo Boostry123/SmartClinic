@@ -1,4 +1,4 @@
-import { Sparkles, Lock, Mail, Loader2 } from "lucide-react";
+import { Sparkles, Lock, Mail, Loader } from "lucide-react";
 import useLogin from "../hooks/useLogin";
 
 export const Login = () => {
@@ -85,7 +85,7 @@ export const Login = () => {
           >
             {isLoading ? (
               <>
-                <Loader2 className="animate-spin" size={20} />
+                <Loader className="animate-spin" size={20} />
                 <span>Authenticating...</span>
               </>
             ) : (
