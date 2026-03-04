@@ -9,9 +9,10 @@ import type { EventDragStopArg } from "@fullcalendar/interaction";
 import UIconfig from "../../UIConfig";
 //hooks
 import { useAppointmentsForDoctor } from "../hooks/useAppointments";
+import useTreatments from "../hooks/useTreatments";
 //types
 import type { Doctor } from "../api/types/doctors";
-import useTreatments from "../hooks/useTreatments";
+import { AppointmentStatusEnum } from "../api/types/appointments";
 
 interface Props {
   doctor?: Doctor;
@@ -35,10 +36,14 @@ const CreateAppointmentCalendar = ({
     isError,
   } = useAppointmentsForDoctor({ doctor_id: doctor ? doctor.id : undefined });
   const { data: treatments } = useTreatments({});
-
+  const filteredExistingAppointments = existingAppointments
+    ? existingAppointments.filter(
+        (app) => app.status !== AppointmentStatusEnum.CANCELLED,
+      )
+    : [];
   const events =
-    existingAppointments && existingAppointments.length > 0
-      ? existingAppointments.map((app) => ({
+    filteredExistingAppointments && filteredExistingAppointments.length > 0
+      ? filteredExistingAppointments.map((app) => ({
           id: app.id,
           start: app.start_time,
           end: app.end_time,
