@@ -27,7 +27,14 @@ import type {
 import { statusStyles } from "../api/types/appointments";
 import { dateTimeStructure } from "../helpers/Dates";
 
-const Appointments = (filters: AppointmentFilters) => {
+const Appointments: React.FC<AppointmentFilters> = (props) => {
+  // Destructure filters to avoid passing non-filter props (like children) to the API
+  const { start_time, end_time, status, patient_id, doctor_id, id } = props;
+  const filters = useMemo(
+    () => ({ start_time, end_time, status, patient_id, doctor_id, id }),
+    [start_time, end_time, status, patient_id, doctor_id, id],
+  );
+
   const {
     data: appointments,
     isLoading,
@@ -40,7 +47,6 @@ const Appointments = (filters: AppointmentFilters) => {
   const [selectedAppointment, setSelectedAppointment] =
     useState<Appointment | null>(null);
 
-  // Using the hook to determine which DOM structure to render
   const isMobile = useIsMobile();
 
   const handleRowClick = (appointment: Appointment) => {
@@ -83,7 +89,10 @@ const Appointments = (filters: AppointmentFilters) => {
           <div className="flex items-center gap-2">
             <span>ID</span>
             <button
-              onClick={() => setShowIds((prev) => !prev)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowIds((prev) => !prev);
+              }}
               className="p-1 hover:bg-slate-200 rounded transition-colors text-slate-500"
               title={showIds ? "Hide IDs" : "Show IDs"}
               type="button"
@@ -172,9 +181,6 @@ const Appointments = (filters: AppointmentFilters) => {
           <h2 className="text-2xl font-bold text-slate-800 tracking-tight">
             Appointments
           </h2>
-          <p className="text-sm text-slate-500 mt-1">
-            Manage and view your scheduled sessions.
-          </p>
         </div>
         <div className="bg-white px-4 py-2 rounded-lg border border-slate-200 shadow-sm text-sm text-slate-600">
           Total:{" "}
@@ -185,7 +191,6 @@ const Appointments = (filters: AppointmentFilters) => {
       </div>
 
       {isMobile ? (
-        // Render ONLY the mobile cards if on a small screen
         <div className="grid grid-cols-1 gap-4">
           {appointments?.map((appointment: Appointment) => (
             <div
@@ -248,9 +253,14 @@ const Appointments = (filters: AppointmentFilters) => {
               </Card>
             </div>
           ))}
+          {!appointments ||
+            (appointments.length === 0 && (
+              <div>
+                <p>No appointments found for the selected date.</p>
+              </div>
+            ))}
         </div>
       ) : (
-        // Render ONLY the desktop table if on a larger screen
         <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-slate-200">
@@ -291,6 +301,12 @@ const Appointments = (filters: AppointmentFilters) => {
               </tbody>
             </table>
           </div>
+          {!appointments ||
+            (appointments.length === 0 && (
+              <div className="">
+                <p>No appointments found for the selected date.</p>
+              </div>
+            ))}
         </div>
       )}
     </div>
