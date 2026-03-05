@@ -1,21 +1,53 @@
 import { useState } from "react";
+import { DateTime } from "luxon";
+import DatePicker from "../components/Datepicker";
 import Appointments from "../components/Appointments";
 import CreateAppointmentModal from "../components/modals/CreateAppointmentModal";
 
 const AppointmentsPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  //default to showing appointments for today
+  const [startDate, setStartDate] = useState(DateTime.now().toISODate() || "");
+  const [endDate, setEndDate] = useState(
+    DateTime.now().plus({ days: 1 }).toISODate() || "",
+  );
+  const [showPicker, setShowPicker] = useState(false);
 
   return (
-    <div className="container mx-auto p-4">
-      <div className="flex justify-end mb-4">
+    <div className="container mx-auto p-4 sm:p-6">
+      {/* Header Section: Filter (Left) & Actions (Right) */}
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+        {/* Date Filter Wrapper */}
+        <div className="w-full sm:w-auto">
+          <DatePicker
+            start_date={startDate}
+            isOpen={showPicker}
+            onToggle={() => setShowPicker((prev) => !prev)}
+            onClose={() => setShowPicker(false)}
+            onDateChange={(date) => {
+              setStartDate(date);
+              // Optionally update endDate to the next day to maintain a 1-day window
+              setEndDate(
+                DateTime.fromISO(date).plus({ days: 1 }).toISODate() || "",
+              );
+              setShowPicker(false);
+            }}
+          />
+        </div>
+
+        {/* Primary Action Button */}
         <button
           onClick={() => setIsModalOpen(true)}
-          className="bg-indigo-600 text-white hover:bg-indigo-700 transition-colors font-semibold py-2 px-4 rounded"
+          className="w-full sm:w-auto bg-indigo-600 text-white hover:bg-indigo-700 transition-colors font-semibold py-2 px-4 rounded"
         >
           New Appointment
         </button>
       </div>
-      <Appointments />
+
+      {/* Main Content */}
+      <Appointments start_time={startDate} end_time={endDate} />
+
+      {/* Modals */}
       <CreateAppointmentModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
