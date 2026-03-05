@@ -6,7 +6,6 @@ import {
   Activity,
   Sparkles,
   Bell,
-  Search,
   LogOut,
   Menu,
   X,
