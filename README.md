@@ -21,11 +21,12 @@
 ## 🛠️ Features
 
 * **Dashboard:** Real-time overview of clinic metrics and schedules.
-* **Patient Management:** Create, read, update, and delete patient records.
+* **Patient Management:** Create, read and update patient records.
 * **Patient Overview:** Dedicated portal for patients to view their medical history and related information.
 * **Treatments:** Reading custom made treatments from JSON file.
 * **Appointments:** Creating and updating appointments , connected to a chosen custom treatment.
 * **Secure Authentication:** Role-based access control (RBAC) for admins and staff + JWT token from SupaBase.
+* **DDos prevention:** Using Express-rate-limiter , limits both auth requests and API calls.
 
 ### 🚧 Roadmap (Upcoming Features)
 * [ ] **AI chat BOT** The chat bot will be a perssonal assistant of the doctor, It will have access to the premade APIs to fetch data.
@@ -78,6 +79,9 @@ BASE_FRONTEND_URL=http://localhost:5173
 SUPABASE_URL={your_supabase_project_url}
 SUPABASE_ANON_KEY={your_supabase_anon_key}
 SUPABASE_SECRET_KEY={your_supabase_SECRET_key}
+
+#Gemini API key
+GEMINI_API_KEY={your Gemini API key}
 ```
 Client Configuration (client/.env)
 ```
@@ -96,4 +100,4 @@ npm run dev
 ```
 Access the app at http://localhost:5173.
 📄 License
-This project is licensed under the MIT License.
+All rights reserved to the developers of Smart Clinic AI
