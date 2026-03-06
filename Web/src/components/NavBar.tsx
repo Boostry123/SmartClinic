@@ -6,7 +6,6 @@ import {
   Activity,
   Sparkles,
   Bell,
-  Search,
   LogOut,
   Menu,
   X,
@@ -83,9 +82,6 @@ const NavBar = () => {
 
           {/* Right Side Actions */}
           <div className="flex items-center gap-3">
-            <button className="hidden sm:flex p-2.5 text-indigo-300 hover:text-white hover:bg-white/5 rounded-full transition-colors">
-              <Search size={18} />
-            </button>
             <button className="hidden sm:flex p-2.5 text-indigo-300 hover:text-white hover:bg-white/5 rounded-full transition-colors relative">
               <Bell size={18} />
             </button>
