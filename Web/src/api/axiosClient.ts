@@ -46,7 +46,10 @@ apiClient.interceptors.response.use(
 
         const { accessToken, user } = res.data;
         useAuthStore.getState().setAuth(accessToken, user);
-        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+
+        if (originalRequest.headers) {
+          originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+        }
 
         return apiClient(originalRequest);
       } catch (refreshError) {
