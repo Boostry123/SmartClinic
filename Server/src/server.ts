@@ -9,6 +9,7 @@ import TreatmentRoutes from "./routes/treatmentRoute.js";
 import AppointmentRoutes from "./routes/appointmentRoutes.js";
 import SecretaryRoutes from "./routes/secretaryRoute.js";
 import DoctorRoutes from "./routes/doctorRoutes.js";
+import { rateLimiter, authRateLimiter } from "./middleware/security.js";
 
 // Load environment variables from .env file
 dotenv.config();
@@ -26,7 +27,10 @@ app.use(
 );
 // Parse incoming JSON requests
 app.use(express.json());
-
+// Apply general rate limiting to all routes
+app.use(rateLimiter);
+// Apply stricter rate limiting to authentication routes
+app.use("/auth", authRateLimiter);
 // --- API Routes ---
 // This tells the server what to do when it gets a GET request for the homepage '/'
 app.get("/", (req, res) => {
