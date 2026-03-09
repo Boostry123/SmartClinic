@@ -2,6 +2,7 @@ import { useState } from "react";
 import { X } from "lucide-react";
 import { createUser } from "../../api/users";
 import { useQueryClient } from "@tanstack/react-query";
+import Button from "../Button";
 
 interface CreatePatientModalProps {
   isOpen: boolean;
@@ -145,19 +146,9 @@ const CreatePatientModal = ({ isOpen, onClose }: CreatePatientModalProps) => {
           </div>
 
           <div className="flex justify-end gap-3 mt-8">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 text-sm font-medium text-white bg-[#4361ee] rounded-md hover:bg-blue-700 transition-colors shadow-sm"
-            >
-              Create
-            </button>
+            <Button text={"Cancel"} onClick={onClose} color="gray" />
+
+            <Button text={"Create"} type="submit" />
           </div>
         </form>
       </div>

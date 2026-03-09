@@ -3,6 +3,7 @@ import { DateTime } from "luxon";
 import DatePicker from "../components/Datepicker";
 import Appointments from "../components/Appointments";
 import CreateAppointmentModal from "../components/modals/CreateAppointmentModal";
+import Button from "../components/Button";
 
 const AppointmentsPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -36,12 +37,7 @@ const AppointmentsPage = () => {
         </div>
 
         {/* Primary Action Button */}
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="w-full sm:w-auto bg-indigo-600 text-white hover:bg-indigo-700 transition-colors font-semibold py-2 px-4 rounded"
-        >
-          New Appointment
-        </button>
+        <Button text={"New Appointment"} onClick={() => setIsModalOpen(true)} />
       </div>
 
       {/* Main Content */}
