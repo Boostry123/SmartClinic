@@ -2,11 +2,13 @@ import { Router } from "express";
 import { authMiddleware } from "../middleware/auth.js";
 import {
   getPatients,
+  getPatientsByIds,
   updatePatient,
 } from "../controllers/patientsController.js";
 // types
 import type { AuthRequest } from "../middleware/auth.js";
 import type {
+  patientByIdsFilterTypes,
   patientFilterTypes,
   PatientUpdate,
 } from "../types/enums/patientTypes.js";
@@ -21,6 +23,8 @@ const ALLOWED_FILTERS = [
   "last_name",
   "phone_number",
 ];
+
+const ALLOWED_IDS_FILTERS = ["patient_id"];
 
 PatientRoutes.get("/", authMiddleware, async (req: AuthRequest, res) => {
   const rawQuery = req.query as patientFilterTypes;
@@ -68,6 +72,45 @@ PatientRoutes.get("/", authMiddleware, async (req: AuthRequest, res) => {
     return res.json(data);
   } catch (error: any) {
     console.error(`Fetching patients failed:`, error);
+    return res.status(500).json({ error: error || "Unknown error" });
+  }
+});
+
+PatientRoutes.get("/byIds", authMiddleware, async (req: AuthRequest, res) => {
+  const rawQuery = req.query;
+  const token = req.token;
+
+  if (!token) {
+    return res.status(401).json({ error: "Unauthorized: No token provided" });
+  }
+
+  //  CLEANUP & VALIDATION START
+  const cleanFilter: patientByIdsFilterTypes = {};
+
+  // Axios might serialize as patient_id or patient_id[]
+  const rawPatientIds = rawQuery.patient_id || rawQuery["patient_id[]"];
+
+  if (rawPatientIds) {
+    // Ensure patient_id is an array
+    const patientIds = Array.isArray(rawPatientIds)
+      ? (rawPatientIds as string[])
+      : [(rawPatientIds as string)];
+
+    // Filter out empty strings and trim
+    cleanFilter.patient_id = patientIds
+      .map((id) => id.trim())
+      .filter((id) => id.length > 0);
+  }
+
+  try {
+    const { data, error } = await getPatientsByIds(token, cleanFilter);
+
+    if (error) {
+      throw error;
+    }
+    return res.json(data);
+  } catch (error: any) {
+    console.error(`Fetching patients by IDs failed:`, error);
     return res.status(500).json({ error: error || "Unknown error" });
   }
 });

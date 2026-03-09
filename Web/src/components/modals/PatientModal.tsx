@@ -7,6 +7,7 @@ import axios from "axios";
 import { updatePatient } from "../../api/patients";
 //types
 import type { Patient } from "../../api/types/patients";
+import Button from "../Button";
 
 interface PatientModalProps {
   isOpen: boolean;
@@ -274,19 +275,8 @@ const PatientModal = ({ isOpen, onClose, patient }: PatientModalProps) => {
           </div>
 
           <div className="flex justify-end gap-3 pt-6 border-t mt-6">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-6 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors shadow-sm"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-6 py-2 text-sm font-medium text-white bg-[#4361ee] rounded-md hover:bg-blue-700 transition-colors shadow-md"
-            >
-              Save Changes
-            </button>
+            <Button text="Cancel" onClick={onClose} color="gray" />
+            <Button type="submit" text="Save Changes" color="indigo" />
           </div>
         </form>
       </div>

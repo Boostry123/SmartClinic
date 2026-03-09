@@ -42,3 +42,7 @@ export interface patientFilterTypes {
   last_name?: string;
   phone_number?: string;
 }
+
+export interface patientByIdsFilterTypes {
+  patient_id?: string[];
+}

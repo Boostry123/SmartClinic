@@ -1,4 +1,5 @@
 import type {
+  patientByIdsFilterTypes,
   patientFilterTypes,
   PatientUpdate,
 } from "../types/enums/patientTypes.js";
@@ -18,6 +19,20 @@ export const PatientsService = {
     `,
       )
       .match(filter);
+  },
+
+  getPatientsByIdsService: (client: any, filter: patientByIdsFilterTypes) => {
+    return client
+      .from("patients")
+      .select(
+        `
+      *,
+      users (
+        email
+      )
+    `,
+      )
+      .in("patient_id", filter.patient_id || []);
   },
 
   updatePatientService: (

@@ -3,14 +3,12 @@ import { getSupabaseClient } from "../config/supaDb.js";
 
 // Types
 import type {
+  patientByIdsFilterTypes,
   patientFilterTypes,
   PatientUpdate,
 } from "../types/enums/patientTypes.js";
 
-export const getPatients = async (
-  token: string,
-  filter: patientFilterTypes
-) => {
+export const getPatients = async (token: string, filter: patientFilterTypes) => {
   const { getPatientsService } = PatientsService;
 
   try {
@@ -24,6 +22,27 @@ export const getPatients = async (
     return { data };
   } catch (err: any) {
     console.error(`Fetching patients failed: ${err?.message ?? err}`);
+    return { data: null, error: err?.message ?? "Unknown error" };
+  }
+};
+
+export const getPatientsByIds = async (
+  token: string,
+  filter: patientByIdsFilterTypes,
+) => {
+  const { getPatientsByIdsService } = PatientsService;
+
+  try {
+    const supabase = getSupabaseClient(token);
+
+    const { data, error } = await getPatientsByIdsService(supabase, filter);
+
+    if (error) {
+      throw error;
+    }
+    return { data };
+  } catch (err: any) {
+    console.error(`Fetching patients by IDs failed: ${err?.message ?? err}`);
     return { data: null, error: err?.message ?? "Unknown error" };
   }
 };
