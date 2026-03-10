@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import useTreatmentEngine from "../hooks/useTreatmentEngine";
 //Stores
 import { useAuthStore } from "../store/authStore";
@@ -15,6 +15,7 @@ import {
   statusStyles,
   type AppointmentStatus,
 } from "../api/types/appointments";
+import { ImageField } from "./images/ImageField";
 
 interface AppointmentEngineProps {
   appointmentId: string;
@@ -47,6 +48,14 @@ const AppointmentEngine = ({
       setStatusClicked(appointmentInfo[0].status);
     }
   }, [appointmentInfo]);
+  const onImageFieldChange = useCallback(
+    (id: string, file: File | null) => {
+      handleInputChange({
+        target: { name: id, value: file, type: "file" },
+      } as unknown as React.ChangeEvent<HTMLInputElement>);
+    },
+    [handleInputChange],
+  );
 
   const handleStatusClick = (status: AppointmentStatus) => {
     setStatusClicked(status);
@@ -102,6 +111,13 @@ const AppointmentEngine = ({
     };
 
     switch (field.type) {
+      case "image":
+        return (
+          <ImageField
+            label={field.label}
+            onImageChange={(file) => onImageFieldChange(field.id, file)}
+          />
+        );
       case "number":
         return (
           <input
