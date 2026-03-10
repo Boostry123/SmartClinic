@@ -1,4 +1,5 @@
-import React, { useRef } from "react";
+import React from "react";
+import { Loader2, Camera, X } from "lucide-react";
 
 interface ImagePickerProps {
   preview: string | null;
@@ -6,6 +7,7 @@ interface ImagePickerProps {
   onFileSelect: (file: File | null) => void;
   onClear: () => void;
   label?: string;
+  isLoading?: boolean;
 }
 
 export const ImagePicker: React.FC<ImagePickerProps> = ({
@@ -14,80 +16,71 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({
   onFileSelect,
   onClear,
   label = "",
-}: ImagePickerProps) => {
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
-    onFileSelect(file);
-  };
+  isLoading = false,
+}) => {
+  const inputRef = React.useRef<HTMLInputElement>(null);
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: "10px",
-        maxWidth: "300px",
-      }}
-    >
-      <label style={{ fontWeight: "bold" }}>{label}</label>
+    <div className="flex flex-col gap-2 w-full">
+      <label className="text-sm font-semibold text-slate-700">{label}</label>
 
       <div
-        onClick={() => inputRef.current?.click()}
-        style={{
-          width: "100%",
-          height: "200px",
-          border: "2px dashed #ccc",
-          borderRadius: "8px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          cursor: "pointer",
-          overflow: "hidden",
-          backgroundColor: "#f9f9f9",
-        }}
+        onClick={() => !isLoading && inputRef.current?.click()}
+        className={`relative group aspect-video w-full rounded-xl border-2 border-dashed flex items-center justify-center overflow-hidden transition-all
+          ${preview ? "border-indigo-200" : "border-slate-300 bg-slate-50 hover:bg-slate-100 cursor-pointer"}
+          ${isLoading ? "cursor-wait opacity-70" : ""}`}
       >
-        {preview ? (
-          <img
-            src={preview}
-            alt="Preview"
-            style={{ width: "100%", height: "100%", objectFit: "cover" }}
-          />
+        {isLoading ? (
+          <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+        ) : preview ? (
+          <>
+            <img
+              src={preview}
+              alt="Preview"
+              className="w-full h-full object-cover"
+            />
+            {/* Hover Overlay */}
+            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+              <button
+                type="button"
+                className="p-2 bg-white rounded-full text-slate-700 hover:text-indigo-600 shadow-lg"
+                title="Change Photo"
+              >
+                <Camera size={20} />
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onClear();
+                }}
+                className="p-2 bg-white rounded-full text-red-500 hover:bg-red-50 shadow-lg"
+                title="Remove"
+              >
+                <X size={20} />
+              </button>
+            </div>
+          </>
         ) : (
-          <span style={{ color: "#666" }}>Click to select an image</span>
+          <div className="text-center p-4">
+            <Camera className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+            <span className="text-sm text-slate-500 font-medium">
+              Click to upload photo
+            </span>
+          </div>
         )}
       </div>
 
       <input
         type="file"
         ref={inputRef}
-        onChange={handleChange}
+        onChange={(e) => onFileSelect(e.target.files?.[0] || null)}
         accept="image/*"
-        style={{ display: "none" }}
+        className="hidden"
       />
 
       {error && (
-        <p style={{ color: "red", fontSize: "14px", margin: 0 }}>{error}</p>
-      )}
-
-      {preview && (
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onClear();
-          }}
-          style={{
-            padding: "8px",
-            cursor: "pointer",
-            backgroundColor: "#ff4d4d",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-          }}
-        >
-          Remove Image
-        </button>
+        <p className="text-xs text-red-500 mt-1 font-medium">{error}</p>
       )}
     </div>
   );

@@ -69,7 +69,7 @@ export interface UpdateAppointmentDTO {
   status?: AppointmentStatus;
   notes?: string;
   treatment_id?: string;
-  treatment_data?: Record<string, unknown>;
+  treatment_data?: Record<string, string | number | boolean | File | null>;
 }
 
 export interface AppointmentFilters {

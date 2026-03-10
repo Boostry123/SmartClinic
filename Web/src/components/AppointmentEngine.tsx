@@ -111,13 +111,17 @@ const AppointmentEngine = ({
     };
 
     switch (field.type) {
-      case "image":
+      case "image": {
+        const currentValue = values[field.id];
         return (
           <ImageField
+            key={field.id}
             label={field.label}
+            initialUrl={typeof currentValue === "string" ? currentValue : null}
             onImageChange={(file) => onImageFieldChange(field.id, file)}
           />
         );
+      }
       case "number":
         return (
           <input
