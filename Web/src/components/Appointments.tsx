@@ -18,7 +18,6 @@ import Card from "./Card";
 import useAppointments from "../hooks/useAppointments";
 import useTreatments from "../hooks/useTreatments";
 import { useIsMobile } from "../hooks/useIsMobile";
-import { useAuthStore } from "../store/authStore";
 
 // Types & Helpers
 import type {
@@ -49,12 +48,7 @@ const Appointments: React.FC<AppointmentFilters> = (props) => {
 
   const isMobile = useIsMobile();
 
-  const user = useAuthStore((state) => state.user);
-  const userRole = user?.user_metadata?.role;
-  const isDoctorOrAdmin = userRole === "doctor" || userRole === "admin";
-
   const handleRowClick = (appointment: Appointment) => {
-    if (!isDoctorOrAdmin) return;
     setSelectedAppointment(appointment);
   };
 
@@ -201,9 +195,12 @@ const Appointments: React.FC<AppointmentFilters> = (props) => {
             <div
               key={appointment.id}
               onClick={() => handleRowClick(appointment)}
-              className={`${isDoctorOrAdmin ? "cursor-pointer group hover:border-indigo-200" : "cursor-default"} transition-all duration-300`}
+              className={"cursor-pointer group"}
             >
-              <Card title={getPatientName(appointment)}>
+              <Card
+                title={getPatientName(appointment)}
+                className="group-hover:border-indigo-200 transition-all duration-300"
+              >
                 <div className="mb-4">
                   <span
                     className={`px-2.5 py-1 rounded-full text-xs font-semibold shadow-sm ${statusStyles[appointment.status]}`}
@@ -283,13 +280,15 @@ const Appointments: React.FC<AppointmentFilters> = (props) => {
                 {appointments?.map((appointment: Appointment) => (
                   <tr
                     key={appointment.id}
-                    className={`${isDoctorOrAdmin ? "hover:bg-slate-50/80 cursor-pointer group" : ""} transition-colors`}
+                    className={
+                      "hover:bg-slate-50/80 transition-colors cursor-pointer group"
+                    }
                     onClick={() => handleRowClick(appointment)}
                   >
                     {columns.map((col, index) => (
                       <td
                         key={`${appointment.id}-${index}`}
-                        className={`px-6 py-4 text-sm text-slate-600 whitespace-nowrap ${isDoctorOrAdmin ? "group-hover:text-slate-900" : ""} transition-colors ${
+                        className={`px-6 py-4 text-sm text-slate-600 whitespace-nowrap group-hover:text-slate-900 transition-colors ${
                           col.className || ""
                         }`}
                       >

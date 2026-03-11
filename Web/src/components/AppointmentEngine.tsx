@@ -92,13 +92,17 @@ const AppointmentEngine = ({
   };
 
   const renderInput = (field: Field) => {
+    const isFieldDisabled = !userIsDoctorOrAdmin;
+
     const commonProps = {
       id: field.id,
       name: field.id,
       onChange: handleInputChange,
       required: field.required,
-      className:
-        "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50",
+      disabled: isFieldDisabled,
+      className: `mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 ${
+        isFieldDisabled ? "bg-gray-50 pointer-events-none" : ""
+      }`,
     };
 
     switch (field.type) {
@@ -132,11 +136,14 @@ const AppointmentEngine = ({
               name={field.id}
               checked={values[field.id] as boolean}
               onChange={handleInputChange}
-              className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+              disabled={isFieldDisabled}
+              className={`h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded ${
+                isFieldDisabled ? "pointer-events-none opacity-50" : ""
+              }`}
             />
           </div>
         );
-      default: // text and other input types
+      default:
         return (
           <input
             type="text"
@@ -202,7 +209,6 @@ const AppointmentEngine = ({
               Status
             </label>
 
-            {/* Flex container to center and wrap buttons */}
             <div className="flex flex-wrap justify-center gap-3">
               {(
                 Object.values(AppointmentStatusEnum) as AppointmentStatus[]
@@ -211,11 +217,12 @@ const AppointmentEngine = ({
                   key={status}
                   type="button"
                   onClick={() => handleStatusClick(status)}
-                  className={
+                  disabled={!userIsDoctorOrAdmin}
+                  className={`${
                     statusClicked === status
                       ? statusStyles[status]
                       : "px-4 py-2 rounded-md border bg-gray-100 text-gray-800 border-gray-300"
-                  }
+                  } ${!userIsDoctorOrAdmin ? "pointer-events-none opacity-50" : ""}`}
                 >
                   {status}
                 </button>
