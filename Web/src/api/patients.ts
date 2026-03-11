@@ -1,6 +1,7 @@
 import apiClient from "./axiosClient";
 import type {
   Patient,
+  patientByIdsFilterTypes,
   patientFilterTypes,
   PatientUpdate,
 } from "./types/patients";
@@ -11,6 +12,21 @@ export const getPatients = async (
 ): Promise<Patient[]> => {
   try {
     const res = await apiClient.get<Patient[]>(`patients`, {
+      params: filter,
+    });
+    console.log("getPatients success:", res.data.length, "items found");
+    return res.data;
+  } catch (err) {
+    console.error("getPatients error:", err);
+    throw err;
+  }
+};
+
+export const getPatientsByIds = async (
+  filter?: patientByIdsFilterTypes,
+): Promise<Patient[]> => {
+  try {
+    const res = await apiClient.get<Patient[]>(`patients/byIds`, {
       params: filter,
     });
     console.log("getPatients success:", res.data.length, "items found");

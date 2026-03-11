@@ -1,4 +1,9 @@
 import axios from "axios";
+import type {
+  InternalAxiosRequestConfig,
+  AxiosResponse,
+  AxiosError,
+} from "axios";
 import { useAuthStore } from "../store/authStore";
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -9,7 +14,7 @@ const apiClient = axios.create({
 });
 
 // 1️⃣ Request interceptor – attach access token
-apiClient.interceptors.request.use((config) => {
+apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const accessToken = useAuthStore.getState().accessToken;
 
   if (accessToken) {
@@ -20,24 +25,31 @@ apiClient.interceptors.request.use((config) => {
 });
 
 // Response interceptor – refresh on 500
-apiClient.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
+interface CustomInternalAxiosRequestConfig extends InternalAxiosRequestConfig {
+  _retry?: boolean;
+}
 
-    if (error.response?.status === 500 && !originalRequest._retry) {
+apiClient.interceptors.response.use(
+  (response: AxiosResponse) => response,
+  async (error: AxiosError) => {
+    const originalRequest = error.config as CustomInternalAxiosRequestConfig;
+
+    if (error.response?.status === 500 && originalRequest && !originalRequest._retry) {
       originalRequest._retry = true;
 
       try {
         const res = await axios.post(
           `${API_URL}/auth/refresh`,
           {},
-          { withCredentials: true }
+          { withCredentials: true },
         );
 
         const { accessToken, user } = res.data;
         useAuthStore.getState().setAuth(accessToken, user);
-        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+
+        if (originalRequest.headers) {
+          originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+        }
 
         return apiClient(originalRequest);
       } catch (refreshError) {
@@ -48,7 +60,7 @@ apiClient.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export default apiClient;

@@ -2,16 +2,22 @@ import { useState } from "react";
 import { AlertTriangle, ArrowLeft, FileText, Loader } from "lucide-react";
 //Hooks
 import useTreatments from "../hooks/useTreatments";
+import { useAuthStore } from "../store/authStore";
 //Engines
 import TreatmentEngine from "../components/TreatmentEngine";
 //Types
 import type { Treatment } from "../api/types/treatments";
+import Hint from "../components/hint";
 
 const Treatments = () => {
   const [selectedTemplate, setSelectedTemplate] = useState<Treatment | null>(
-    null
+    null,
   );
   const { data: treatments, isLoading, isError, error } = useTreatments();
+
+  const user = useAuthStore((state) => state.user);
+  const userRole = user?.user_metadata?.role;
+  const isDoctorOrAdmin = userRole === "doctor" || userRole === "admin";
 
   if (isLoading) {
     return (
@@ -56,25 +62,52 @@ const Treatments = () => {
         <h1 className="text-4xl font-extrabold text-gray-800 tracking-tight">
           Treatment Templates
         </h1>
-        <p className="mt-3 max-w-2xl mx-auto text-lg text-gray-500">
-          Select a template to view or edit its structure.
-        </p>
       </div>
-      <div className="flex justify-center mb-8">
-        <button className="px-8 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-lg hover:bg-indigo-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 text-lg">
-          Create New Template
-        </button>
-      </div>
+
+      {isDoctorOrAdmin && (
+        <div className="flex justify-center mb-8">
+          <button className="px-8 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-lg hover:bg-indigo-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 text-lg">
+            Create New Template [COMING SOON]
+          </button>
+        </div>
+      )}
+
+      <Hint
+        text={
+          isDoctorOrAdmin
+            ? "Select a template to view or edit its structure."
+            : "Available treatments at SmartClinic."
+        }
+      />
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {treatments?.map((template) => (
           <div
             key={template.treatment_name}
-            onClick={() => setSelectedTemplate(template)}
-            className="group bg-white rounded-xl border border-gray-200 p-6 cursor-pointer hover:border-indigo-500 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+            onClick={() => {
+              if (isDoctorOrAdmin) {
+                setSelectedTemplate(template);
+              }
+            }}
+            className={`group bg-white rounded-xl border border-gray-200 p-6 transition-all duration-300 ${
+              isDoctorOrAdmin
+                ? "cursor-pointer hover:border-indigo-500 hover:shadow-lg transform hover:-translate-y-1"
+                : "cursor-default"
+            }`}
           >
-            <div className="flex items-center justify-center w-12 h-12 bg-indigo-100 rounded-lg mb-4 group-hover:bg-indigo-500 transition-colors">
+            <div
+              className={`flex items-center justify-center w-12 h-12 rounded-lg mb-4 transition-colors ${
+                isDoctorOrAdmin
+                  ? "bg-indigo-100 group-hover:bg-indigo-500"
+                  : "bg-slate-100"
+              }`}
+            >
               <FileText
-                className="text-indigo-600 group-hover:text-white"
+                className={
+                  isDoctorOrAdmin
+                    ? "text-indigo-600 group-hover:text-white"
+                    : "text-slate-400"
+                }
                 size={24}
               />
             </div>

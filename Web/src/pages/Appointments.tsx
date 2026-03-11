@@ -3,6 +3,8 @@ import { DateTime } from "luxon";
 import DatePicker from "../components/Datepicker";
 import Appointments from "../components/Appointments";
 import CreateAppointmentModal from "../components/modals/CreateAppointmentModal";
+import Button from "../components/Button";
+import { useAuthStore } from "../store/authStore";
 
 const AppointmentsPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -12,6 +14,10 @@ const AppointmentsPage = () => {
     DateTime.now().plus({ days: 1 }).toISODate() || "",
   );
   const [showPicker, setShowPicker] = useState(false);
+
+  const user = useAuthStore((state) => state.user);
+  const userRole = user?.user_metadata?.role;
+  const isDoctorOrAdmin = userRole === "doctor" || userRole === "admin";
 
   return (
     <div className="container mx-auto p-4 sm:p-6">
@@ -35,13 +41,12 @@ const AppointmentsPage = () => {
           />
         </div>
 
-        {/* Primary Action Button */}
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="w-full sm:w-auto bg-indigo-600 text-white hover:bg-indigo-700 transition-colors font-semibold py-2 px-4 rounded"
-        >
-          New Appointment
-        </button>
+        {isDoctorOrAdmin && (
+          <Button
+            text={"New Appointment"}
+            onClick={() => setIsModalOpen(true)}
+          />
+        )}
       </div>
 
       {/* Main Content */}

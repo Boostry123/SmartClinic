@@ -5,7 +5,6 @@ import {
   Users,
   Activity,
   Sparkles,
-  Bell,
   LogOut,
   Menu,
   X,
@@ -20,6 +19,10 @@ const NavBar = () => {
   const location = useLocation();
   const queryClient = useQueryClient();
 
+  const user = useAuthStore((state) => state.user);
+  const userRole = user?.user_metadata?.role;
+  const isDoctorOrAdmin = userRole === "doctor" || userRole === "admin";
+
   const navItems = [
     { name: "Home", icon: <Home size={18} />, path: "/" },
     {
@@ -27,7 +30,9 @@ const NavBar = () => {
       icon: <Calendar size={18} />,
       path: "/appointments",
     },
-    { name: "Patients", icon: <Users size={18} />, path: "/patients" },
+    ...(isDoctorOrAdmin
+      ? [{ name: "Patients", icon: <Users size={18} />, path: "/patients" }]
+      : []),
     { name: "Treatments", icon: <Activity size={18} />, path: "/treatments" },
   ];
 
@@ -82,9 +87,6 @@ const NavBar = () => {
 
           {/* Right Side Actions */}
           <div className="flex items-center gap-3">
-            <button className="hidden sm:flex p-2.5 text-indigo-300 hover:text-white hover:bg-white/5 rounded-full transition-colors relative">
-              <Bell size={18} />
-            </button>
             <div className="hidden sm:block w-px h-6 bg-indigo-800 mx-1"></div>
             <button
               onClick={handleLogout}
