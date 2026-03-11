@@ -1,16 +1,36 @@
+import { DateTime } from "luxon";
+import { Loader } from "lucide-react";
 import useAppointments from "../hooks/useAppointments";
-import { format } from "date-fns";
 import type { Appointment } from "../api/types/appointments";
 
 const TodayAppointments = () => {
-  const { data: appointments, isLoading, isError } = useAppointments({});
+  const startOfDay = DateTime.now().startOf("day").toISO();
+  const endOfDay = DateTime.now().endOf("day").toISO();
 
-  if (isLoading)
-    return <div className="p-4 text-center">Loading schedule...</div>;
-  if (isError)
+  const {
+    data: appointments,
+    isLoading,
+    isError,
+  } = useAppointments({
+    start_time: startOfDay,
+    end_time: endOfDay,
+  });
+
+  if (isLoading) {
     return (
-      <div className="p-4 text-center text-red-500">Error loading data.</div>
+      <div className="flex justify-center items-center h-64">
+        <Loader className="animate-spin text-indigo-500" size={48} />
+      </div>
     );
+  }
+
+  if (isError) {
+    return (
+      <div className="p-4 text-center text-red-500 font-medium">
+        Error loading appointments.
+      </div>
+    );
+  }
 
   return (
     <div className="w-full overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
@@ -39,7 +59,7 @@ const TodayAppointments = () => {
             <tr key={apt.id} className="hover:bg-gray-50 transition-colors">
               <td className="px-4 py-3 text-sm font-medium text-gray-700">
                 {apt.start_time
-                  ? format(new Date(apt.start_time), "HH:mm")
+                  ? DateTime.fromISO(apt.start_time).toFormat("HH:mm")
                   : "N/A"}
               </td>
               <td className="px-4 py-3 text-sm text-gray-900">
@@ -70,13 +90,14 @@ const TodayAppointments = () => {
               </td>
             </tr>
           ))}
-          {appointments?.length === 0 && (
+
+          {(!appointments || appointments.length === 0) && (
             <tr>
               <td
                 colSpan={5}
                 className="px-4 py-10 text-center text-gray-500 text-sm"
               >
-                No appointments for today.
+                No appointments for today. Take a coffee break! ☕
               </td>
             </tr>
           )}

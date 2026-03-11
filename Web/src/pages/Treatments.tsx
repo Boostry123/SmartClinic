@@ -6,10 +6,11 @@ import useTreatments from "../hooks/useTreatments";
 import TreatmentEngine from "../components/TreatmentEngine";
 //Types
 import type { Treatment } from "../api/types/treatments";
+import Hint from "../components/hint";
 
 const Treatments = () => {
   const [selectedTemplate, setSelectedTemplate] = useState<Treatment | null>(
-    null
+    null,
   );
   const { data: treatments, isLoading, isError, error } = useTreatments();
 
@@ -56,15 +57,13 @@ const Treatments = () => {
         <h1 className="text-4xl font-extrabold text-gray-800 tracking-tight">
           Treatment Templates
         </h1>
-        <p className="mt-3 max-w-2xl mx-auto text-lg text-gray-500">
-          Select a template to view or edit its structure.
-        </p>
       </div>
       <div className="flex justify-center mb-8">
         <button className="px-8 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-lg hover:bg-indigo-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 text-lg">
-          Create New Template
+          Create New Template [COMING SOON]
         </button>
       </div>
+      <Hint text="Select a template to view or edit its structure." />
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {treatments?.map((template) => (
           <div

@@ -56,7 +56,9 @@ function App() {
           {/* 4. Placeholder Routes (redirecting to Dashboard for now) */}
           <Route
             path="/appointments"
-            element={isAuthenticated ? <AppointmentsPage /> : <Navigate to="/login" />}
+            element={
+              isAuthenticated ? <AppointmentsPage /> : <Navigate to="/login" />
+            }
           />
           <Route
             path="/patients"
@@ -64,7 +66,9 @@ function App() {
           />
           <Route
             path="/treatments"
-            element={isAuthenticated ? <Treatments /> : <Navigate to="/login" />}
+            element={
+              isAuthenticated ? <Treatments /> : <Navigate to="/login" />
+            }
           />
         </Routes>
       </main>

@@ -1,12 +1,12 @@
 import apiClient from "./axiosClient";
-import type { Patient, patientFilterTypes } from "./types/patients";
+import type { Doctor, doctorFilterTypes } from "./types/doctors";
 
 //this function fetches all users with a role of 'patient' from the backend API
-export const getPatients = async (
-  filter?: patientFilterTypes,
-): Promise<Patient[]> => {
+export const getDoctors = async (
+  filter?: doctorFilterTypes,
+): Promise<Doctor[]> => {
   try {
-    const res = await apiClient.get<Patient[]>(`patients`, {
+    const res = await apiClient.get<Doctor[]>(`doctors`, {
       params: filter,
     });
     console.log("getPatients success:", res.data.length, "items found");
