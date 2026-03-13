@@ -1,10 +1,11 @@
 import { z } from "zod";
-//tanstack AI
 import { toolDefinition } from "@tanstack/ai";
 
 export const getAppointmentsToolDef = toolDefinition({
   name: "fetch_appointments",
-  description: "Retrieve clinic appointments",
+  // Improved description to tell the AI it's for searching/filtering
+  description:
+    "Search and retrieve clinic appointments filterable by date range, patient, or status.",
   inputSchema: z.object({
     id: z.string().optional(),
     status: z
@@ -15,32 +16,24 @@ export const getAppointmentsToolDef = toolDefinition({
     start_time: z
       .string()
       .optional()
-      .describe("specific scheduled date and time in ISO format"),
+      .describe(
+        "The beginning of the search period in ISO format (e.g., the start of today or the start of next week).",
+      ),
     end_time: z
       .string()
       .optional()
       .describe(
-        "specific calculated end time according to the treatment duration in ISO format",
+        "The end of the search period in ISO format (e.g., the end of today or the end of next week).",
       ),
   }),
   outputSchema: z.object({
     appointments: z.array(
       z.object({
         id: z.string().describe("unique identifier for the appointment"),
-        patient_id: z
-          .string()
-          .describe("ID of the patient associated with the appointment"),
-        doctor_id: z
-          .string()
-          .describe("ID of the doctor associated with the appointment"),
-        treatment_id: z
-          .string()
-          .describe("ID of the treatment associated with the appointment"),
-        treatment_data: z
-          .record(z.string(), z.any())
-          .describe(
-            "data that was filled in by the doctor according to the treatment form",
-          ),
+        patient_id: z.string(),
+        doctor_id: z.string(),
+        treatment_id: z.string(),
+        treatment_data: z.record(z.string(), z.any()),
         start_time: z.string(),
         end_time: z.string(),
         status: z
@@ -51,23 +44,19 @@ export const getAppointmentsToolDef = toolDefinition({
             "completed",
             "cancelled",
           ])
-          .describe(
-            "current status of the appointment, scheduled means it's upcoming, completed means it allready happened, cancelled means it was cancelled, checked_in means the patient already checked in the clinic, confirmed means the doctor already confirmed the appointment",
-          ),
-        notes: z.string().describe("any additional notes for the appointment"),
-        created_at: z
-          .string()
-          .describe("the date and time when the appointment was created"),
+          .optional(),
+        notes: z.string(),
+        created_at: z.string(),
         patients: z.object({
-          first_name: z.string().describe("first name of the patient"),
-          last_name: z.string().describe("last name of the patient"),
+          first_name: z.string(),
+          last_name: z.string(),
         }),
         doctors: z.object({
-          specialization: z.string().describe("specialization of the doctor"),
+          specialization: z.string(),
           users: z.object({
-            name: z.string().describe("first name of the doctor"),
-            last_name: z.string().describe("last name of the doctor"),
-            email: z.string().describe("email of the doctor"),
+            name: z.string(),
+            last_name: z.string(),
+            email: z.string(),
           }),
         }),
       }),
