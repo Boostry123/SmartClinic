@@ -3,7 +3,7 @@ import { useImageUpload } from "../../hooks/useImageUploadOptions";
 import { ImagePicker } from "./ImagePicker";
 
 interface ImageFieldProps {
-  label: string;
+  label?: string;
   initialUrl?: string | null; // This comes from your database (treatment_data)
   onImageChange: (file: File | null) => void;
 }

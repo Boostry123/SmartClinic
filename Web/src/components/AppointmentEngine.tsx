@@ -43,6 +43,7 @@ const AppointmentEngine = ({
 
   const [statusClicked, setStatusClicked] =
     useState<AppointmentStatus>("confirmed");
+  const [successLoading, setSuccessLoading] = useState(false);
   useEffect(() => {
     if (appointmentInfo?.[0]?.status) {
       setStatusClicked(appointmentInfo[0].status);
@@ -63,6 +64,7 @@ const AppointmentEngine = ({
 
   const handleEditButton = async () => {
     try {
+      setSuccessLoading(true);
       if (statusClicked === AppointmentStatusEnum.COMPLETED) {
         handleDoneButton();
       } else {
@@ -75,6 +77,7 @@ const AppointmentEngine = ({
 
       console.log("Appointment updated successfully");
       await queryClient.invalidateQueries({ queryKey: ["appointments"] });
+      setSuccessLoading(false);
       onSuccess();
     } catch (error) {
       if (error instanceof Error) {
@@ -84,6 +87,7 @@ const AppointmentEngine = ({
   };
   const handleDoneButton = async () => {
     setStatusClicked(AppointmentStatusEnum.COMPLETED);
+    setSuccessLoading(true);
     try {
       await updateAppointment({
         id: appointmentId,
@@ -92,6 +96,7 @@ const AppointmentEngine = ({
       });
       console.log("Appointment updated successfully");
       await queryClient.invalidateQueries({ queryKey: ["appointments"] });
+      setSuccessLoading(false);
       onSuccess();
     } catch (error) {
       if (error instanceof Error) {
@@ -116,7 +121,6 @@ const AppointmentEngine = ({
         return (
           <ImageField
             key={field.id}
-            label={field.label}
             initialUrl={typeof currentValue === "string" ? currentValue : null}
             onImageChange={(file) => onImageFieldChange(field.id, file)}
           />
@@ -167,7 +171,7 @@ const AppointmentEngine = ({
         );
     }
   };
-  if (isLoading) {
+  if (isLoading || successLoading) {
     return (
       <div className="flex justify-center items-center h-64">
         <Loader className="animate-spin text-indigo-500" size={48} />

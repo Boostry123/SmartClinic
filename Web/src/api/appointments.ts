@@ -61,7 +61,14 @@ export const updateAppointment = async (
       if (value instanceof File) {
         // Appending a binary file
         formData.append(`treatment_data.${key}`, value);
-      } else if (value !== null && value !== undefined) {
+      } else if (typeof value === "string" && value.startsWith("http")) {
+        // SKIP signed URLs: The backend will keep the existing storage path
+        // if we don't send a new file or a different string for this key.
+        return;
+      } else if (value === null) {
+        // Explicitly send an empty string to signal deletion
+        formData.append(`treatment_data.${key}`, "");
+      } else if (value !== undefined) {
         // Appending strings, numbers, or booleans
         formData.append(`treatment_data.${key}`, String(value));
       }

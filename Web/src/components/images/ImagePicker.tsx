@@ -18,7 +18,19 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({
   label = "",
   isLoading = false,
 }) => {
+  const [isImageLoading, setIsImageLoading] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
+
+  // When the preview URL changes (e.g. initial Signed URL arrives),
+  // we start the local loading state.
+  React.useEffect(() => {
+    if (preview && preview.startsWith("http")) {
+      setIsImageLoading(true);
+    }
+  }, [preview]);
+
+  // Combine parent loading state with local image loading state
+  const showSpinner = isLoading || isImageLoading;
 
   return (
     <div className="flex flex-col gap-2 w-full">
@@ -28,53 +40,67 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({
         onClick={() => !isLoading && inputRef.current?.click()}
         className={`relative group aspect-video w-full rounded-xl border-2 border-dashed flex items-center justify-center overflow-hidden transition-all
           ${preview ? "border-indigo-200" : "border-slate-300 bg-slate-50 hover:bg-slate-100 cursor-pointer"}
-          ${isLoading ? "cursor-wait opacity-70" : ""}`}
+          ${showSpinner ? "cursor-wait opacity-70" : ""}`}
       >
-        {isLoading ? (
-          <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
-        ) : preview ? (
+        {showSpinner && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-50/50">
+            <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+          </div>
+        )}
+
+        {preview ? (
           <>
             <img
               src={preview}
               alt="Preview"
               className="w-full h-full object-cover"
+              // When the image finishes downloading, hide the spinner
+              onLoad={() => setIsImageLoading(false)}
+              onError={() => setIsImageLoading(false)}
             />
-            {/* Hover Overlay */}
-            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-              <button
-                type="button"
-                className="p-2 bg-white rounded-full text-slate-700 hover:text-indigo-600 shadow-lg"
-                title="Change Photo"
-              >
-                <Camera size={20} />
-              </button>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onClear();
-                }}
-                className="p-2 bg-white rounded-full text-red-500 hover:bg-red-50 shadow-lg"
-                title="Remove"
-              >
-                <X size={20} />
-              </button>
-            </div>
+
+            {/* Hover Overlay - only show if NOT loading */}
+            {!showSpinner && (
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                <button
+                  type="button"
+                  className="p-2 bg-white rounded-full text-slate-700 hover:text-indigo-600 shadow-lg"
+                >
+                  <Camera size={20} />
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onClear();
+                  }}
+                  className="p-2 bg-white rounded-full text-red-500 hover:bg-red-50 shadow-lg"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+            )}
           </>
         ) : (
-          <div className="text-center p-4">
-            <Camera className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-            <span className="text-sm text-slate-500 font-medium">
-              Click to upload photo
-            </span>
-          </div>
+          !showSpinner && (
+            <div className="text-center p-4">
+              <Camera className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+              <span className="text-sm text-slate-500 font-medium">
+                Click to upload photo
+              </span>
+            </div>
+          )
         )}
       </div>
 
       <input
         type="file"
         ref={inputRef}
-        onChange={(e) => onFileSelect(e.target.files?.[0] || null)}
+        onChange={(e) => {
+          const file = e.target.files?.[0] || null;
+          if (file) setIsImageLoading(false); // Local files load instantly
+          onFileSelect(file);
+        }}
         accept="image/*"
         className="hidden"
       />
