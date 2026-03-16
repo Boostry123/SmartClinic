@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import useTreatmentEngine from "../hooks/useTreatmentEngine";
 //Stores
 import { useAuthStore } from "../store/authStore";
@@ -15,6 +15,7 @@ import {
   statusStyles,
   type AppointmentStatus,
 } from "../api/types/appointments";
+import { ImageField } from "./images/ImageField";
 
 interface AppointmentEngineProps {
   appointmentId: string;
@@ -42,11 +43,20 @@ const AppointmentEngine = ({
 
   const [statusClicked, setStatusClicked] =
     useState<AppointmentStatus>("confirmed");
+  const [successLoading, setSuccessLoading] = useState(false);
   useEffect(() => {
     if (appointmentInfo?.[0]?.status) {
       setStatusClicked(appointmentInfo[0].status);
     }
   }, [appointmentInfo]);
+  const onImageFieldChange = useCallback(
+    (id: string, file: File | null) => {
+      handleInputChange({
+        target: { name: id, value: file, type: "file" },
+      } as unknown as React.ChangeEvent<HTMLInputElement>);
+    },
+    [handleInputChange],
+  );
 
   const handleStatusClick = (status: AppointmentStatus) => {
     setStatusClicked(status);
@@ -54,6 +64,7 @@ const AppointmentEngine = ({
 
   const handleEditButton = async () => {
     try {
+      setSuccessLoading(true);
       if (statusClicked === AppointmentStatusEnum.COMPLETED) {
         handleDoneButton();
       } else {
@@ -66,6 +77,7 @@ const AppointmentEngine = ({
 
       console.log("Appointment updated successfully");
       await queryClient.invalidateQueries({ queryKey: ["appointments"] });
+      setSuccessLoading(false);
       onSuccess();
     } catch (error) {
       if (error instanceof Error) {
@@ -75,6 +87,7 @@ const AppointmentEngine = ({
   };
   const handleDoneButton = async () => {
     setStatusClicked(AppointmentStatusEnum.COMPLETED);
+    setSuccessLoading(true);
     try {
       await updateAppointment({
         id: appointmentId,
@@ -83,6 +96,7 @@ const AppointmentEngine = ({
       });
       console.log("Appointment updated successfully");
       await queryClient.invalidateQueries({ queryKey: ["appointments"] });
+      setSuccessLoading(false);
       onSuccess();
     } catch (error) {
       if (error instanceof Error) {
@@ -106,6 +120,16 @@ const AppointmentEngine = ({
     };
 
     switch (field.type) {
+      case "image": {
+        const currentValue = values[field.id];
+        return (
+          <ImageField
+            key={field.id}
+            initialUrl={typeof currentValue === "string" ? currentValue : null}
+            onImageChange={(file) => onImageFieldChange(field.id, file)}
+          />
+        );
+      }
       case "number":
         return (
           <input
@@ -154,7 +178,7 @@ const AppointmentEngine = ({
         );
     }
   };
-  if (isLoading) {
+  if (isLoading || successLoading) {
     return (
       <div className="flex justify-center items-center h-64">
         <Loader className="animate-spin text-indigo-500" size={48} />

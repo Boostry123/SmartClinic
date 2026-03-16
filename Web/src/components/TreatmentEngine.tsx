@@ -1,19 +1,27 @@
-import React from "react";
-//Engines
+import React, { useCallback } from "react";
 import useTreatmentEngine from "../hooks/useTreatmentEngine";
-//Stores
-import { useAuthStore } from "../store/authStore";
-//Types
 import type { Treatment, Field } from "../api/types/treatments";
+import { ImageField } from "./images/ImageField";
 
 interface TreatmentEngineProps {
   template: Treatment;
 }
 
-const TreatmentEngine = ({ template }: TreatmentEngineProps) => {
+const TreatmentEngine: React.FC<TreatmentEngineProps> = ({ template }) => {
   const { values, handleInputChange } = useTreatmentEngine(template);
-  const userRole = useAuthStore.getState().user?.user_metadata.role;
-  const userIsDoctorOrAdmin = userRole === "doctor" || userRole === "admin";
+
+  const handleImageChange = useCallback(
+    (fieldId: string, file: File | null) => {
+      handleInputChange({
+        target: {
+          name: fieldId,
+          value: file,
+          type: "file",
+        },
+      } as unknown as React.ChangeEvent<HTMLInputElement>);
+    },
+    [handleInputChange],
+  );
 
   const renderInput = (field: Field) => {
     const commonProps = {
@@ -22,7 +30,7 @@ const TreatmentEngine = ({ template }: TreatmentEngineProps) => {
       onChange: handleInputChange,
       required: field.required,
       className:
-        "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50",
+        "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm",
     };
 
     switch (field.type) {
@@ -31,16 +39,22 @@ const TreatmentEngine = ({ template }: TreatmentEngineProps) => {
           <input
             type="number"
             {...commonProps}
-            value={values[field.id] as number}
-            placeholder={field.placeholder}
+            value={(values[field.id] as number) ?? ""}
           />
         );
       case "textarea":
-        return <textarea {...commonProps} value={values[field.id] as string} />;
+        return (
+          <textarea
+            {...commonProps}
+            value={(values[field.id] as string) ?? ""}
+            rows={3}
+          />
+        );
       case "select":
         return (
-          <select {...commonProps} value={values[field.id] as string}>
-            {field.options?.map((option: string) => (
+          <select {...commonProps} value={(values[field.id] as string) ?? ""}>
+            <option value="">Select an option...</option>
+            {field.options?.map((option) => (
               <option key={option} value={option}>
                 {option}
               </option>
@@ -49,24 +63,26 @@ const TreatmentEngine = ({ template }: TreatmentEngineProps) => {
         );
       case "checkbox":
         return (
-          <div className="flex items-center h-5">
-            <input
-              type="checkbox"
-              id={field.id}
-              name={field.id}
-              checked={values[field.id] as boolean}
-              onChange={handleInputChange}
-              className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-            />
-          </div>
+          <input
+            type="checkbox"
+            {...commonProps}
+            checked={!!values[field.id]}
+            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+          />
         );
-      default: // text and other input types
+      case "image":
+        return (
+          <ImageField
+            label={field.label}
+            onImageChange={(file) => handleImageChange(field.id, file)}
+          />
+        );
+      default:
         return (
           <input
             type="text"
             {...commonProps}
-            value={values[field.id] as string}
-            placeholder={field.placeholder}
+            value={(values[field.id] as string) ?? ""}
           />
         );
     }
@@ -74,8 +90,7 @@ const TreatmentEngine = ({ template }: TreatmentEngineProps) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form submitted with values:", values);
-    alert("Check the console for the form data!");
+    console.log("Submitting values:", values);
   };
 
   return (
@@ -88,57 +103,35 @@ const TreatmentEngine = ({ template }: TreatmentEngineProps) => {
           {template.estimated_time} min
         </span>
       </div>
-      <p className="text-sm text-gray-500 mb-8">
-        Version {template.template.version}
-      </p>
-      <form onSubmit={handleSubmit}>
-        <div className="space-y-6">
-          {template.template.fields.map((field: Field) => (
-            <div
-              key={field.id}
-              className={
-                field.type === "checkbox" ? "flex items-center gap-4" : ""
-              }
-            >
-              {field.type !== "checkbox" && (
-                <label
-                  htmlFor={field.id}
-                  className="block text-sm font-medium text-gray-800 mb-1"
-                >
-                  {field.label}{" "}
-                  {field.required && <span className="text-red-500">*</span>}
-                </label>
-              )}
-              {renderInput(field)}
-              {field.type === "checkbox" && (
-                <label
-                  htmlFor={field.id}
-                  className="text-sm font-medium text-gray-800"
-                >
-                  {field.label}
-                </label>
-              )}
-            </div>
-          ))}
-        </div>
-        <div className="mt-10 pt-8 border-t border-gray-200 flex items-center gap-4">
-          {userIsDoctorOrAdmin ? (
-            <button
-              type="submit"
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              Edit
-            </button>
-          ) : null}
-          {userIsDoctorOrAdmin ? (
-            <button
-              type="button"
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-            >
-              Delete
-            </button>
-          ) : null}
-        </div>
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {template.template.fields.map((field) => (
+          <div
+            key={field.id}
+            className={
+              field.type === "checkbox" ? "flex items-center gap-3" : "block"
+            }
+          >
+            {field.type !== "checkbox" && (
+              <label
+                htmlFor={field.id}
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                {field.label}{" "}
+                {field.required && <span className="text-red-500">*</span>}
+              </label>
+            )}
+            {renderInput(field)}
+            {field.type === "checkbox" && (
+              <label
+                htmlFor={field.id}
+                className="text-sm font-medium text-gray-700"
+              >
+                {field.label}
+              </label>
+            )}
+          </div>
+        ))}
       </form>
     </div>
   );
