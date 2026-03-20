@@ -1,8 +1,11 @@
 import React, { useMemo } from "react";
 import { DateTime } from "luxon";
+//components
 import Card from "../components/Card";
 import Appointments from "../components/Appointments";
+//types
 import { ClinicRoleEnum, type ClinicRole } from "../types/auth";
+//hooks
 import useDoctors from "../hooks/useDoctors";
 
 // Define a local interface for the user metadata if not already global
