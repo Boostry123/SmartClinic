@@ -28,7 +28,6 @@ import { statusStyles } from "../api/types/appointments";
 import { dateTimeStructure } from "../helpers/Dates";
 
 const Appointments: React.FC<AppointmentFilters> = (props) => {
-  // Destructure filters to avoid passing non-filter props (like children) to the API
   const { start_time, end_time, status, patient_id, doctor_id, id } = props;
   const filters = useMemo(
     () => ({ start_time, end_time, status, patient_id, doctor_id, id }),
@@ -196,7 +195,7 @@ const Appointments: React.FC<AppointmentFilters> = (props) => {
             <div
               key={appointment.id}
               onClick={() => handleRowClick(appointment)}
-              className="cursor-pointer group"
+              className={"cursor-pointer group"}
             >
               <Card
                 title={getPatientName(appointment)}
@@ -281,7 +280,9 @@ const Appointments: React.FC<AppointmentFilters> = (props) => {
                 {appointments?.map((appointment: Appointment) => (
                   <tr
                     key={appointment.id}
-                    className="hover:bg-slate-50/80 transition-colors cursor-pointer group"
+                    className={
+                      "hover:bg-slate-50/80 transition-colors cursor-pointer group"
+                    }
                     onClick={() => handleRowClick(appointment)}
                   >
                     {columns.map((col, index) => (

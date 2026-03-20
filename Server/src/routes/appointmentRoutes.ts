@@ -1,4 +1,5 @@
 import { Router } from "express";
+import upload from "../middleware/multer.js";
 //Controllers
 import {
   createAppointment,
@@ -7,13 +8,14 @@ import {
 } from "../controllers/appointmentsController.js";
 import { authMiddleware } from "../middleware/auth.js";
 //Types
-
 import type {
   AppointmentFilters,
   AppointmentStatus,
   CreateAppointmentDTO,
   UpdateAppointmentDTO,
 } from "../types/enums/appointmentTypes.js";
+//Middleware
+import type { MulterRequest } from "../middleware/multer.js";
 
 const AppointmentRoutes = Router();
 
@@ -41,30 +43,37 @@ AppointmentRoutes.post("/", authMiddleware, async (req: any, res) => {
   }
 });
 
-AppointmentRoutes.patch("/", authMiddleware, async (req: any, res) => {
-  const token = req.token;
-  const { id } = req.body;
+AppointmentRoutes.patch(
+  "/",
+  authMiddleware,
+  upload.any(),
+  async (req: any, res) => {
+    const multerReq = req as MulterRequest;
+    const token = req.token;
+    const { id } = multerReq.body;
 
-  if (!token) return res.status(401).json({ error: "Unauthorized" });
+    if (!token) return res.status(401).json({ error: "Unauthorized" });
 
-  if (!id) {
-    return res
-      .status(400)
-      .json({ error: "Appointment ID is required in the body" });
-  }
+    if (!id) {
+      return res
+        .status(400)
+        .json({ error: "Appointment ID is required in the body" });
+    }
 
-  try {
-    const { data, error } = await updateAppointment(
-      token,
-      req.body as UpdateAppointmentDTO
-    );
+    try {
+      const { data, error } = await updateAppointment(
+        token,
+        multerReq.body as UpdateAppointmentDTO,
+        multerReq.files,
+      );
 
-    if (error) return res.status(400).json({ error });
-    return res.status(200).json(data);
-  } catch (error) {
-    return res.status(500).json({ error: "Internal Server Error" });
-  }
-});
+      if (error) return res.status(400).json({ error });
+      return res.status(200).json(data);
+    } catch (error) {
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+  },
+);
 AppointmentRoutes.get("/", authMiddleware, async (req: any, res) => {
   const token = req.token;
 

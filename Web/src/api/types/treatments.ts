@@ -1,7 +1,7 @@
 export interface Field {
   id: string;
   label: string;
-  type: "number" | "textarea" | "select" | "checkbox" | "text";
+  type: "number" | "textarea" | "select" | "checkbox" | "text" | "image";
   placeholder?: string;
   required?: boolean;
   options?: string[];
@@ -34,4 +34,4 @@ export interface filterTreatment {
   id?: string;
 }
 
-export type FormValues = Record<string, string | number | boolean>;
+export type FormValues = Record<string, string | number | boolean | File>;

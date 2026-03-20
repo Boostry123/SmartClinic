@@ -4,6 +4,7 @@ import DatePicker from "../components/Datepicker";
 import Appointments from "../components/Appointments";
 import CreateAppointmentModal from "../components/modals/CreateAppointmentModal";
 import Button from "../components/Button";
+import { useAuthStore } from "../store/authStore";
 
 const AppointmentsPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -13,6 +14,10 @@ const AppointmentsPage = () => {
     DateTime.now().plus({ days: 1 }).toISODate() || "",
   );
   const [showPicker, setShowPicker] = useState(false);
+
+  const user = useAuthStore((state) => state.user);
+  const userRole = user?.user_metadata?.role;
+  const isDoctorOrAdmin = userRole === "doctor" || userRole === "admin";
 
   return (
     <div className="container mx-auto p-4 sm:p-6">
@@ -36,8 +41,12 @@ const AppointmentsPage = () => {
           />
         </div>
 
-        {/* Primary Action Button */}
-        <Button text={"New Appointment"} onClick={() => setIsModalOpen(true)} />
+        {isDoctorOrAdmin && (
+          <Button
+            text={"New Appointment"}
+            onClick={() => setIsModalOpen(true)}
+          />
+        )}
       </div>
 
       {/* Main Content */}

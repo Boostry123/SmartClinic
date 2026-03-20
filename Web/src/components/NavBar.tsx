@@ -19,6 +19,10 @@ const NavBar = () => {
   const location = useLocation();
   const queryClient = useQueryClient();
 
+  const user = useAuthStore((state) => state.user);
+  const userRole = user?.user_metadata?.role;
+  const isDoctorOrAdmin = userRole === "doctor" || userRole === "admin";
+
   const navItems = [
     { name: "Home", icon: <Home size={18} />, path: "/" },
     {
@@ -26,7 +30,9 @@ const NavBar = () => {
       icon: <Calendar size={18} />,
       path: "/appointments",
     },
-    { name: "Patients", icon: <Users size={18} />, path: "/patients" },
+    ...(isDoctorOrAdmin
+      ? [{ name: "Patients", icon: <Users size={18} />, path: "/patients" }]
+      : []),
     { name: "Treatments", icon: <Activity size={18} />, path: "/treatments" },
   ];
 
