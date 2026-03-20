@@ -255,7 +255,7 @@ const Appointments: React.FC<AppointmentFilters> = (props) => {
           {!appointments ||
             (appointments.length === 0 && (
               <div>
-                <p>No appointments found for the selected date.</p>
+                <p>No appointments found.</p>
               </div>
             ))}
         </div>
@@ -305,7 +305,7 @@ const Appointments: React.FC<AppointmentFilters> = (props) => {
           {!appointments ||
             (appointments.length === 0 && (
               <div className="">
-                <p>No appointments found for the selected date.</p>
+                <p>No appointments found.</p>
               </div>
             ))}
         </div>

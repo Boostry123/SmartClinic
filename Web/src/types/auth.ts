@@ -1,4 +1,12 @@
-export type ClinicRole = "admin" | "doctor" | "patient" | "secretary";
+export const ClinicRoleEnum = {
+  admin: "admin",
+  doctor: "doctor",
+  patient: "patient",
+  secretary: "secretary",
+} as const;
+
+// This automatically creates: "admin" | "doctor" | "patient" | "secretary"
+export type ClinicRole = (typeof ClinicRoleEnum)[keyof typeof ClinicRoleEnum];
 
 export interface UserProfile {
   id: string;
