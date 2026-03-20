@@ -1,25 +1,26 @@
 /*
-    this component will serve as the main dashboard page
-    we do not write code directly here, instead we will create sub-components
-    for different sections of the dashboard and import them here.
-  */
-
+  This component will serve as the main dashboard page.
+  We do not write code directly here, instead we will create sub-components
+  for different sections of the dashboard and import them here.
+*/
 import Card from "../components/Card";
+import Appointments from "../components/Appointments";
+import { DateTime } from "luxon";
 
 const DashBoard = () => {
+  const startOfDay = DateTime.now().startOf("day").toISO();
+  const endOfDay = DateTime.now().endOf("day").toISO();
+
   return (
-    <>
-      <Card
-        title="DashBoard"
-        className="flex justify-center flex-col items-center"
-      >
-        <Card title="">
-          <button className="btn btn-primary">
-            This section will soon include data according to user Role
-          </button>
-        </Card>
+    <div className="p-6 bg-gray-50 min-h-screen">
+      <Card title="Doctor Dashboard" className="max-w-7xl mx-auto">
+        <div className="w-full mt-4">
+          <h3 className="text-lg font-medium mb-4">Today's Appointments</h3>
+
+          <Appointments start_time={startOfDay} end_time={endOfDay} />
+        </div>
       </Card>
-    </>
+    </div>
   );
 };
 
