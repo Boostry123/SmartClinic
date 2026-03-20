@@ -13,7 +13,7 @@ const DashBoard = () => {
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
-      <Card title="Doctor Dashboard" className="max-w-6xl mx-auto">
+      <Card title="Doctor Dashboard" className="max-w-7xl mx-auto">
         <div className="w-full mt-4">
           <h3 className="text-lg font-medium mb-4">Today's Appointments</h3>
 
