@@ -8,6 +8,7 @@ interface ImagePickerProps {
   onClear: () => void;
   label?: string;
   isLoading?: boolean;
+  disabled?: boolean;
 }
 
 export const ImagePicker: React.FC<ImagePickerProps> = ({
@@ -17,19 +18,17 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({
   onClear,
   label = "",
   isLoading = false,
+  disabled = false,
 }) => {
   const [isImageLoading, setIsImageLoading] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
-  // When the preview URL changes (e.g. initial Signed URL arrives),
-  // we start the local loading state.
   React.useEffect(() => {
     if (preview && preview.startsWith("http")) {
       setIsImageLoading(true);
     }
   }, [preview]);
 
-  // Combine parent loading state with local image loading state
   const showSpinner = isLoading || isImageLoading;
 
   return (
@@ -37,10 +36,12 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({
       <label className="text-sm font-semibold text-slate-700">{label}</label>
 
       <div
-        onClick={() => !isLoading && inputRef.current?.click()}
+        onClick={() => !isLoading && !disabled && inputRef.current?.click()}
         className={`relative group aspect-video w-full rounded-xl border-2 border-dashed flex items-center justify-center overflow-hidden transition-all
-          ${preview ? "border-indigo-200" : "border-slate-300 bg-slate-50 hover:bg-slate-100 cursor-pointer"}
-          ${showSpinner ? "cursor-wait opacity-70" : ""}`}
+          ${preview ? "border-indigo-200" : "border-slate-300 bg-slate-50"}
+          ${!disabled && !preview ? "hover:bg-slate-100 cursor-pointer" : "cursor-default"}
+          ${showSpinner ? "cursor-wait" : ""}
+          ${disabled ? "bg-gray-50" : ""}`}
       >
         {showSpinner && (
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-50/50">
@@ -54,13 +55,11 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({
               src={preview}
               alt="Preview"
               className="w-full h-full object-cover"
-              // When the image finishes downloading, hide the spinner
               onLoad={() => setIsImageLoading(false)}
               onError={() => setIsImageLoading(false)}
             />
 
-            {/* Hover Overlay - only show if NOT loading */}
-            {!showSpinner && (
+            {!showSpinner && !disabled && (
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
                 <button
                   type="button"
@@ -86,7 +85,7 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({
             <div className="text-center p-4">
               <Camera className="w-8 h-8 text-slate-400 mx-auto mb-2" />
               <span className="text-sm text-slate-500 font-medium">
-                Click to upload photo
+                {disabled ? "No photo provided" : "Click to upload photo"}
               </span>
             </div>
           )
@@ -98,11 +97,12 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({
         ref={inputRef}
         onChange={(e) => {
           const file = e.target.files?.[0] || null;
-          if (file) setIsImageLoading(false); // Local files load instantly
+          if (file) setIsImageLoading(false);
           onFileSelect(file);
         }}
         accept="image/*"
         className="hidden"
+        disabled={disabled}
       />
 
       {error && (
