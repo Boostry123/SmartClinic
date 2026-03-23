@@ -10,21 +10,21 @@ import {
 } from "lucide-react";
 import { DateTime } from "luxon";
 
-// Components
 import AppointmentEngine from "./AppointmentEngine";
 import Card from "./Card";
+import StatusDropdown from "./StatusDropdown";
 
-// Hooks
 import useAppointments from "../hooks/useAppointments";
 import useTreatments from "../hooks/useTreatments";
 import { useIsMobile } from "../hooks/useIsMobile";
+import { useUpdateAppointmentStatus } from "../hooks/useUpdateAppointmentStatus";
 
-// Types & Helpers
-import type {
-  Appointment,
-  AppointmentFilters,
+import {
+  type Appointment,
+  type AppointmentFilters,
+  type AppointmentStatus,
+  statusStyles,
 } from "../api/types/appointments";
-import { statusStyles } from "../api/types/appointments";
 import { dateTimeStructure } from "../helpers/Dates";
 
 const Appointments: React.FC<AppointmentFilters> = (props) => {
@@ -41,23 +41,12 @@ const Appointments: React.FC<AppointmentFilters> = (props) => {
     error,
   } = useAppointments(filters);
   const { data: treatments } = useTreatments({});
+  const { mutate: updateStatus } = useUpdateAppointmentStatus();
 
   const [showIds, setShowIds] = useState(false);
   const [selectedAppointment, setSelectedAppointment] =
     useState<Appointment | null>(null);
-
   const isMobile = useIsMobile();
-
-  const handleRowClick = (appointment: Appointment) => {
-    setSelectedAppointment(appointment);
-  };
-
-  const treatmentTemplate = useMemo(
-    () =>
-      treatments?.find((t) => t.id === selectedAppointment?.treatment_id) ||
-      null,
-    [treatments, selectedAppointment],
-  );
 
   const getPatientName = useCallback(
     (a: Appointment) =>
@@ -84,24 +73,8 @@ const Appointments: React.FC<AppointmentFilters> = (props) => {
   const columns = useMemo(
     () => [
       {
-        header: (
-          <div className="flex items-center gap-2">
-            <span>ID</span>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowIds((prev) => !prev);
-              }}
-              className="p-1 hover:bg-slate-200 rounded transition-colors text-slate-500"
-              title={showIds ? "Hide IDs" : "Show IDs"}
-              type="button"
-            >
-              {showIds ? <Eye size={16} /> : <EyeOff size={16} />}
-            </button>
-          </div>
-        ),
+        header: "ID",
         accessor: (a: Appointment) => (showIds ? a.id : "••••"),
-        className: "font-medium font-mono text-slate-500",
       },
       { header: "Patient", accessor: getPatientName },
       { header: "Doctor", accessor: getDoctorName },
@@ -112,204 +85,69 @@ const Appointments: React.FC<AppointmentFilters> = (props) => {
           DateTime.fromISO(a.start_time).toFormat(dateTimeStructure),
       },
       {
-        header: "End Time",
-        accessor: (a: Appointment) =>
-          a.end_time
-            ? DateTime.fromISO(a.end_time).toFormat(dateTimeStructure)
-            : "N/A",
-      },
-      {
         header: "Status",
         accessor: (a: Appointment) => (
-          <span
-            className={`px-2.5 py-1 rounded-full text-xs font-semibold ${statusStyles[a.status]}`}
-          >
-            {a.status}
-          </span>
+          <div className="flex items-center gap-2">
+            <span
+              className={`px-2.5 py-1 rounded-full text-xs font-semibold ${statusStyles[a.status]}`}
+            >
+              {a.status}
+            </span>
+            <StatusDropdown
+              currentStatus={a.status}
+              onStatusChange={(newStatus) =>
+                updateStatus({ id: a.id, status: newStatus })
+              }
+            />
+          </div>
         ),
       },
-      {
-        header: "Notes",
-        accessor: (a: Appointment) => a.notes || "-",
-        className: "max-w-xs truncate",
-      },
     ],
-    [showIds, getPatientName, getDoctorName, getTreatmentName],
+    [showIds, getPatientName, getDoctorName, getTreatmentName, updateStatus],
   );
 
-  if (isLoading) {
+  if (isLoading)
     return (
       <div className="flex justify-center items-center h-64">
         <Loader className="animate-spin text-indigo-500" size={48} />
       </div>
     );
-  }
-
-  if (isError) {
-    return (
-      <div className="p-6 text-red-500 font-medium bg-red-50 rounded-lg">
-        {error?.message || "Failed to load appointments"}
-      </div>
-    );
-  }
-
-  if (selectedAppointment && treatmentTemplate) {
-    return (
-      <div className="container mx-auto p-4 animate-in fade-in duration-300">
-        <button
-          onClick={() => setSelectedAppointment(null)}
-          className="flex items-center gap-2 mb-6 text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors bg-white px-4 py-2 rounded-lg shadow-sm border border-slate-200"
-        >
-          <ArrowLeft size={16} />
-          Back to Appointments
-        </button>
-        <AppointmentEngine
-          appointmentId={selectedAppointment.id}
-          template={treatmentTemplate}
-          initialData={selectedAppointment.treatment_data}
-          onSuccess={() => setSelectedAppointment(null)}
-        />
-      </div>
-    );
-  }
 
   return (
-    <div className="">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-slate-800 tracking-tight">
-            Appointments
-          </h2>
-        </div>
-        <div className="bg-white px-4 py-2 rounded-lg border border-slate-200 shadow-sm text-sm text-slate-600">
-          Total:{" "}
-          <span className="font-bold text-indigo-600">
-            {appointments?.length || 0}
-          </span>
-        </div>
-      </div>
-
-      {isMobile ? (
-        <div className="grid grid-cols-1 gap-4">
-          {appointments?.map((appointment: Appointment) => (
-            <div
-              key={appointment.id}
-              onClick={() => handleRowClick(appointment)}
-              className={"cursor-pointer group"}
-            >
-              <Card
-                title={getPatientName(appointment)}
-                className="group-hover:border-indigo-200 transition-all duration-300"
+    <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-slate-200">
+          <thead className="bg-slate-50/80">
+            <tr>
+              {columns.map((col, index) => (
+                <th
+                  key={index}
+                  className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase"
+                >
+                  {col.header}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100 bg-white">
+            {appointments?.map((appointment: Appointment) => (
+              <tr
+                key={appointment.id}
+                className="hover:bg-slate-50/80 cursor-pointer"
+                onClick={() => setSelectedAppointment(appointment)}
               >
-                <div className="mb-4">
-                  <span
-                    className={`px-2.5 py-1 rounded-full text-xs font-semibold shadow-sm ${statusStyles[appointment.status]}`}
-                  >
-                    {appointment.status}
-                  </span>
-                </div>
-
-                <div className="space-y-3 text-sm text-slate-600">
-                  <div className="flex items-center gap-2">
-                    <Stethoscope size={16} className="text-slate-400" />
-                    <span className="font-medium text-slate-700">
-                      {getTreatmentName(appointment)}
-                    </span>
-                    <span className="text-slate-400 text-xs mx-1">•</span>
-                    <span>{getDoctorName(appointment)}</span>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <Clock size={16} className="text-slate-400" />
-                    <span>
-                      {DateTime.fromISO(appointment.start_time).toFormat(
-                        dateTimeStructure,
-                      )}
-                      {appointment.end_time
-                        ? ` - ${DateTime.fromISO(appointment.end_time).toFormat("HH:mm")}`
-                        : ""}
-                    </span>
-                  </div>
-
-                  {appointment.notes && (
-                    <div className="flex items-start gap-2 pt-2 border-t border-slate-100">
-                      <FileText
-                        size={16}
-                        className="text-slate-400 mt-0.5 shrink-0"
-                      />
-                      <span className="line-clamp-2 italic text-slate-500">
-                        {appointment.notes}
-                      </span>
-                    </div>
-                  )}
-
-                  {showIds && (
-                    <div className="text-xs font-mono text-slate-400 pt-1">
-                      ID: {appointment.id}
-                    </div>
-                  )}
-                </div>
-              </Card>
-            </div>
-          ))}
-          {!appointments ||
-            (appointments.length === 0 && (
-              <div>
-                <p>No appointments found.</p>
-              </div>
-            ))}
-        </div>
-      ) : (
-        <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-slate-200">
-              <thead className="bg-slate-50/80">
-                <tr>
-                  {columns.map((col, index) => (
-                    <th
-                      key={index}
-                      scope="col"
-                      className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap"
-                    >
-                      {col.header}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 bg-white">
-                {appointments?.map((appointment: Appointment) => (
-                  <tr
-                    key={appointment.id}
-                    className={
-                      "hover:bg-slate-50/80 transition-colors cursor-pointer group"
-                    }
-                    onClick={() => handleRowClick(appointment)}
-                  >
-                    {columns.map((col, index) => (
-                      <td
-                        key={`${appointment.id}-${index}`}
-                        className={`px-6 py-4 text-sm text-slate-600 whitespace-nowrap group-hover:text-slate-900 transition-colors ${
-                          col.className || ""
-                        }`}
-                      >
-                        {typeof col.accessor === "function"
-                          ? col.accessor(appointment)
-                          : col.accessor}
-                      </td>
-                    ))}
-                  </tr>
+                {columns.map((col, index) => (
+                  <td key={index} className="px-6 py-4 text-sm text-slate-600">
+                    {typeof col.accessor === "function"
+                      ? col.accessor(appointment)
+                      : col.accessor}
+                  </td>
                 ))}
-              </tbody>
-            </table>
-          </div>
-          {!appointments ||
-            (appointments.length === 0 && (
-              <div className="">
-                <p>No appointments found.</p>
-              </div>
+              </tr>
             ))}
-        </div>
-      )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
