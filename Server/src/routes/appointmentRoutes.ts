@@ -7,6 +7,7 @@ import {
   updateAppointment,
 } from "../controllers/appointmentsController.js";
 import { authMiddleware } from "../middleware/auth.js";
+import { getDoctors } from "../controllers/doctorsController.js";
 //Types
 import type {
   AppointmentFilters,
@@ -16,6 +17,8 @@ import type {
 } from "../types/enums/appointmentTypes.js";
 //Middleware
 import type { MulterRequest } from "../middleware/multer.js";
+//services
+import { getUserDetails } from "../services/auth.js";
 
 const AppointmentRoutes = Router();
 
@@ -59,6 +62,27 @@ AppointmentRoutes.patch(
         .status(400)
         .json({ error: "Appointment ID is required in the body" });
     }
+    // Get the doctors id using token and check if the doctor is the same the one in the appointment
+    const userDetails = await getUserDetails(token);
+    if (userDetails.error || userDetails.data.user === null) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+    const doctorUserId = userDetails.data.user?.id;
+    const appointment = await getAppointments(token, {
+      id,
+    } as AppointmentFilters);
+    if (appointment.error || appointment.data.length === 0) {
+      return res.status(404).json({ error: "Appointment not found" });
+    }
+    const doctorId = await getDoctors(token, { user_id: doctorUserId });
+    if (doctorId.error || doctorId.data.length === 0) {
+      return res.status(404).json({ error: "Doctor not found" });
+    }
+    if (appointment.data[0].doctor_id !== doctorId.data[0].id) {
+      return res.status(403).json({
+        error: "Forbidden: You can only update your own appointments",
+      });
+    }
 
     try {
       const { data, error } = await updateAppointment(
@@ -66,11 +90,15 @@ AppointmentRoutes.patch(
         multerReq.body as UpdateAppointmentDTO,
         multerReq.files,
       );
-
       if (error) return res.status(400).json({ error });
+
       return res.status(200).json(data);
-    } catch (error) {
-      return res.status(500).json({ error: "Internal Server Error" });
+    } catch (error: any) {
+      console.error("DEBUG - Full Error:", error);
+      return res.status(500).json({
+        error: "Internal Server Error",
+        message: error.message,
+      });
     }
   },
 );

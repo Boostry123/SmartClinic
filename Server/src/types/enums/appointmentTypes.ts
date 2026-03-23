@@ -30,28 +30,26 @@ export interface Appointment {
   };
 }
 
-export type CreateAppointmentDTO = Pick<
+export type CreateAppointmentDTO = Omit<
   Appointment,
-  | "patient_id"
-  | "doctor_id"
-  | "treatment_id"
-  | "treatment_data"
-  | "start_time"
-  | "end_time"
-  | "status"
-  | "notes"
->;
+  "id" | "created_at" | "status" | "notes"
+> & {
+  status?: AppointmentStatus;
+  notes?: string;
+};
 
-export type UpdateAppointmentDTO = Pick<
-  Appointment,
-  | "id"
-  | "patient_id"
-  | "treatment_id"
-  | "treatment_data"
-  | "start_time"
-  | "end_time"
-  | "status"
-  | "notes"
+export type UpdateAppointmentDTO = { id: string } & Partial<
+  Pick<
+    Appointment,
+    | "patient_id"
+    | "doctor_id"
+    | "treatment_id"
+    | "treatment_data"
+    | "start_time"
+    | "end_time"
+    | "status"
+    | "notes"
+  >
 >;
 export interface AppointmentFilters {
   id?: string; // Specific appointment ID
