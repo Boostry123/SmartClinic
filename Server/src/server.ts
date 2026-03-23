@@ -11,6 +11,7 @@ import SecretaryRoutes from "./routes/secretaryRoute.js";
 import DoctorRoutes from "./routes/doctorRoutes.js";
 import ChatbotRoutes from "./routes/chatbot.js";
 import { rateLimiter, authRateLimiter } from "./middleware/security.js";
+import healthCheckRoutes from "./routes/healthCheckRoutes.js";
 
 // Load environment variables from .env file
 dotenv.config();
@@ -74,6 +75,8 @@ app.use("/appointments", AppointmentRoutes);
 app.use("/chatbot", ChatbotRoutes);
 //the auth route
 app.use("/auth", AuthRoutes);
+//health check route
+app.use("/healthCheck", healthCheckRoutes);
 // --- Server Activation ---
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
