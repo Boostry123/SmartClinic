@@ -46,7 +46,7 @@ const Treatments = () => {
       <div className="container mx-auto p-4 animate-fade-in">
         <button
           onClick={() => setSelectedTemplate(null)}
-          className="flex items-center gap-2 mb-6 text-sm font-medium text-indigo-600 hover:text-indigo-800 transition-colors"
+          className="flex items-center gap-2 mb-6 text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors bg-white px-4 py-2 rounded-lg shadow-sm border border-slate-200"
         >
           <ArrowLeft size={16} />
           Back to Templates

@@ -8,7 +8,7 @@ export const signUpUser = async (
   password: string,
   firstName: string,
   lastName: string,
-  role: userTypes
+  role: userTypes,
 ) => {
   const { data, error } = await supabase.auth.signUp({
     email,
@@ -37,4 +37,10 @@ export const signInUser = async (email: string, password: string) => {
 export const signOutUser = async () => {
   const { error } = await supabase.auth.signOut();
   return { error };
+};
+
+// get user details
+export const getUserDetails = async (token: string) => {
+  const { data, error } = await supabase.auth.getUser(token);
+  return { data, error };
 };
