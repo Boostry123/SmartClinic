@@ -4,8 +4,6 @@ import { chat, toServerSentEventsResponse } from "@tanstack/ai";
 import { geminiText } from "@tanstack/ai-gemini";
 // third-party
 import { rateLimit } from "express-rate-limit";
-// Config
-import { getSupabaseClient } from "../config/supaDb.js";
 // Controllers
 import { getAppointments } from "../controllers/appointmentsController.js";
 //tools
@@ -17,6 +15,8 @@ import type {
   Appointment,
   AppointmentFilters,
 } from "../types/enums/appointmentTypes.js";
+import { getUserDetails } from "../services/auth.js";
+import { getDoctors } from "../controllers/doctorsController.js";
 
 const ChatbotRoutes = Router();
 
@@ -32,10 +32,10 @@ const chatbotLimiter = rateLimit({
 
 const getAppointmentsTool = (token: string) =>
   getAppointmentsToolDef.server(async (args) => {
-    const { data, error } = await getAppointments(
-      token,
-      args as AppointmentFilters,
-    );
+    // Cast args to satisfy "Spread types may only be created from object types"
+    const filters = { ...(args as Record<string, any>) } as AppointmentFilters;
+
+    const { data, error } = await getAppointments(token, filters);
 
     if (error || !data) {
       console.error("Tool Error:", error);
@@ -71,6 +71,31 @@ const getAppointmentsTool = (token: string) =>
     };
   });
 
+const getSystemPrompt = (doctorId: string) => {
+  return `
+# IDENTITY
+You are the SmartClinic Operations Assistant. You help doctors manage their schedule and patient data.
+Your unique Doctor ID is: ${doctorId}.
+
+# GUIDELINES
+- You are currently assisting the doctor with ID: ${doctorId}. 
+- When the doctor asks for "my schedule", use your ID to filter or identify their specific records.
+- You can fetch all appointments for the clinic if asked, but always be aware of which ones belong to your doctor (${doctorId}).
+- Current Time: ${new Date().toLocaleString()} (ISO: ${new Date().toISOString()})
+
+# DATE LOGIC (CRITICAL)
+Before calling any tools, calculate the specific date range requested:
+- "Today": From ${new Date().toISOString().split("T")[0]}T00:00:00Z to ${new Date().toISOString().split("T")[0]}T23:59:59Z.
+- "Next Week": Upcoming Sunday through Saturday.
+- "Tomorrow": Add 24 hours to the current time.
+
+# RESPONSE STYLE
+- Be concise and clinical.
+- Summarize workload rather than just listing raw data.
+- **Privacy**: No medical notes unless specifically requested.
+`;
+};
+
 // ------------------ ROUTE ------------------
 ChatbotRoutes.post(
   "/",
@@ -78,17 +103,17 @@ ChatbotRoutes.post(
   chatbotLimiter,
   async (req: AuthRequest, res) => {
     const token = req.token;
+    const { messages, conversationId } = req.body;
     if (!token) {
       return res.status(401).json({ error: "Unauthorized" });
     }
 
     try {
       // Role Check
-      const supabase = getSupabaseClient(token);
       const {
         data: { user },
         error: userError,
-      } = await supabase.auth.getUser();
+      } = await getUserDetails(token);
 
       if (userError || !user) {
         return res.status(401).json({ error: "Invalid session." });
@@ -100,39 +125,22 @@ ChatbotRoutes.post(
           .json({ error: "Access Denied: Only doctors can use the chatbot." });
       }
 
-      const systemPrompt = `
-  ### IDENTITY
-  You are an expert Clinic Operations Assistant. 
-  CURRENT_TIME: ${new Date().toISOString()}
+      // get the doctor id to identify the doctor
+      const doctorResponse = await getDoctors(token, { user_id: user.id });
+      const doctorId = doctorResponse.data?.[0]?.id as string;
 
-  ### DATE LOGIC (CRITICAL)
-  Before calling any tools, you MUST calculate the specific date range requested:
-  - "Today": From ${new Date().toISOString().split("T")[0]}T00:00:00Z to ${new Date().toISOString().split("T")[0]}T23:59:59Z.
-  - "Next Week": Calculate the dates for the upcoming Monday through Sunday.
-  - "Tomorrow": Add 24 hours to the CURRENT_TIME.
-  
-  **Rule**: If the user asks for a specific timeframe (e.g., "next week", "tomorrow", "next Tuesday"), you MUST use those calculated dates for the tool parameters. ONLY default to "today" if no timeframe is mentioned.
+      if (!doctorId) {
+        return res.status(404).json({ error: "Doctor record not found." });
+      }
 
-  ### TOOL EXECUTION
-  1. Identify the user's requested timeframe.
-  2. Call the fetch tool using the calculated 'start_time' and 'end_time'.
-  3. If the tool returns data, summarize it. 
-  4. If the tool returns NO data for "next week," state clearly: "You have no appointments scheduled for next week." (Do NOT report today's status unless asked).
-
-  ### RESPONSE STYLE
-  - Be concise and clinical.
-  - Don't just list appointments; summarize the workload (e.g., "Next week is looking light with only 3 consultations").
-  - Privacy: No medical notes unless specifically requested.
-`;
       const stream = chat({
         adapter: geminiText("gemini-2.5-flash"),
         messages: [
-          req.body.messages,
-          { role: "system", content: systemPrompt },
+          { role: "system", content: getSystemPrompt(doctorId) },
+          ...(Array.isArray(messages) ? messages : [messages]),
         ],
-        conversationId: req.body.conversationId,
+        conversationId: conversationId,
         stream: true,
-
         tools: [getAppointmentsTool(token)],
       });
 
@@ -165,7 +173,9 @@ ChatbotRoutes.post(
       res.end();
     } catch (error) {
       console.error("Chat Stream Error:", error);
-      res.status(500).json({ error: "Chat stream failed" });
+      if (!res.headersSent) {
+        res.status(500).json({ error: "Chat stream failed" });
+      }
     }
   },
 );
