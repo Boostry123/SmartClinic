@@ -125,7 +125,7 @@ ChatbotRoutes.post(
       }
 
       // 3. API KEY CHECK (ADD THIS HERE)
-      if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+      if (!process.env.GEMINI_API_KEY) {
         return res.status(500).json({ error: "No API key provided" });
       }
 
