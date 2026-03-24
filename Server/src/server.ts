@@ -9,6 +9,7 @@ import TreatmentRoutes from "./routes/treatmentRoute.js";
 import AppointmentRoutes from "./routes/appointmentRoutes.js";
 import SecretaryRoutes from "./routes/secretaryRoute.js";
 import DoctorRoutes from "./routes/doctorRoutes.js";
+import ChatbotRoutes from "./routes/chatbot.js";
 import { rateLimiter, authRateLimiter } from "./middleware/security.js";
 import healthCheckRoutes from "./routes/healthCheckRoutes.js";
 
@@ -70,6 +71,8 @@ app.use("/secretaries", SecretaryRoutes);
 app.use("/treatments", TreatmentRoutes);
 //the appointments route
 app.use("/appointments", AppointmentRoutes);
+//the chatbot route
+app.use("/chatbot", ChatbotRoutes);
 //the auth route
 app.use("/auth", AuthRoutes);
 //health check route
