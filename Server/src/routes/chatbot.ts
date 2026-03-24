@@ -32,7 +32,6 @@ const chatbotLimiter = rateLimit({
 
 const getAppointmentsTool = (token: string) =>
   getAppointmentsToolDef.server(async (args) => {
-    // Cast args to satisfy "Spread types may only be created from object types"
     const filters = { ...(args as Record<string, any>) } as AppointmentFilters;
 
     const { data, error } = await getAppointments(token, filters);
@@ -80,18 +79,10 @@ Your unique Doctor ID is: ${doctorId}.
 # GUIDELINES
 - You are currently assisting the doctor with ID: ${doctorId}. 
 - When the doctor asks for "my schedule", use your ID to filter or identify their specific records.
-- You can fetch all appointments for the clinic if asked, but always be aware of which ones belong to your doctor (${doctorId}).
 - Current Time: ${new Date().toLocaleString()} (ISO: ${new Date().toISOString()})
-
-# DATE LOGIC (CRITICAL)
-Before calling any tools, calculate the specific date range requested:
-- "Today": From ${new Date().toISOString().split("T")[0]}T00:00:00Z to ${new Date().toISOString().split("T")[0]}T23:59:59Z.
-- "Next Week": Upcoming Sunday through Saturday.
-- "Tomorrow": Add 24 hours to the current time.
 
 # RESPONSE STYLE
 - Be concise and clinical.
-- Summarize workload rather than just listing raw data.
 - **Privacy**: No medical notes unless specifically requested.
 `;
 };
@@ -109,7 +100,7 @@ ChatbotRoutes.post(
     }
 
     try {
-      // Role Check
+      // 1. Role Check
       const {
         data: { user },
         error: userError,
@@ -125,7 +116,7 @@ ChatbotRoutes.post(
           .json({ error: "Access Denied: Only doctors can use the chatbot." });
       }
 
-      // get the doctor id to identify the doctor
+      // 2. Get the doctor id to identify the doctor
       const doctorResponse = await getDoctors(token, { user_id: user.id });
       const doctorId = doctorResponse.data?.[0]?.id as string;
 
@@ -133,6 +124,12 @@ ChatbotRoutes.post(
         return res.status(404).json({ error: "Doctor record not found." });
       }
 
+      // 3. API KEY CHECK (ADD THIS HERE)
+      if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+        return res.status(500).json({ error: "No API key provided" });
+      }
+
+      // 4. Initialize stream
       const stream = chat({
         adapter: geminiText("gemini-2.5-flash"),
         messages: [
