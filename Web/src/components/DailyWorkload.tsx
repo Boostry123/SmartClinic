@@ -2,18 +2,26 @@ import React, { useMemo } from "react";
 import { Loader } from "lucide-react";
 import { useAppointmentsForDoctor } from "../hooks/useAppointments";
 import useTreatments from "../hooks/useTreatments";
+import { DateTime } from "luxon";
 
 interface DailyWorkloadProps {
   doctorId: string;
 }
 
 const DailyWorkload: React.FC<DailyWorkloadProps> = ({ doctorId }) => {
-  const today = new Date().toISOString().split("T")[0];
+  const { startOfDay, endOfDay } = useMemo(
+    () => ({
+      startOfDay: DateTime.now().startOf("day").toISO() ?? "",
+      endOfDay: DateTime.now().endOf("day").toISO() ?? "",
+    }),
+    [],
+  );
 
   const { data: appointments, isLoading: isLoadingAppts } =
     useAppointmentsForDoctor({
       doctor_id: doctorId,
-      start_time: today,
+      start_time: startOfDay,
+      end_time: endOfDay,
     });
 
   const { data: treatments, isLoading: isLoadingTreats } = useTreatments({});

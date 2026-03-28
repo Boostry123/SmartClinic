@@ -69,7 +69,7 @@ const DashBoard: React.FC = () => {
             </div>
           ) : (
             <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 space-y-8">
-              {/* Mission #64: Daily Workload Analytics Section */}
+              {/* Daily Workload Analytics Section */}
               {isDoctor && doctorsData?.[0]?.id && (
                 <div className="max-w-md">
                   <DailyWorkload doctorId={doctorsData[0].id} />
