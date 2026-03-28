@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import {
   MoreVertical,
@@ -8,30 +8,31 @@ import {
   UserCheck,
   CalendarCheck,
 } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { updateAppointment } from "../api/appointments";
 import {
   type AppointmentStatus,
   AppointmentStatusEnum,
 } from "../api/types/appointments";
 
 interface StatusDropdownProps {
+  appointmentId: string;
   currentStatus: AppointmentStatus;
-  onStatusChange: (newStatus: AppointmentStatus) => void;
 }
 
 const StatusDropdown: React.FC<StatusDropdownProps> = ({
+  appointmentId,
   currentStatus,
-  onStatusChange,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [coords, setCoords] = useState({ top: 0, left: 0 });
-  const buttonRef = useRef<HTMLButtonElement>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0 });
 
-  const statuses: {
-    label: string;
-    value: AppointmentStatus;
-    icon: any;
-    color: string;
-  }[] = [
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const queryClient = useQueryClient();
+
+  const statuses = [
     {
       label: "Scheduled",
       value: AppointmentStatusEnum.SCHEDULED,
@@ -64,74 +65,106 @@ const StatusDropdown: React.FC<StatusDropdownProps> = ({
     },
   ];
 
-  const handleOpen = (e: React.MouseEvent) => {
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+
+      if (buttonRef.current) {
+        const rect = buttonRef.current.getBoundingClientRect();
+
+        setDropdownPos({
+          top: rect.bottom + window.scrollY,
+          left: rect.right - 192 + window.scrollX,
+        });
+      }
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen]);
+
+  const handleStatusChange = async (
+    e: React.MouseEvent,
+    newStatus: AppointmentStatus,
+  ) => {
     e.stopPropagation();
 
-    if (buttonRef.current) {
-      const rect = buttonRef.current.getBoundingClientRect();
+    try {
+      setIsLoading(true);
 
-      setCoords({
-        top: rect.bottom + window.scrollY,
-        left: rect.left + window.scrollX - 160,
+      await updateAppointment({
+        id: appointmentId,
+        status: newStatus,
       });
+
+      await queryClient.invalidateQueries({ queryKey: ["appointments"] });
+      setIsOpen(false);
+    } catch (error) {
+      console.error("Failed to update status", error);
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  const toggleDropdown = (e: React.MouseEvent) => {
+    e.stopPropagation();
     setIsOpen(!isOpen);
   };
 
   return (
-    <div className="relative inline-block">
+    <div className="relative inline-block text-left">
       <button
         ref={buttonRef}
         type="button"
-        onClick={handleOpen}
-        className="p-1.5 hover:bg-slate-100 rounded-full transition-colors flex items-center justify-center border border-slate-200 shadow-sm bg-white"
+        disabled={isLoading}
+        onClick={toggleDropdown}
+        className={`p-1 hover:bg-slate-100 rounded-full transition-colors flex items-center justify-center ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
       >
-        <MoreVertical size={16} className="text-slate-500" />
+        <MoreVertical size={16} className="text-slate-400" />
       </button>
 
       {isOpen &&
         createPortal(
-          <>
-            <div
-              className="fixed inset-0 z-[9998]"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsOpen(false);
-              }}
-            />
-
-            <div
-              style={{
-                position: "absolute",
-                top: coords.top,
-                left: coords.left,
-                width: "180px",
-              }}
-              className="z-[9999] rounded-lg shadow-2xl bg-white ring-1 ring-black ring-opacity-5 overflow-hidden animate-in fade-in zoom-in duration-75"
-            >
-              <div className="py-1 bg-white">
-                {statuses.map((status) => (
-                  <button
-                    key={status.value}
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onStatusChange(status.value);
-                      setIsOpen(false);
-                    }}
-                    className={`flex items-center w-full px-4 py-3 text-sm transition-colors border-b border-slate-50 last:border-0 hover:bg-slate-50 ${
-                      currentStatus === status.value
-                        ? "bg-indigo-50 text-indigo-700 font-bold"
-                        : "text-slate-700"
-                    }`}
-                  >
-                    <status.icon size={16} className={`mr-3 ${status.color}`} />
-                    {status.label}
-                  </button>
-                ))}
-              </div>
+          <div
+            ref={dropdownRef}
+            style={{
+              position: "absolute",
+              top: dropdownPos.top,
+              left: dropdownPos.left,
+            }}
+            className="mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50 overflow-hidden animate-in fade-in zoom-in duration-75"
+          >
+            <div className="py-1">
+              {statuses.map((status) => (
+                <button
+                  key={status.value}
+                  type="button"
+                  disabled={isLoading}
+                  onClick={(e) => handleStatusChange(e, status.value)}
+                  className={`flex items-center w-full px-4 py-2 text-sm hover:bg-slate-50 transition-colors ${
+                    currentStatus === status.value
+                      ? "bg-indigo-50 text-indigo-700 font-bold"
+                      : "text-slate-700 hover:text-indigo-600"
+                  }`}
+                >
+                  <status.icon size={14} className={`mr-3 ${status.color}`} />
+                  {status.label}
+                </button>
+              ))}
             </div>
-          </>,
+          </div>,
           document.body,
         )}
     </div>

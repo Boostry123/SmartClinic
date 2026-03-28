@@ -1,28 +1,17 @@
 import { useState, useMemo, useCallback } from "react";
-import {
-  ArrowLeft,
-  Eye,
-  EyeOff,
-  Loader,
-  Clock,
-  Stethoscope,
-  FileText,
-} from "lucide-react";
+import { ArrowLeft, Loader } from "lucide-react";
 import { DateTime } from "luxon";
 
 import AppointmentEngine from "./AppointmentEngine";
-import Card from "./Card";
 import StatusDropdown from "./StatusDropdown";
 
 import useAppointments from "../hooks/useAppointments";
 import useTreatments from "../hooks/useTreatments";
 import { useIsMobile } from "../hooks/useIsMobile";
-import { useUpdateAppointmentStatus } from "../hooks/useUpdateAppointmentStatus";
 
 import {
   type Appointment,
   type AppointmentFilters,
-  type AppointmentStatus,
   statusStyles,
 } from "../api/types/appointments";
 import { dateTimeStructure } from "../helpers/Dates";
@@ -41,9 +30,8 @@ const Appointments: React.FC<AppointmentFilters> = (props) => {
     error,
   } = useAppointments(filters);
   const { data: treatments } = useTreatments({});
-  const { mutate: updateStatus } = useUpdateAppointmentStatus();
 
-  const [showIds, setShowIds] = useState(false);
+  const [showIds] = useState(false);
   const [selectedAppointment, setSelectedAppointment] =
     useState<Appointment | null>(null);
   const isMobile = useIsMobile();
@@ -70,6 +58,13 @@ const Appointments: React.FC<AppointmentFilters> = (props) => {
     [treatments],
   );
 
+  const treatmentTemplate = useMemo(
+    () =>
+      treatments?.find((t) => t.id === selectedAppointment?.treatment_id) ||
+      null,
+    [treatments, selectedAppointment],
+  );
+
   const columns = useMemo(
     () => [
       {
@@ -93,17 +88,13 @@ const Appointments: React.FC<AppointmentFilters> = (props) => {
             >
               {a.status}
             </span>
-            <StatusDropdown
-              currentStatus={a.status}
-              onStatusChange={(newStatus) =>
-                updateStatus({ id: a.id, status: newStatus })
-              }
-            />
+
+            <StatusDropdown appointmentId={a.id} currentStatus={a.status} />
           </div>
         ),
       },
     ],
-    [showIds, getPatientName, getDoctorName, getTreatmentName, updateStatus],
+    [showIds, getPatientName, getDoctorName, getTreatmentName],
   );
 
   if (isLoading)
@@ -112,6 +103,32 @@ const Appointments: React.FC<AppointmentFilters> = (props) => {
         <Loader className="animate-spin text-indigo-500" size={48} />
       </div>
     );
+
+  if (isError)
+    return (
+      <div className="p-6 text-red-500 bg-red-50 rounded-lg">
+        {error?.message || "Failed to load appointments"}
+      </div>
+    );
+
+  if (selectedAppointment && treatmentTemplate) {
+    return (
+      <div className="container mx-auto p-4">
+        <button
+          onClick={() => setSelectedAppointment(null)}
+          className="flex items-center gap-2 mb-6 text-sm font-medium text-slate-600 bg-white px-4 py-2 rounded-lg border border-slate-200 shadow-sm"
+        >
+          <ArrowLeft size={16} /> Back
+        </button>
+        <AppointmentEngine
+          appointmentId={selectedAppointment.id}
+          template={treatmentTemplate}
+          initialData={selectedAppointment.treatment_data}
+          onSuccess={() => setSelectedAppointment(null)}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
@@ -122,7 +139,7 @@ const Appointments: React.FC<AppointmentFilters> = (props) => {
               {columns.map((col, index) => (
                 <th
                   key={index}
-                  className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase"
+                  className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider"
                 >
                   {col.header}
                 </th>
@@ -133,7 +150,7 @@ const Appointments: React.FC<AppointmentFilters> = (props) => {
             {appointments?.map((appointment: Appointment) => (
               <tr
                 key={appointment.id}
-                className="hover:bg-slate-50/80 cursor-pointer"
+                className="hover:bg-slate-50/80 transition-colors cursor-pointer"
                 onClick={() => setSelectedAppointment(appointment)}
               >
                 {columns.map((col, index) => (
