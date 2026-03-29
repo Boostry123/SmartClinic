@@ -57,13 +57,17 @@ const DashBoard: React.FC = () => {
                 Syncing calendar...
               </span>
             </div>
-          ) : (
+          ) : isDoctor ? (
             <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
               <Appointments
                 start_time={startOfDay}
                 end_time={endOfDay}
                 doctor_id={doctorsData?.[0]?.id}
               />
+            </div>
+          ) : (
+            <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+              <Appointments start_time={startOfDay} end_time={endOfDay} />
             </div>
           )}
         </div>

@@ -46,12 +46,12 @@ const NavBar = () => {
         icon: <Calendar size={18} />,
         path: "/appointments",
       },
-      ...(isDoctorOrAdmin
-        ? [{ name: "Patients", icon: <Users size={18} />, path: "/patients" }]
-        : []),
+
+      { name: "Patients", icon: <Users size={18} />, path: "/patients" },
+
       { name: "Treatments", icon: <Activity size={18} />, path: "/treatments" },
     ],
-    [isDoctorOrAdmin],
+    [],
   );
 
   const handleLogout = () => {
