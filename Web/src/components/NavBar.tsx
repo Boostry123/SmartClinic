@@ -16,11 +16,15 @@ import { useAuthStore } from "../store/authStore";
 
 // Components
 import ProfileButton from "./ProfileButton";
-import DoctorProfileModal from "./modals/DoctorProfileModal";
+import DoctorProfileModal from "./modals/profile/DoctorProfileModal";
+import PatientProfileModal from "./modals/profile/PatientProfileModal";
 
 const NavBar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isDoctorProfileModalOpen, setIsDoctorProfileModalOpen] =
+    useState(false);
+  const [isPatientProfileModalOpen, setIsPatientProfileModalOpen] =
+    useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -31,6 +35,7 @@ const NavBar = () => {
 
   const userRole = user?.user_metadata?.role;
   const isDoctorOrAdmin = userRole === "doctor" || userRole === "admin";
+  const isPatient = userRole === "patient";
 
   // Navigation Items
   const navItems = useMemo(
@@ -114,7 +119,14 @@ const NavBar = () => {
 
             {/* Profile Button Integration */}
             {isDoctorOrAdmin && (
-              <ProfileButton onClick={() => setIsProfileModalOpen(true)} />
+              <ProfileButton
+                onClick={() => setIsDoctorProfileModalOpen(true)}
+              />
+            )}
+            {isPatient && (
+              <ProfileButton
+                onClick={() => setIsPatientProfileModalOpen(true)}
+              />
             )}
 
             {/* Mobile Menu Toggle */}
@@ -165,8 +177,13 @@ const NavBar = () => {
       {/* Modal Component */}
       {isDoctorOrAdmin ? (
         <DoctorProfileModal
-          isModalOpen={isProfileModalOpen}
-          onClose={() => setIsProfileModalOpen(false)}
+          isModalOpen={isDoctorProfileModalOpen}
+          onClose={() => setIsDoctorProfileModalOpen(false)}
+        />
+      ) : isPatient ? (
+        <PatientProfileModal
+          isModalOpen={isPatientProfileModalOpen}
+          onClose={() => setIsPatientProfileModalOpen(false)}
         />
       ) : null}
     </>

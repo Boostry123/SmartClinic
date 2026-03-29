@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import { X, Loader2 } from "lucide-react";
 import { DateTime } from "luxon";
 //store
-import { useAuthStore } from "../../store/authStore";
+import { useAuthStore } from "../../../store/authStore";
 //hooks
-import useDoctors, { useUpdateDoctor } from "../../hooks/useDoctors";
+import useDoctors, { useUpdateDoctor } from "../../../hooks/useDoctors";
 //types
-import type { DoctorUpdate } from "../../api/types/doctors";
+import type { DoctorUpdate } from "../../../api/types/doctors";
 
 interface ProfileModalProps {
   isModalOpen: boolean;

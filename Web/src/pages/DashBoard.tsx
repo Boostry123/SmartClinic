@@ -6,17 +6,9 @@ import Card from "../components/Card";
 import Appointments from "../components/Appointments";
 import LiveClock from "../components/LiveClock";
 //types
-import { ClinicRoleEnum, type ClinicRole } from "../types/auth";
+import { ClinicRoleEnum, type UserProfile } from "../types/auth";
 //hooks
 import useDoctors from "../hooks/useDoctors";
-
-// Define a local interface for the user metadata if not already global
-interface UserData {
-  id: string;
-  user_metadata: {
-    role: ClinicRole;
-  };
-}
 
 const DashBoard: React.FC = () => {
   // Memoize date calculations to prevent unnecessary re-renders
@@ -29,7 +21,7 @@ const DashBoard: React.FC = () => {
   );
 
   // Safely parse user data
-  const userData: UserData | null = useMemo(() => {
+  const userData: UserProfile | null = useMemo(() => {
     const raw = localStorage.getItem("user");
     if (!raw) return null;
     try {

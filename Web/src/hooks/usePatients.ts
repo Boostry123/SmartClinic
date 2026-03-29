@@ -1,11 +1,12 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 //DEVELOPED
-import { getPatients, getPatientsByIds } from "../api/patients";
+import { getPatients, getPatientsByIds, updatePatient } from "../api/patients";
 //TYPES
 import type {
   Patient,
   patientByIdsFilterTypes,
   patientFilterTypes,
+  PatientUpdate,
 } from "../api/types/patients";
 
 const usePatients = (filters: patientFilterTypes) => {
@@ -43,6 +44,18 @@ export const usePatientsByIds = (filters: patientByIdsFilterTypes) => {
 
     // Optional: Keep previous data while fetching new data (great for filters)
     placeholderData: (previousData) => previousData,
+  });
+};
+
+export const useUpdatePatient = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: PatientUpdate) => updatePatient(data),
+    onSuccess: () => {
+      // Invalidate the patients query to refetch the data
+      queryClient.invalidateQueries({ queryKey: ["patients"] });
+    },
   });
 };
 
