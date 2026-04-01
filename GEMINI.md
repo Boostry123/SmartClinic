@@ -6,72 +6,77 @@ This document provides a comprehensive overview of the SmartClinic CRM project f
 
 SmartClinic is a full-stack web application designed as a Customer Relationship Management (CRM) system for medical clinics. It features a monorepo structure containing two distinct projects: a React-based frontend (`/Web`) and a Node.js/Express backend (`/Server`).
 
-The application facilitates patient management, appointment scheduling, and provides a dashboard for clinic metrics.
+The application facilitates patient management, appointment scheduling, and includes an AI-powered operations assistant for doctors.
 
 ### Core Technologies
 
 *   **Frontend (`/Web`):**
-    *   **Framework:** React (using Vite) with TypeScript
-    *   **Compiler:** Includes the new `babel-plugin-react-compiler`.
-    *   **State Management:** Zustand for global state and TanStack React Query for server state/caching.
-    *   **Styling:** Tailwind CSS.
-    *   **Routing:** React Router DOM.
+    *   **Framework:** React 19 (using Vite 7) with TypeScript 5.9.
+    *   **Compiler:** Uses `babel-plugin-react-compiler` for optimized performance.
+    *   **State Management:** `Zustand` for global state and `TanStack React Query` (v5) for server state and caching.
+    *   **AI Integration:** `@tanstack/ai-react` for streaming chatbot interactions.
+    *   **UI & Styling:** `Tailwind CSS`, `Lucide React` icons, and `FullCalendar` for scheduling.
+    *   **Content Rendering:** `react-markdown` with `remark-gfm` for rich text and tables in the chatbot.
+    *   **Routing:** `react-router-dom` (v7).
 
 *   **Backend (`/Server`):**
-    *   **Framework:** Express.js running on Node.js with TypeScript.
-    *   **Database:** PostgreSQL, managed and accessed via Supabase.
-    *   **Authentication:** JWT-based authentication handled by Supabase Auth.
-    *   **API:** RESTful API with routes for managing users, patients, treatments, appointments, and authentication.
+    *   **Framework:** Express.js 5 running on Node.js with TypeScript 5.9.
+    *   **Development Tooling:** Uses `tsx` for high-performance execution and watching.
+    *   **AI Engine:** `TanStack AI` integrated with Google's `Gemini 2.5 Flash` model.
+    *   **Database:** PostgreSQL, managed via Supabase.
+    *   **Authentication:** JWT-based authentication via Supabase Auth.
+    *   **API:** RESTful API with Server-Sent Events (SSE) support for AI streaming.
+
+## AI Chatbot Architecture
+
+The project features a specialized AI Operations Assistant designed specifically for doctors.
+
+*   **Endpoint:** `/chatbot` (defined in `Server/src/routes/chatbot.ts`).
+*   **Security:** Requires valid doctor role and JWT token via `authMiddleware`.
+*   **Rate Limiting:** Enforced via `express-rate-limit` to prevent abuse.
+*   **Streaming:** Utilizes Server-Sent Events (SSE) for real-time response generation.
+*   **Extensibility:** AI capabilities are extended through modular "Tools" located in `Server/src/chatTools/`.
+
+### Available AI Tools
+*   **`fetch_appointments`** (`appointmentTools.ts`): Allows the AI to search and filter clinic appointments by date range, patient, status, or doctor.
+*   **`fetch_treatments`** (`treatmentTools.ts`): Allows the AI to retrieve clinical treatment templates and details available in the system.
+
+## Key Features
+
+*   **Patient & Appointment Management:** CRUD operations for patients, doctors, treatments, and appointments.
+*   **Role-Based Access:** Specific functionalities tailored for Doctors, Patients, and Secretaries.
+*   **Real-time Calendar:** Interactive appointment scheduling via FullCalendar.
 
 ## Building and Running the Application
 
-The project requires running the frontend and backend servers concurrently in separate terminals.
-
 ### 1. Installation
 
-Dependencies must be installed for both the server and the web client.
+Install dependencies in both the server and web client directories:
 
-*   **Install Server Dependencies:**
-    ```bash
-    cd Server
-    npm install
-    ```
-
-*   **Install Web Client Dependencies:**
-    ```bash
-    cd Web
-    npm install
-    ```
+*   **Server:** `cd Server && npm install`
+*   **Web:** `cd Web && npm install`
 
 ### 2. Environment Variables
 
-Both the server and client require `.env` files with specific variables. Refer to the `.env.example` files in both `/Server` and `/Web` for the required keys.
+*   **Server (`/Server/.env`):**
+    *   `PORT`: Server port (default: 3001).
+    *   `DATABASE_URL`: PostgreSQL connection string.
+    *   `SUPABASE_URL` & `SUPABASE_ANON_KEY`: Supabase configuration.
+    *   `GEMINI_API_KEY`: API key for Google Gemini.
+    *   `FRONTEND_URL`: URL of the React application for CORS.
+*   **Web (`/Web/.env`):**
+    *   `VITE_API_URL`: Backend API URL (e.g., `http://localhost:3001`).
 
-*   **Server (`/Server/.env`):** Defines the server port, database connection details (PostgreSQL/Supabase), JWT secret, and the frontend URL for CORS.
-*   **Web (`/Web/.env`):** Defines `VITE_API_URL`, which must point to the running backend server's address (e.g., `http://localhost:3001`).
+### 3. Development
 
-### 3. Running in Development
+*   **Start Backend:** `cd Server && npm run dev` (Runs `tsx watch src/server.ts`).
+*   **Start Frontend:** `cd Web && npm run dev` (Runs `vite`).
 
-*   **Start the Backend Server:**
-    ```bash
-    cd Server
-    npm run dev
-    ```
-    This command uses `ts-node` to execute and watch the `src/server.ts` file. The server will typically run on `http://localhost:3001`.
+## Development Conventions & Rules
 
-*   **Start the Frontend Client:**
-    ```bash
-    cd Web
-    npm run dev
-    ```
-    This command uses Vite to launch the React development server, typically available at `http://localhost:5173`.
-
-## Development Conventions
-
-*   **Monorepo Structure:** Development is split between the `/Web` and `/Server` directories. There is no top-level workspace management script; each part is run independently.
-*   **API-Driven:** The frontend is decoupled from the backend and communicates via REST API calls.
-*   **TypeScript:** Both projects use TypeScript, and type safety is enforced. `tsconfig.json` files are present in both directories.
-*   **Styling:** The frontend uses Tailwind CSS for utility-first styling.
-*   **Linting:** The `/Web` project is configured with ESLint (`eslint.config.js`) for code quality and consistency. The primary linting command is `npm run lint` in the `/Web` directory.
-*   **Backend Structure:** The Express server follows a conventional structure, separating concerns into `routes`, `controllers`, `services`, and `middleware`.
-*   **Frontend Structure:** The React application is organized by feature and function, with distinct folders for `api`, `components`, `pages`, `hooks`, and `store`.
+*   **Documentation Maintenance (CRITICAL):** Whenever a significant change is made to the project architecture, new tools are added, or core technologies are updated, **this `GEMINI.md` file MUST be updated** to reflect the new state.
+*   **Type Safety:** TypeScript is strictly enforced across the monorepo.
+*   **Surgical Updates:** When modifying existing logic, maintain the architectural patterns found in `controllers`, `services`, and `middleware`.
+*   **AI Tool Development:** Follow the established convention in `Server/src/chatTools/`. Use `zod` for input/output schemas and ensure the tool is registered in the chatbot route.
+*   **Frontend Components:** Functional components with Tailwind utility classes. Prefer Lucide icons for UI elements.
+*   **Linting:** The `/Web` project uses ESLint 9 (`eslint.config.js`). Run `npm run lint` in the `/Web` directory to verify code quality.
