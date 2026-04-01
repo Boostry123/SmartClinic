@@ -5,19 +5,11 @@ import { DateTime } from "luxon";
 import Card from "../components/Card";
 import Appointments from "../components/Appointments";
 import LiveClock from "../components/LiveClock";
-import DailyWorkload from "../components/DailyWorkload";
-// Types
-import { ClinicRoleEnum, type ClinicRole } from "../types/auth";
-// Hooks
+//types
+import { ClinicRoleEnum, type UserProfile } from "../types/auth";
+//hooks
 import useDoctors from "../hooks/useDoctors";
-
-// Define a local interface for the user metadata
-interface UserData {
-  id: string;
-  user_metadata: {
-    role: ClinicRole;
-  };
-}
+import DailyWorkload from "../components/DailyWorkload";
 
 const DashBoard: React.FC = () => {
   // Memoize date calculations to prevent unnecessary re-renders
@@ -29,8 +21,8 @@ const DashBoard: React.FC = () => {
     [],
   );
 
-  // Safely parse user data from localStorage
-  const userData: UserData | null = useMemo(() => {
+  // Safely parse user data
+  const userData: UserProfile | null = useMemo(() => {
     const raw = localStorage.getItem("user");
     if (!raw) return null;
     try {
@@ -44,7 +36,6 @@ const DashBoard: React.FC = () => {
   const isDoctor = userData?.user_metadata.role === ClinicRoleEnum.doctor;
   const userId = isDoctor ? userData?.id : undefined;
 
-  // Fetch doctor details based on user ID
   const { data: doctorsData, isLoading } = useDoctors({
     user_id: userId || "",
   });
@@ -52,7 +43,7 @@ const DashBoard: React.FC = () => {
   return (
     <div className="p-6 bg-gray-50 min-h-screen font-sans">
       <Card className="max-w-7xl mx-auto border-none shadow-sm overflow-hidden bg-white">
-        {/* Header section with Live Clock */}
+        {/* Header section for the clock */}
         <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-white">
           <div className="bg-indigo-50 px-4 py-2 rounded-xl">
             <LiveClock />
@@ -77,13 +68,19 @@ const DashBoard: React.FC = () => {
               )}
 
               {/* Main Appointments Table Section */}
-              <div className="border-t pt-6">
-                <Appointments
-                  start_time={startOfDay}
-                  end_time={endOfDay}
-                  doctor_id={doctorsData?.[0]?.id}
-                />
-              </div>
+              {isDoctor ? (
+                <div className="border-t pt-6">
+                  <Appointments
+                    start_time={startOfDay}
+                    end_time={endOfDay}
+                    doctor_id={doctorsData?.[0]?.id}
+                  />
+                </div>
+              ) : (
+                <div className="border-t pt-6">
+                  <Appointments start_time={startOfDay} end_time={endOfDay} />
+                </div>
+              )}
             </div>
           )}
         </div>

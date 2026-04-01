@@ -1,11 +1,14 @@
 import { Router } from "express";
 import { authMiddleware } from "../middleware/auth.js";
-import { getPatients } from "../controllers/patientsController.js";
+
 // types
 import type { AuthRequest } from "../middleware/auth.js";
-import type { patientFilterTypes } from "../types/enums/patientTypes.js";
-import type { doctorFilterTypes } from "../types/enums/doctorTypes.js";
-import { getDoctors } from "../controllers/doctorsController.js";
+import type {
+  doctorFilterTypes,
+  DoctorUpdate,
+} from "../types/enums/doctorTypes.js";
+//controllers
+import { getDoctors, updateDoctor } from "../controllers/doctorsController.js";
 
 const DoctorRoutes = Router();
 
@@ -48,7 +51,7 @@ DoctorRoutes.get("/", authMiddleware, async (req: AuthRequest, res) => {
     // Pass the `cleanFilter` which now only contains valid, non-empty keys
     const { data, error } = await getDoctors(
       token,
-      cleanFilter as patientFilterTypes,
+      cleanFilter as doctorFilterTypes,
     );
 
     if (error) {
@@ -56,8 +59,37 @@ DoctorRoutes.get("/", authMiddleware, async (req: AuthRequest, res) => {
     }
     return res.json(data);
   } catch (error: any) {
-    console.error(`Fetching patients failed:`, error);
+    console.error(`Fetching doctors failed:`, error);
     return res.status(500).json({ error: error || "Unknown error" });
+  }
+});
+
+//updating
+DoctorRoutes.patch("/", authMiddleware, async (req: AuthRequest, res) => {
+  const token = req.token;
+  const data = req.body as DoctorUpdate;
+
+  if (!token) {
+    return res.status(401).json({ error: "Unauthorized: No token provided" });
+  }
+
+  if (!data.id || !data.user_id) {
+    return res
+      .status(400)
+      .json({ error: "Doctor ID and User ID are required" });
+  }
+
+  try {
+    const { data: updatedDoctor, error } = await updateDoctor(token, data);
+
+    if (error) {
+      return res.status(400).json({ error });
+    }
+
+    return res.status(200).json(updatedDoctor);
+  } catch (error: any) {
+    console.error(`Updating doctor failed:`, error);
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
