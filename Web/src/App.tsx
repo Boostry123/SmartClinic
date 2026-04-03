@@ -12,14 +12,19 @@ import AppointmentsPage from "./pages/Appointments";
 // Components
 import NavBar from "./components/NavBar";
 import Footer from "./components/Footer";
+import Chat from "./components/Chat";
+//types
+import { ClinicRoleEnum } from "./types/auth";
 
 function App() {
   const { isAuthenticated } = useAuthStore();
+  const userRole = useAuthStore((state) => state.user?.user_metadata.role);
 
   return (
     <BrowserRouter>
       {/* Render NavBar only if the user is authenticated */}
       {isAuthenticated && <NavBar />}
+      {isAuthenticated && userRole === ClinicRoleEnum.doctor && <Chat />}
 
       {/* Main Layout Wrapper:
         Added 'pt-16' (padding-top: 4rem) to match the fixed Navbar height.

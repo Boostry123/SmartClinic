@@ -14,6 +14,20 @@ export interface Doctor {
     role: string;
   };
 }
+export interface DoctorUpdate {
+  id: string;
+  user_id: string;
+  national_id_number?: string;
+  specialization?: string;
+  license_number?: string;
+  bio?: string;
+  career_start_date?: string;
+  users?: {
+    name?: string;
+    last_name?: string;
+  };
+}
+
 export interface doctorFilterTypes {
   id?: string;
   user_id?: string;

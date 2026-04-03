@@ -1,9 +1,18 @@
-import { useState, useMemo, useCallback } from "react";
-import { ArrowLeft, Loader, Eye, EyeOff } from "lucide-react";
+import React, { useState, useMemo, useCallback } from "react";
+import {
+  ArrowLeft,
+  Loader,
+  Eye,
+  EyeOff,
+  Stethoscope,
+  Clock,
+  FileText,
+} from "lucide-react";
 import { DateTime } from "luxon";
 
 import AppointmentEngine from "./AppointmentEngine";
 import StatusDropdown from "./StatusDropdown";
+import Card from "./Card";
 
 import useAppointments from "../hooks/useAppointments";
 import useTreatments from "../hooks/useTreatments";
@@ -101,7 +110,6 @@ const Appointments: React.FC<AppointmentFilters> = (props) => {
             >
               {a.status}
             </span>
-
             <StatusDropdown appointmentId={a.id} currentStatus={a.status} />
           </div>
         ),
@@ -145,13 +153,76 @@ const Appointments: React.FC<AppointmentFilters> = (props) => {
 
   if (!appointments || appointments.length === 0) {
     return (
-      <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-8 text-center text-slate-500">
-        No appointments found.
+      <div className="p-8 text-center border border-slate-200 bg-white rounded-xl shadow-sm">
+        <p className="text-slate-500">No appointments found.</p>
       </div>
     );
   }
 
-  return (
+  return isMobile ? (
+    <div className="space-y-4">
+      {appointments.map((appointment: Appointment) => (
+        <div
+          key={appointment.id}
+          className="cursor-pointer group"
+          onClick={() => setSelectedAppointment(appointment)}
+        >
+          <Card>
+            <div className="p-4">
+              <div className="mb-4">
+                <span
+                  className={`px-2.5 py-1 rounded-full text-xs font-semibold shadow-sm ${statusStyles[appointment.status]}`}
+                >
+                  {appointment.status}
+                </span>
+              </div>
+
+              <div className="space-y-3 text-sm text-slate-600">
+                <div className="flex items-center gap-2">
+                  <Stethoscope size={16} className="text-slate-400" />
+                  <span className="font-medium text-slate-700">
+                    {getTreatmentName(appointment)}
+                  </span>
+                  <span className="text-slate-400 text-xs mx-1">•</span>
+                  <span>{getDoctorName(appointment)}</span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Clock size={16} className="text-slate-400" />
+                  <span>
+                    {DateTime.fromISO(appointment.start_time).toFormat(
+                      dateTimeStructure,
+                    )}
+                    {appointment.end_time
+                      ? ` - ${DateTime.fromISO(appointment.end_time).toFormat("HH:mm")}`
+                      : ""}
+                  </span>
+                </div>
+
+                {appointment.notes && (
+                  <div className="flex items-start gap-2 pt-2 border-t border-slate-100">
+                    <FileText
+                      size={16}
+                      className="text-slate-400 mt-0.5 shrink-0"
+                    />
+                    <span className="line-clamp-2 italic text-slate-500">
+                      {appointment.notes}
+                    </span>
+                  </div>
+                )}
+
+                {showIds && (
+                  <div className="text-xs font-mono text-slate-400 pt-1">
+                    ID: {appointment.id}
+                  </div>
+                )}
+              </div>
+            </div>
+          </Card>
+        </div>
+      ))}
+    </div>
+  ) : (
     <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-slate-200">
@@ -160,7 +231,8 @@ const Appointments: React.FC<AppointmentFilters> = (props) => {
               {columns.map((col, index) => (
                 <th
                   key={index}
-                  className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider"
+                  scope="col"
+                  className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap"
                 >
                   {col.header}
                 </th>
@@ -168,14 +240,17 @@ const Appointments: React.FC<AppointmentFilters> = (props) => {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 bg-white">
-            {appointments?.map((appointment: Appointment) => (
+            {appointments.map((appointment: Appointment) => (
               <tr
                 key={appointment.id}
-                className="hover:bg-slate-50/80 transition-colors cursor-pointer"
+                className="hover:bg-slate-50/80 transition-colors cursor-pointer group"
                 onClick={() => setSelectedAppointment(appointment)}
               >
                 {columns.map((col, index) => (
-                  <td key={index} className="px-6 py-4 text-sm text-slate-600">
+                  <td
+                    key={`${appointment.id}-${index}`}
+                    className="px-6 py-4 text-sm text-slate-600 whitespace-nowrap group-hover:text-slate-900 transition-colors"
+                  >
                     {typeof col.accessor === "function"
                       ? col.accessor(appointment)
                       : col.accessor}
