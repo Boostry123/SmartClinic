@@ -7,6 +7,7 @@ import {
   XCircle,
   UserCheck,
   CalendarCheck,
+  Loader,
 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { updateAppointment } from "../api/appointments";
@@ -130,9 +131,13 @@ const StatusDropdown: React.FC<StatusDropdownProps> = ({
         type="button"
         disabled={isLoading}
         onClick={toggleDropdown}
-        className={`p-1 hover:bg-slate-100 rounded-full transition-colors flex items-center justify-center ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+        className={`p-1 hover:bg-slate-100 rounded-full transition-colors flex items-center justify-center ${isLoading ? "cursor-not-allowed" : ""}`}
       >
-        <MoreVertical size={16} className="text-slate-400" />
+        {isLoading ? (
+          <Loader size={16} className="text-indigo-500 animate-spin" />
+        ) : (
+          <MoreVertical size={16} className="text-slate-400" />
+        )}
       </button>
 
       {isOpen &&

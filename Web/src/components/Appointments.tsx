@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from "react";
-import { ArrowLeft, Loader } from "lucide-react";
+import { ArrowLeft, Loader, Eye, EyeOff } from "lucide-react";
 import { DateTime } from "luxon";
 
 import AppointmentEngine from "./AppointmentEngine";
@@ -31,7 +31,7 @@ const Appointments: React.FC<AppointmentFilters> = (props) => {
   } = useAppointments(filters);
   const { data: treatments } = useTreatments({});
 
-  const [showIds] = useState(false);
+  const [showIds, setShowIds] = useState(false);
   const [selectedAppointment, setSelectedAppointment] =
     useState<Appointment | null>(null);
   const isMobile = useIsMobile();
@@ -68,7 +68,20 @@ const Appointments: React.FC<AppointmentFilters> = (props) => {
   const columns = useMemo(
     () => [
       {
-        header: "ID",
+        header: (
+          <div className="flex items-center gap-2">
+            ID
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowIds(!showIds);
+              }}
+              className="text-slate-400 hover:text-slate-600 transition-colors"
+            >
+              {showIds ? <EyeOff size={14} /> : <Eye size={14} />}
+            </button>
+          </div>
+        ),
         accessor: (a: Appointment) => (showIds ? a.id : "••••"),
       },
       { header: "Patient", accessor: getPatientName },
@@ -126,6 +139,14 @@ const Appointments: React.FC<AppointmentFilters> = (props) => {
           initialData={selectedAppointment.treatment_data}
           onSuccess={() => setSelectedAppointment(null)}
         />
+      </div>
+    );
+  }
+
+  if (!appointments || appointments.length === 0) {
+    return (
+      <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-8 text-center text-slate-500">
+        No appointments found.
       </div>
     );
   }
