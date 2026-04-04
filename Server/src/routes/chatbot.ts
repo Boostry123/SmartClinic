@@ -4,18 +4,14 @@ import { chat, toServerSentEventsResponse } from "@tanstack/ai";
 import { geminiText } from "@tanstack/ai-gemini";
 // third-party
 import { rateLimit } from "express-rate-limit";
-// Controllers
-import { getAppointments } from "../controllers/appointmentsController.js";
 //tools
-import { getAppointmentsToolDef } from "../chatTools/appointmentTools.js";
+import { getAppointmentsTool } from "../chatTools/appointmentTools.js";
+import { getTreatmentsTool } from "../chatTools/treatmentTools.js";
 // Middleware
 import { authMiddleware, type AuthRequest } from "../middleware/auth.js";
-//types
-import type {
-  Appointment,
-  AppointmentFilters,
-} from "../types/enums/appointmentTypes.js";
+//services
 import { getUserDetails } from "../services/auth.js";
+//controllers
 import { getDoctors } from "../controllers/doctorsController.js";
 
 const ChatbotRoutes = Router();
@@ -28,61 +24,33 @@ const chatbotLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-// ------------------ TOOL ------------------
-
-const getAppointmentsTool = (token: string) =>
-  getAppointmentsToolDef.server(async (args) => {
-    const filters = { ...(args as Record<string, any>) } as AppointmentFilters;
-
-    const { data, error } = await getAppointments(token, filters);
-
-    if (error || !data) {
-      console.error("Tool Error:", error);
-      throw new Error(`Failed to fetch appointments: ${error}`);
-    }
-    // ----------------------------------------------
-    return {
-      appointments: data.map((appt: Appointment) => ({
-        id: appt.id,
-        patient_id: appt.patient_id,
-        doctor_id: appt.doctor_id,
-        treatment_id: appt.treatment_id,
-        treatment_data: appt.treatment_data || {},
-        start_time: appt.start_time,
-        end_time: appt.end_time,
-        status: appt.status,
-        notes: appt.notes || "",
-        created_at: appt.created_at,
-
-        patients: {
-          first_name: appt.patients?.first_name || "",
-          last_name: appt.patients?.last_name || "",
-        },
-        doctors: {
-          specialization: appt.doctors?.specialization || "",
-          users: {
-            name: appt.doctors?.users?.name || "",
-            last_name: appt.doctors?.users?.last_name || "",
-            email: appt.doctors?.users?.email || "",
-          },
-        },
-      })),
-    };
-  });
-
+//-------------------CONTEXT PROMPT-------------------
 const getSystemPrompt = (doctorId: string) => {
   return `
 # IDENTITY
 You are the SmartClinic Operations Assistant. You help doctors manage their schedule and patient data.
 Your unique Doctor ID is: ${doctorId}.
 
+# CALENDAR RULES (STRICT)
+- **Week Definition**: A week ALWAYS starts on Sunday and ends on Saturday.
+- **Day Sequence**: 1: Sunday, 2: Monday, 3: Tuesday, 4: Wednesday, 5: Thursday, 6: Friday, 7: Saturday.
+- **"This Week"**: Refers to the period from the most recent Sunday to the upcoming Saturday.
+- **"Weekend"**: Refers to Friday and Saturday.
+- **Reference Time**: ${new Date().toLocaleString()} (Current Day: ${new Intl.DateTimeFormat("en-US", { weekday: "long" }).format(new Date())})
+
 # GUIDELINES
-- You are currently assisting the doctor with ID: ${doctorId}. 
-- When the doctor asks for "my schedule", use your ID to filter or identify their specific records.
-- Current Time: ${new Date().toLocaleString()} (ISO: ${new Date().toISOString()})
+- Assisting Doctor ID: ${doctorId}. 
+- Use this ID to filter "my schedule" or "my appointments".
+- **Empty States**: If no appointments are found for a requested period, say: "You have no appointments scheduled for [Date/Period]."
 
 # RESPONSE STYLE
 - Be concise and clinical.
+- **Markdown Tables**: Always use tables for lists. 
+- **Required Columns**: | Patient | Time | Status | Treatment |
+- **Data Formatting**:
+    - Names: **John Doe** (Bold)
+    - Dates: "Tue, Mar 24 | 9:30 AM"
+    - Status: Human-friendly (e.g., "Checked In", "Scheduled", "Completed")
 - **Privacy**: No medical notes unless specifically requested.
 `;
 };
@@ -124,8 +92,8 @@ ChatbotRoutes.post(
         return res.status(404).json({ error: "Doctor record not found." });
       }
 
-      // 3. API KEY CHECK (ADD THIS HERE)
-      if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+      // 3. API KEY CHECK
+      if (!process.env.GEMINI_API_KEY) {
         return res.status(500).json({ error: "No API key provided" });
       }
 
@@ -138,7 +106,7 @@ ChatbotRoutes.post(
         ],
         conversationId: conversationId,
         stream: true,
-        tools: [getAppointmentsTool(token)],
+        tools: [getAppointmentsTool(token), getTreatmentsTool(token)],
       });
 
       // ✅ Get Web Response

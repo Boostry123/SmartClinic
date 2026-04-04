@@ -18,3 +18,44 @@
 .fc .fc-button-primary:hover {
   background-color: #4f46e5 !important;
 }
+/* --- Simplest Chat Table Styling --- */
+
+/* Wrapper to provide separation and horizontal scroll */
+.table-container {
+  margin: 1rem 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow-x: auto;
+  background: white;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+th {
+  background-color: #f8fafc; /* Very light grey header */
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid #e2e8f0;
+  color: #64748b;
+  font-weight: 600;
+}
+
+td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+/* Ensure bold text from AI shows up correctly */
+strong {
+  font-weight: 600;
+  color: #1e293b;
+}
