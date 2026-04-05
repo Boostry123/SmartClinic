@@ -25,7 +25,7 @@ const UIconfig = {
     backgroundColor: "#4338CA",
     borderColor: "#4338CA",
     textColor: "white",
-    editable: true,
+    editable: false,
     durationEditable: false,
   },
   //Existing Event
