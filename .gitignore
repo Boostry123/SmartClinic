@@ -32,5 +32,5 @@ Thumbs.db
 #environment files
 *.postman_environment.json
 
-# images
+#images
 /images/

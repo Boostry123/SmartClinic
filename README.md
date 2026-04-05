@@ -21,16 +21,17 @@
 ## 🛠️ Features
 
 * **Dashboard:** Real-time overview of clinic metrics and schedules.
+* **AI chat BOT** The chat bot is a perssonal assistant of the doctor, It has access to the premade APIs to fetch ,summarize and update data.
 * **Patient Management:** Create, read and update patient records.
 * **Patient Overview:** Dedicated portal for patients to view their medical history and related information.
 * **Treatments:** Reading custom made treatments from JSON file.
 * **Appointments:** Creating and updating appointments , connected to a chosen custom treatment.
+* **Scheduling Management:** Full weekly calendar view for appointment scheduling.
 * **Secure Authentication:** Role-based access control (RBAC) for admins and staff + JWT token from SupaBase.
 * **DDos prevention:** Using Express-rate-limiter , limits both auth requests and API calls.
 
 ### 🚧 Roadmap (Upcoming Features)
-* [ ] **AI chat BOT** The chat bot will be a perssonal assistant of the doctor, It will have access to the premade APIs to fetch data.
-* [ ] **Scheduling Management:** Personal schedule management for medical staff ( Mostly complete ongoing improvments ).
+* [ ] **Document sending trough email:** Doctors will be able to upload and send documents to patients in an easy and interactive way.
 * [ ] **Custom Treatment builder:** Doctors will be able to create a custom treatment structure and it will be saved as a json on the DB.
 
 ---
