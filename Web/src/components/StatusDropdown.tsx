@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useLayoutEffect } from "react";
 import { createPortal } from "react-dom";
 import {
   MoreVertical,
@@ -66,7 +66,7 @@ const StatusDropdown: React.FC<StatusDropdownProps> = ({
     },
   ];
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
         dropdownRef.current &&
@@ -121,7 +121,17 @@ const StatusDropdown: React.FC<StatusDropdownProps> = ({
 
   const toggleDropdown = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsOpen(!isOpen);
+    const nextOpen = !isOpen;
+
+    if (nextOpen && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setDropdownPos({
+        top: rect.bottom + window.scrollY,
+        left: rect.right - 192 + window.scrollX,
+      });
+    }
+
+    setIsOpen(nextOpen);
   };
 
   return (
