@@ -1,34 +1,34 @@
-import { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import {
   ArrowLeft,
+  Loader,
   Eye,
   EyeOff,
-  Loader,
   Clock,
+  ClipboardList,
   Stethoscope,
-  FileText,
 } from "lucide-react";
 import { DateTime } from "luxon";
-
-// Components
+//components
 import AppointmentEngine from "./AppointmentEngine";
+import StatusDropdown from "./StatusDropdown";
 import Card from "./Card";
-
-// Hooks
+//hooks
 import useAppointments from "../hooks/useAppointments";
 import useTreatments from "../hooks/useTreatments";
 import { useIsMobile } from "../hooks/useIsMobile";
-
-// Types & Helpers
-import type {
-  Appointment,
-  AppointmentFilters,
+//types
+import {
+  type Appointment,
+  type AppointmentFilters,
+  statusStyles,
 } from "../api/types/appointments";
-import { statusStyles } from "../api/types/appointments";
+//helpers
 import { dateTimeStructure } from "../helpers/Dates";
 
 const Appointments: React.FC<AppointmentFilters> = (props) => {
   const { start_time, end_time, status, patient_id, doctor_id, id } = props;
+  const isMobile = useIsMobile();
   const filters = useMemo(
     () => ({ start_time, end_time, status, patient_id, doctor_id, id }),
     [start_time, end_time, status, patient_id, doctor_id, id],
@@ -45,19 +45,6 @@ const Appointments: React.FC<AppointmentFilters> = (props) => {
   const [showIds, setShowIds] = useState(false);
   const [selectedAppointment, setSelectedAppointment] =
     useState<Appointment | null>(null);
-
-  const isMobile = useIsMobile();
-
-  const handleRowClick = (appointment: Appointment) => {
-    setSelectedAppointment(appointment);
-  };
-
-  const treatmentTemplate = useMemo(
-    () =>
-      treatments?.find((t) => t.id === selectedAppointment?.treatment_id) ||
-      null,
-    [treatments, selectedAppointment],
-  );
 
   const getPatientName = useCallback(
     (a: Appointment) =>
@@ -79,6 +66,13 @@ const Appointments: React.FC<AppointmentFilters> = (props) => {
     (a: Appointment) =>
       treatments?.find((t) => t.id === a.treatment_id)?.treatment_name || "N/A",
     [treatments],
+  );
+
+  const treatmentTemplate = useMemo(
+    () =>
+      treatments?.find((t) => t.id === selectedAppointment?.treatment_id) ||
+      null,
+    [treatments, selectedAppointment],
   );
 
   const columns = useMemo(
@@ -103,65 +97,52 @@ const Appointments: React.FC<AppointmentFilters> = (props) => {
         accessor: (a: Appointment) => (showIds ? a.id : "••••"),
         className: "font-medium font-mono text-slate-500",
       },
-      { header: "Patient", accessor: getPatientName },
-      { header: "Doctor", accessor: getDoctorName },
-      { header: "Treatment", accessor: getTreatmentName },
       {
-        header: "Start Time",
+        header: "PATIENT",
+        accessor: getPatientName,
+        className: "font-semibold text-slate-700",
+      },
+      { header: "DOCTOR", accessor: getDoctorName },
+      { header: "TREATMENT", accessor: getTreatmentName },
+      {
+        header: "START TIME",
         accessor: (a: Appointment) =>
           DateTime.fromISO(a.start_time).toFormat(dateTimeStructure),
       },
       {
-        header: "End Time",
-        accessor: (a: Appointment) =>
-          a.end_time
-            ? DateTime.fromISO(a.end_time).toFormat(dateTimeStructure)
-            : "N/A",
-      },
-      {
-        header: "Status",
+        header: "STATUS",
         accessor: (a: Appointment) => (
-          <span
-            className={`px-2.5 py-1 rounded-full text-xs font-semibold ${statusStyles[a.status]}`}
-          >
-            {a.status}
-          </span>
+          <div className="flex items-center gap-2">
+            <span
+              className={`px-2.5 py-1 rounded-full text-xs font-semibold ${statusStyles[a.status]}`}
+            >
+              {a.status}
+            </span>
+            <StatusDropdown appointmentId={a.id} currentStatus={a.status} />
+          </div>
         ),
       },
-      {
-        header: "Notes",
-        accessor: (a: Appointment) => a.notes || "-",
-        className: "max-w-xs truncate",
-      },
+      { header: "NOTES", accessor: (a: Appointment) => a.notes || "-" },
     ],
     [showIds, getPatientName, getDoctorName, getTreatmentName],
   );
 
-  if (isLoading) {
+  if (isLoading)
     return (
-      <div className="flex justify-center items-center h-64">
-        <Loader className="animate-spin text-indigo-500" size={48} />
+      <div className="flex justify-center p-10">
+        <Loader className="animate-spin text-indigo-500" />
       </div>
     );
-  }
-
-  if (isError) {
-    return (
-      <div className="p-6 text-red-500 font-medium bg-red-50 rounded-lg">
-        {error?.message || "Failed to load appointments"}
-      </div>
-    );
-  }
+  if (isError) return <div className="p-4 text-red-500">{error?.message}</div>;
 
   if (selectedAppointment && treatmentTemplate) {
     return (
-      <div className="container mx-auto p-4 animate-in fade-in duration-300">
+      <div className="p-4">
         <button
           onClick={() => setSelectedAppointment(null)}
-          className="flex items-center gap-2 mb-6 text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors bg-white px-4 py-2 rounded-lg shadow-sm border border-slate-200"
+          className="flex items-center gap-2 mb-4 text-slate-600 hover:text-slate-900"
         >
-          <ArrowLeft size={16} />
-          Back to Appointments
+          <ArrowLeft size={20} /> Back to List
         </button>
         <AppointmentEngine
           appointmentId={selectedAppointment.id}
@@ -174,15 +155,14 @@ const Appointments: React.FC<AppointmentFilters> = (props) => {
   }
 
   return (
-    <div className="">
+    <div className="container mx-auto p-4 sm:p-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-slate-800 tracking-tight">
-            Appointments
-          </h2>
-        </div>
-        <div className="bg-white px-4 py-2 rounded-lg border border-slate-200 shadow-sm text-sm text-slate-600">
-          Total:{" "}
+        <h2 className="text-2xl font-bold text-slate-800 tracking-tight">
+          Appointments
+        </h2>
+
+        <div className="bg-white px-4 py-2.5 rounded-xl border border-slate-200 shadow-sm text-sm text-slate-600 flex items-center gap-2">
+          Total:
           <span className="font-bold text-indigo-600">
             {appointments?.length || 0}
           </span>
@@ -191,73 +171,80 @@ const Appointments: React.FC<AppointmentFilters> = (props) => {
 
       {isMobile ? (
         <div className="grid grid-cols-1 gap-4">
-          {appointments?.map((appointment: Appointment) => (
+          {appointments?.map((appointment) => (
             <div
               key={appointment.id}
-              onClick={() => handleRowClick(appointment)}
-              className={"cursor-pointer group"}
+              onClick={() => setSelectedAppointment(appointment)}
+              className="cursor-pointer group"
             >
               <Card
-                title={getPatientName(appointment)}
+                title={
+                  <div className="flex justify-between items-start">
+                    <span className="font-bold text-slate-800 text-lg">
+                      {getPatientName(appointment)}
+                    </span>
+                    <span
+                      className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${statusStyles[appointment.status]}`}
+                    >
+                      {appointment.status}
+                    </span>
+                  </div>
+                }
                 className="group-hover:border-indigo-200 transition-all duration-300"
               >
-                <div className="mb-4">
-                  <span
-                    className={`px-2.5 py-1 rounded-full text-xs font-semibold shadow-sm ${statusStyles[appointment.status]}`}
-                  >
-                    {appointment.status}
-                  </span>
-                </div>
-
                 <div className="space-y-3 text-sm text-slate-600">
                   <div className="flex items-center gap-2">
                     <Stethoscope size={16} className="text-slate-400" />
                     <span className="font-medium text-slate-700">
-                      {getTreatmentName(appointment)}
+                      {getDoctorName(appointment)}
                     </span>
-                    <span className="text-slate-400 text-xs mx-1">•</span>
-                    <span>{getDoctorName(appointment)}</span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <ClipboardList size={16} className="text-slate-400" />
+                    <span>{getTreatmentName(appointment)}</span>
                   </div>
 
                   <div className="flex items-center gap-2">
                     <Clock size={16} className="text-slate-400" />
-                    <span>
+                    <span className="font-medium text-indigo-600">
                       {DateTime.fromISO(appointment.start_time).toFormat(
                         dateTimeStructure,
                       )}
-                      {appointment.end_time
-                        ? ` - ${DateTime.fromISO(appointment.end_time).toFormat("HH:mm")}`
-                        : ""}
                     </span>
                   </div>
 
                   {appointment.notes && (
-                    <div className="flex items-start gap-2 pt-2 border-t border-slate-100">
-                      <FileText
-                        size={16}
-                        className="text-slate-400 mt-0.5 shrink-0"
-                      />
-                      <span className="line-clamp-2 italic text-slate-500">
-                        {appointment.notes}
-                      </span>
+                    <div className="pt-2 border-t border-slate-100 text-xs italic text-slate-500 line-clamp-2">
+                      {appointment.notes}
                     </div>
                   )}
 
-                  {showIds && (
-                    <div className="text-xs font-mono text-slate-400 pt-1">
-                      ID: {appointment.id}
+                  <div
+                    className="flex justify-between items-center pt-2 border-t border-slate-100"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div className="flex items-center gap-2">
+                      {showIds && (
+                        <span className="text-[10px] font-mono text-slate-400">
+                          ID: {appointment.id}
+                        </span>
+                      )}
                     </div>
-                  )}
+                    <StatusDropdown
+                      appointmentId={appointment.id}
+                      currentStatus={appointment.status}
+                    />
+                  </div>
                 </div>
               </Card>
             </div>
           ))}
-          {!appointments ||
-            (appointments.length === 0 && (
-              <div className="p-8 text-center border-t border-slate-100">
-                <p className="text-slate-500">No appointments found.</p>
-              </div>
-            ))}
+          {(!appointments || appointments.length === 0) && (
+            <div className="bg-white p-8 rounded-2xl border border-slate-200 text-center">
+              <p className="text-slate-500">No appointments found.</p>
+            </div>
+          )}
         </div>
       ) : (
         <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
@@ -265,10 +252,9 @@ const Appointments: React.FC<AppointmentFilters> = (props) => {
             <table className="min-w-full divide-y divide-slate-200">
               <thead className="bg-slate-50/80">
                 <tr>
-                  {columns.map((col, index) => (
+                  {columns.map((col, i) => (
                     <th
-                      key={index}
-                      scope="col"
+                      key={i}
                       className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider whitespace-nowrap"
                     >
                       {col.header}
@@ -277,17 +263,15 @@ const Appointments: React.FC<AppointmentFilters> = (props) => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 bg-white">
-                {appointments?.map((appointment: Appointment) => (
+                {appointments?.map((appointment) => (
                   <tr
                     key={appointment.id}
-                    className={
-                      "hover:bg-slate-50/80 transition-colors cursor-pointer group"
-                    }
-                    onClick={() => handleRowClick(appointment)}
+                    className="hover:bg-slate-50/80 transition-colors cursor-pointer group"
+                    onClick={() => setSelectedAppointment(appointment)}
                   >
-                    {columns.map((col, index) => (
+                    {columns.map((col, i) => (
                       <td
-                        key={`${appointment.id}-${index}`}
+                        key={i}
                         className={`px-6 py-4 text-sm text-slate-600 whitespace-nowrap group-hover:text-slate-900 transition-colors ${
                           col.className || ""
                         }`}
@@ -302,12 +286,11 @@ const Appointments: React.FC<AppointmentFilters> = (props) => {
               </tbody>
             </table>
           </div>
-          {!appointments ||
-            (appointments.length === 0 && (
-              <div className="p-8 text-center border-t border-slate-100">
-                <p className="text-slate-500">No appointments found.</p>
-              </div>
-            ))}
+          {(!appointments || appointments.length === 0) && (
+            <div className="p-8 text-center border-t border-slate-100">
+              <p className="text-slate-500">No appointments found.</p>
+            </div>
+          )}
         </div>
       )}
     </div>
