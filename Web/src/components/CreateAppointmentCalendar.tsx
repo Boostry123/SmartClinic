@@ -4,7 +4,6 @@ const FullCalendar = lazy(() => import("@fullcalendar/react"));
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import type { DateSelectArg, DateUnselectArg } from "@fullcalendar/core";
-import type { EventDragStopArg } from "@fullcalendar/interaction";
 //config
 import UIconfig from "../../UIConfig";
 //hooks
@@ -108,12 +107,6 @@ const CreateAppointmentCalendar = ({
     }
   };
 
-  const handleEventDrop = (arg: EventDragStopArg) => {
-    if (arg.event.id === UIconfig.newEvent.id) {
-      onSlotSelect(arg.event.start?.toISOString() || "");
-    }
-  };
-
   const snapMinutes = treatmentDuration > 0 ? treatmentDuration : 30;
   const snapDurationStr =
     snapMinutes >= 60
@@ -187,14 +180,13 @@ const CreateAppointmentCalendar = ({
           unselectAuto={true}
           select={handleSelect}
           unselect={handleUnselect}
-          eventDrop={handleEventDrop}
           events={events}
           eventConstraint="businessHours"
           eventClassNames="rounded-md border-none shadow-sm text-xs font-medium px-1 cursor-pointer"
           eventBackgroundColor="#E0E7FF"
           eventTextColor="#4338CA"
           eventDisplay="block"
-          editable={true} // Allows dragging existing apps
+          editable={false} // Allows dragging existing apps, Enabling this may cause wrong time selection when drag and droping
           eventDurationEditable={false} // Allows resizing existing apps
         />
       </div>
