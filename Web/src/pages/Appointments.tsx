@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { DateTime } from "luxon";
 import DatePicker from "../components/Datepicker";
 import Appointments from "../components/Appointments";
@@ -14,6 +15,8 @@ const AppointmentsPage = () => {
     DateTime.now().plus({ days: 1 }).toISODate() || "",
   );
   const [showPicker, setShowPicker] = useState(false);
+  const [searchParams] = useSearchParams();
+  const patientId = searchParams.get("patient_id") || undefined;
 
   const user = useAuthStore((state) => state.user);
   const userRole = user?.user_metadata?.role;
@@ -23,23 +26,23 @@ const AppointmentsPage = () => {
     <div className="container mx-auto p-4 sm:p-6">
       {/* Header Section: Filter (Left) & Actions (Right) */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-        {/* Date Filter Wrapper */}
-        <div className="w-full sm:w-auto">
-          <DatePicker
-            start_date={startDate}
-            isOpen={showPicker}
-            onToggle={() => setShowPicker((prev) => !prev)}
-            onClose={() => setShowPicker(false)}
-            onDateChange={(date) => {
-              setStartDate(date);
-              // Optionally update endDate to the next day to maintain a 1-day window
-              setEndDate(
-                DateTime.fromISO(date).plus({ days: 1 }).toISODate() || "",
-              );
-              setShowPicker(false);
-            }}
-          />
-        </div>
+        {!patientId && (
+          <div className="w-full sm:w-auto">
+            <DatePicker
+              start_date={startDate}
+              isOpen={showPicker}
+              onToggle={() => setShowPicker((prev) => !prev)}
+              onClose={() => setShowPicker(false)}
+              onDateChange={(date) => {
+                setStartDate(date);
+                setEndDate(
+                  DateTime.fromISO(date).plus({ days: 1 }).toISODate() || "",
+                );
+                setShowPicker(false);
+              }}
+            />
+          </div>
+        )}
 
         {isDoctorOrAdmin && (
           <Button
@@ -50,7 +53,11 @@ const AppointmentsPage = () => {
       </div>
 
       {/* Main Content */}
-      <Appointments start_time={startDate} end_time={endDate} />
+      {patientId ? (
+        <Appointments patient_id={patientId} />
+      ) : (
+        <Appointments start_time={startDate} end_time={endDate} />
+      )}
 
       {/* Modals */}
       <CreateAppointmentModal
