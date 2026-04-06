@@ -42,7 +42,7 @@ const DashBoard: React.FC = () => {
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen font-sans">
-      <Card className="max-w-7xl mx-auto border-none shadow-sm overflow-hidden bg-white">
+      <Card className="max-w-full mx-auto border-none shadow-sm overflow-hidden bg-white">
         {/* Header section for the clock */}
         <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-white">
           <div className="bg-indigo-50 px-4 py-2 rounded-xl">
@@ -62,7 +62,7 @@ const DashBoard: React.FC = () => {
             <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 space-y-8">
               {/* Daily Workload Analytics Section */}
               {isDoctor && doctorsData?.[0]?.id && (
-                <div className="max-w-md">
+                <div className="w-full">
                   <DailyWorkload doctorId={doctorsData[0].id} />
                 </div>
               )}
