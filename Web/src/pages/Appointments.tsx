@@ -44,7 +44,7 @@ const AppointmentsPage = () => {
           </div>
         )}
 
-        {isDoctorOrAdmin && (
+        {isDoctorOrAdmin && !patientId && (
           <Button
             text={"New Appointment"}
             onClick={() => setIsModalOpen(true)}
@@ -60,10 +60,12 @@ const AppointmentsPage = () => {
       )}
 
       {/* Modals */}
-      <CreateAppointmentModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
+      {!patientId && (
+        <CreateAppointmentModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+        />
+      )}
     </div>
   );
 };
