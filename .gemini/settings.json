@@ -1,0 +1,6 @@
+{
+  "security": {
+    "disableAlwaysAllow": true,
+    "disableYoloMode": false
+  }
+}

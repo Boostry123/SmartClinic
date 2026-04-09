@@ -3,7 +3,7 @@ export interface ClinicalDocument {
   user_id: string;
   file_name: string;
   file_path: string;
-  public_url: string;
+  signed_url: string | undefined;
   file_type: string;
   created_at?: string;
 }
@@ -13,7 +13,7 @@ export interface DocumentUploadResult {
   data: {
     path: string;
   } | null;
-  publicUrl: string | undefined;
+  signedUrl: string | undefined;
   error?: string;
 }
 

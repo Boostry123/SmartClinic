@@ -4,9 +4,16 @@ import { StorageService } from "../services/storage.js";
 //types
 import type { DocumentUploadResult } from "../types/enums/documentTypes.js";
 
-const { uploadClinicalImage, getPublicUrl, listFiles } = StorageService;
+const {
+  uploadClinicalImage,
+  generateSignedUrl,
+  generateSignedUrls,
+  listFiles,
+} = StorageService;
 
-//uploading public documents
+const BUCKET_NAME = "public_documents";
+
+//uploading clinical documents
 export const uploadDocument = async (
   token: string,
   userId: string,
@@ -25,7 +32,7 @@ export const uploadDocument = async (
 
     const { data: uploadData, error: uploadError } = await uploadClinicalImage(
       supabase,
-      "public_documents",
+      BUCKET_NAME,
       filePath,
       file.buffer,
       file.mimetype,
@@ -35,19 +42,27 @@ export const uploadDocument = async (
       throw new Error(uploadError.message);
     }
 
-    // Get the public URL string directly from the service
-    const publicUrl = getPublicUrl(supabase, "public_documents", filePath);
+    // Get a temporary signed URL (valid for 1 hour)
+    const { data: signedUrlData, error: signedUrlError } =
+      await generateSignedUrl(supabase, BUCKET_NAME, filePath, 3600);
 
-    // Return the path and public URL of the uploaded document
+    if (signedUrlError) {
+      console.warn(
+        "Failed to generate signed URL after upload:",
+        signedUrlError.message,
+      );
+    }
+
+    // Return the path and signed URL of the uploaded document
     return {
       data: uploadData as { path: string },
-      publicUrl,
+      signedUrl: signedUrlData?.signedUrl,
     };
   } catch (err: any) {
     console.error(`Document upload failed: ${err?.message ?? err}`);
     return {
       data: null,
-      publicUrl: undefined,
+      signedUrl: undefined,
       error: err?.message ?? "Unknown error",
     };
   }
@@ -62,48 +77,67 @@ export const listAllDocuments = async (
     // 1. Get all root-level items (these are the user ID folders)
     const { data: rootItems, error: rootError } = await listFiles(
       supabase,
-      "public_documents",
+      BUCKET_NAME,
       "",
     );
 
     if (rootError) throw rootError;
 
-    const allFiles: any[] = [];
+    const filesToFetch: {
+      name: string;
+      userId: string;
+      path: string;
+      metadata: any;
+      createdAt: any;
+      updatedAt: any;
+    }[] = [];
+    const pathsToSign: string[] = [];
 
-    // 2. Iterate through each item at root
+    // 2. Iterate through each item at root to find folders
     for (const item of rootItems || []) {
-      // In Supabase Storage, directories don't have an ID in the list response
-      // or they can be identified as having no metadata (usually).
-      // Or you can try listing it.
-
-      // We'll treat all items at root as folders (which matches our schema: userId/)
       const { data: userFiles, error: userFilesError } = await listFiles(
         supabase,
-        "public_documents",
+        BUCKET_NAME,
         item.name,
       );
 
-      if (userFilesError) {
-        // This might happen if 'item' is a file, not a folder
-        continue;
-      }
+      if (userFilesError) continue;
 
-      // 3. For each file inside the user folder, generate its metadata and public URL
+      // 3. Collect file paths for batch signing
       for (const file of userFiles || []) {
         const filePath = `${item.name}/${file.name}`;
-        const publicUrl = getPublicUrl(supabase, "public_documents", filePath);
-
-        allFiles.push({
+        pathsToSign.push(filePath);
+        filesToFetch.push({
           name: file.name,
           userId: item.name,
           path: filePath,
-          publicUrl,
           metadata: file.metadata,
           createdAt: file.created_at,
           updatedAt: file.updated_at,
         });
       }
     }
+
+    // 4. Batch generate signed URLs for all collected files (efficient)
+    const { data: signedUrls, error: signedError } = await generateSignedUrls(
+      supabase,
+      BUCKET_NAME,
+      pathsToSign,
+      3600,
+    );
+
+    if (signedError) throw signedError;
+
+    // 5. Combine file metadata with their corresponding signed URLs
+    const allFiles = filesToFetch.map((file) => {
+      const signedUrlObj = signedUrls?.find(
+        (s: { path: string; signedUrl: string }) => s.path === file.path,
+      );
+      return {
+        ...file,
+        signedUrl: signedUrlObj?.signedUrl,
+      };
+    });
 
     return { data: allFiles };
   } catch (err: any) {
@@ -112,11 +146,23 @@ export const listAllDocuments = async (
   }
 };
 
-export const getDocumentUrl = (
+export const getDocumentUrl = async (
   token: string,
   filePath: string,
-): { publicUrl: string } => {
-  const supabase = getSupabaseClient(token);
-  const publicUrl = getPublicUrl(supabase, "public_documents", filePath);
-  return { publicUrl };
+): Promise<{ signedUrl: string; error?: string }> => {
+  try {
+    const supabase = getSupabaseClient(token);
+    const { data, error } = await generateSignedUrl(
+      supabase,
+      BUCKET_NAME,
+      filePath,
+      3600,
+    );
+
+    if (error) throw error;
+    return { signedUrl: data?.signedUrl || "" };
+  } catch (err: any) {
+    console.error(`Retrieving signed URL failed: ${err?.message ?? err}`);
+    return { signedUrl: "", error: err?.message ?? "Unknown error" };
+  }
 };

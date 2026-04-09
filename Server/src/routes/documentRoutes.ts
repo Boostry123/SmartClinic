@@ -46,7 +46,7 @@ DocumentRoutes.get(
   },
 );
 
-// Retrieve a document's public URL
+// Retrieve a document's signed URL
 DocumentRoutes.get(
   "/url",
   authMiddleware,
@@ -65,7 +65,7 @@ DocumentRoutes.get(
         return;
       }
 
-      const result = getDocumentUrl(token, filePath);
+      const result = await getDocumentUrl(token, filePath);
       res.status(200).json(result);
     } catch (err: any) {
       console.error("Error retrieving document URL:", err);
@@ -74,7 +74,7 @@ DocumentRoutes.get(
   },
 );
 
-//Uploading a public document
+//Uploading a document
 DocumentRoutes.post(
   "/upload",
   authMiddleware,
@@ -120,7 +120,7 @@ DocumentRoutes.post(
         // Use provided fileName or original name if not provided
         const currentFileName = fileName || file.originalname.split(".")[0];
 
-        const { data, publicUrl, error } = await uploadDocument(
+        const { data, signedUrl, error } = await uploadDocument(
           token,
           userId,
           file,
@@ -133,7 +133,7 @@ DocumentRoutes.post(
           results.push({
             fileName: fileName || file.originalname,
             data,
-            publicUrl,
+            signedUrl,
           });
         }
       }
