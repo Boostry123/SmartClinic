@@ -8,6 +8,7 @@ import {
   LogOut,
   Menu,
   X,
+  FileText,
 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -50,6 +51,12 @@ const NavBar = () => {
       { name: "Patients", icon: <Users size={18} />, path: "/patients" },
 
       { name: "Treatments", icon: <Activity size={18} />, path: "/treatments" },
+
+      {
+        name: "Documents",
+        icon: <FileText size={18} />,
+        path: "/documents",
+      },
     ],
     [],
   );
