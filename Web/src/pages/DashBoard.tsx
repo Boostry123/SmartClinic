@@ -13,7 +13,7 @@ import useDoctors from "../hooks/useDoctors";
 import DailyWorkload from "../components/DailyWorkload";
 
 import DashboardStatsSidebar from "../components/DashboardStatsSidebar";
-import DashboardQuickActions from "../components/DashboardQuickActions";
+import DashboardMonthlySidebar from "../components/DashboardMonthlySidebar";
 
 const DashBoard: React.FC = () => {
   // Memoize date calculations to prevent unnecessary re-renders
@@ -98,9 +98,7 @@ const DashBoard: React.FC = () => {
         </Card>
 
         {/* Right sidebar */}
-        <DashboardQuickActions
-          startOfDay={startOfDay}
-          endOfDay={endOfDay}
+        <DashboardMonthlySidebar
           doctorId={isDoctor ? doctorsData?.[0]?.id : undefined}
           isDoctor={isDoctor}
         />
