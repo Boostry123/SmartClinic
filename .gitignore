@@ -34,3 +34,7 @@ Thumbs.db
 
 #images
 /images/
+
+#models
+.claude/
+
