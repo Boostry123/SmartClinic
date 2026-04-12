@@ -9,9 +9,27 @@ const {
   generateSignedUrl,
   generateSignedUrls,
   listFiles,
+  deleteFile,
 } = StorageService;
 
 const BUCKET_NAME = "public_documents";
+
+// Delete a clinical document
+export const deleteDocument = async (
+  token: string,
+  filePath: string,
+): Promise<{ success: boolean; error?: string }> => {
+  try {
+    const supabase = getSupabaseClient(token);
+    const { error } = await deleteFile(supabase, BUCKET_NAME, filePath);
+
+    if (error) throw error;
+    return { success: true };
+  } catch (err: any) {
+    console.error(`Deleting document failed: ${err?.message ?? err}`);
+    return { success: false, error: err?.message ?? "Unknown error" };
+  }
+};
 
 //uploading clinical documents
 export const uploadDocument = async (

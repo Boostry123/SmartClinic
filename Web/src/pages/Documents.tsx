@@ -5,11 +5,15 @@ import {
   Loader,
   Upload,
   Calendar,
+  Trash2,
 } from "lucide-react";
 // Store
 import { useAuthStore } from "../store/authStore";
 // Hooks
-import useDocuments, { useUploadDocument } from "../hooks/useDocuments";
+import useDocuments, {
+  useUploadDocument,
+  useDeleteDocument,
+} from "../hooks/useDocuments";
 // Components
 import Hint from "../components/hint";
 import ViewDocumentModal from "../components/modals/ViewDocumentModal";
@@ -27,6 +31,9 @@ const Documents = () => {
 
   // Mutation for uploading
   const { mutate: upload, isPending: isUploading } = useUploadDocument();
+
+  // Mutation for deleting
+  const { mutate: deleteDoc, isPending: isDeleting } = useDeleteDocument();
 
   const user = useAuthStore((state) => state.user);
   const userRole = user?.user_metadata?.role;
@@ -138,13 +145,32 @@ const Documents = () => {
               }
               className="group transform hover:-translate-y-1 transition-all"
               title={
-                <div className="flex justify-between items-start">
+                <div className="flex justify-between items-start w-full">
                   <div className="p-3 bg-indigo-50 rounded-lg group-hover:bg-indigo-600 transition-colors">
                     <FileText
                       className="text-indigo-600 group-hover:text-white transition-colors"
                       size={24}
                     />
                   </div>
+                  {isDoctorOrAdmin && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (
+                          window.confirm(
+                            "Are you sure you want to delete this document?",
+                          )
+                        ) {
+                          deleteDoc(doc.path);
+                        }
+                      }}
+                      disabled={isDeleting}
+                      className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      title="Delete document"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  )}
                 </div>
               }
             >

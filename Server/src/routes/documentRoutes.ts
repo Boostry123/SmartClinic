@@ -7,6 +7,7 @@ import {
   uploadDocument,
   getDocumentUrl,
   listAllDocuments,
+  deleteDocument,
 } from "../controllers/documentController.js";
 //services
 import { getUserDetails } from "../services/auth.js";
@@ -69,6 +70,40 @@ DocumentRoutes.get(
       res.status(200).json(result);
     } catch (err: any) {
       console.error("Error retrieving document URL:", err);
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  },
+);
+
+// Delete a document
+DocumentRoutes.delete(
+  "/",
+  authMiddleware,
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const token = req.token;
+      const { filePath } = req.query;
+
+      if (!token) {
+        res.status(401).json({ error: "Unauthorized" });
+        return;
+      }
+
+      if (!filePath || typeof filePath !== "string") {
+        res.status(400).json({ error: "filePath query parameter is required" });
+        return;
+      }
+
+      const result = await deleteDocument(token, filePath);
+
+      if (!result.success) {
+        res.status(500).json({ error: result.error });
+        return;
+      }
+
+      res.status(200).json({ message: "Document deleted successfully" });
+    } catch (err: any) {
+      console.error("Error deleting document:", err);
       res.status(500).json({ error: "Internal Server Error" });
     }
   },

@@ -1,5 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getDocuments, uploadDocument, getDocumentUrl } from "../api/documents";
+import {
+  getDocuments,
+  uploadDocument,
+  getDocumentUrl,
+  deleteDocument,
+} from "../api/documents";
 import type {
   ClinicalDocument,
   DocumentUploadResponse,
@@ -31,6 +36,21 @@ export const useUploadDocument = () => {
     mutationFn: ({ files, fileName }) => uploadDocument(files, fileName),
     onSuccess: () => {
       // Invalidate the documents list to show the new upload
+      queryClient.invalidateQueries({ queryKey: ["documents"] });
+    },
+  });
+};
+
+/**
+ * Hook to delete a document.
+ */
+export const useDeleteDocument = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<{ message: string }, Error, string>({
+    mutationFn: (filePath: string) => deleteDocument(filePath),
+    onSuccess: () => {
+      // Invalidate the documents list to reflect the deletion
       queryClient.invalidateQueries({ queryKey: ["documents"] });
     },
   });

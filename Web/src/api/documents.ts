@@ -76,3 +76,21 @@ export const getDocumentUrl = async (
     throw err;
   }
 };
+
+/**
+ * Delete a specific document by its file path.
+ */
+export const deleteDocument = async (
+  filePath: string,
+): Promise<{ message: string }> => {
+  try {
+    const res = await apiClient.delete<{ message: string }>("/documents", {
+      params: { filePath },
+    });
+    console.log("deleteDocument success");
+    return res.data;
+  } catch (err) {
+    console.error("deleteDocument error:", err);
+    throw err;
+  }
+};
