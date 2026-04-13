@@ -203,7 +203,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"treatment_name\": \"Botox - Glabellar Lines\",\r\n  \"estimated_time\": 20,\r\n  \"template\": {\r\n    \"version\": \"1.0\",\r\n    \"fields\": [\r\n      {\r\n        \"id\": \"units_administered\",\r\n        \"label\": \"Total Units Administered\",\r\n        \"type\": \"number\",\r\n        \"required\": true,\r\n        \"placeholder\": \"e.g. 20\"\r\n      },\r\n      {\r\n        \"id\": \"injection_sites\",\r\n        \"label\": \"Injection Sites Identified\",\r\n        \"type\": \"textarea\",\r\n        \"required\": true,\r\n        \"placeholder\": \"Describe specific placement...\"\r\n      },\r\n      {\r\n        \"id\": \"product_brand\",\r\n        \"label\": \"Brand Used\",\r\n        \"type\": \"select\",\r\n        \"options\": [\"Botox\", \"Dysport\", \"Xeomin\", \"Jeuveau\"],\r\n        \"defaultValue\": \"Botox\"\r\n      },\r\n      {\r\n        \"id\": \"post_care_provided\",\r\n        \"label\": \"Post-Care Instructions Given\",\r\n        \"type\": \"checkbox\",\r\n        \"defaultValue\": true\r\n      }\r\n    ]\r\n  }\r\n}",
+              "raw": "{\r\n  \"treatment_name\": \"Botox - Glabellar Lines\",\r\n  \"estimated_time\": 20,\r\n  \"template\": {\r\n    \"version\": \"1.1\",\r\n    \"fields\": [\r\n      {\r\n        \"id\": \"units_administered\",\r\n        \"label\": \"Total Units Administered\",\r\n        \"type\": \"number\",\r\n        \"required\": true,\r\n        \"placeholder\": \"e.g. 20\"\r\n      },\r\n      {\r\n        \"id\": \"injection_sites\",\r\n        \"label\": \"Injection Sites Identified\",\r\n        \"type\": \"textarea\",\r\n        \"required\": true,\r\n        \"placeholder\": \"Describe specific placement...\"\r\n      },\r\n      {\r\n        \"id\": \"product_brand\",\r\n        \"label\": \"Brand Used\",\r\n        \"type\": \"select\",\r\n        \"options\": [\"Botox\", \"Dysport\", \"Xeomin\", \"Jeuveau\"],\r\n        \"defaultValue\": \"Botox\"\r\n      },\r\n      {\r\n        \"id\": \"post_care_provided\",\r\n        \"label\": \"Post-Care Instructions Given\",\r\n        \"type\": \"checkbox\",\r\n        \"defaultValue\": true\r\n      },\r\n      {\r\n        \"id\": \"photo_before\",\r\n        \"label\": \"Before Photo\",\r\n        \"type\": \"image\",\r\n        \"required\": true,\r\n        \"description\": \"Ensure clear lighting of the glabellar region.\"\r\n      },\r\n      {\r\n        \"id\": \"photo_after\",\r\n        \"label\": \"After Photo\",\r\n        \"type\": \"image\",\r\n        \"required\": false,\r\n        \"description\": \"Taken immediately post-injection.\"\r\n      }\r\n    ]\r\n  }\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -456,6 +456,132 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "Doctors",
+      "item": [
+        {
+          "name": "New Request",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Documents",
+      "item": [
+        {
+          "name": "Upload PDFs",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "multipart/form-data",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "files",
+                  "type": "file",
+                  "uuid": "9f1aa279-7910-4aed-a8b3-4a5cdfe2fcd1",
+                  "src": "/F:/downloads/SCE_TECH_2026_Yanir_Nadav (1).pdf"
+                },
+                {
+                  "key": "fileName",
+                  "value": "newFile",
+                  "type": "text",
+                  "uuid": "f375376d-7dbc-4582-b3fa-ecf5e4f34b6f"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseURL}}documents/upload",
+              "host": [
+                "{{baseURL}}documents"
+              ],
+              "path": [
+                "upload"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List all documents",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "multipart/form-data",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}documents/all",
+              "host": [
+                "{{baseURL}}documents"
+              ],
+              "path": [
+                "all"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "healthCheck",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "{{token}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": ""
+        },
+        "url": {
+          "raw": "{{baseURL}}healthCheck",
+          "host": [
+            "{{baseURL}}healthCheck"
+          ]
+        }
+      },
+      "response": []
     }
   ],
   "variable": [

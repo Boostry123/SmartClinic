@@ -5,9 +5,11 @@ import useTreatments from "../hooks/useTreatments";
 import { useAuthStore } from "../store/authStore";
 //Engines
 import TreatmentEngine from "../components/TreatmentEngine";
+//Components
+import Hint from "../components/hint";
+import Card from "../components/Card";
 //Types
 import type { Treatment } from "../api/types/treatments";
-import Hint from "../components/hint";
 
 const Treatments = () => {
   const [selectedTemplate, setSelectedTemplate] = useState<Treatment | null>(
@@ -82,42 +84,40 @@ const Treatments = () => {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {treatments?.map((template) => (
-          <div
+          <Card
             key={template.treatment_name}
             onClick={() => {
               if (isDoctorOrAdmin) {
                 setSelectedTemplate(template);
               }
             }}
-            className={`group bg-white rounded-xl border border-gray-200 p-6 transition-all duration-300 ${
-              isDoctorOrAdmin
-                ? "cursor-pointer hover:border-indigo-500 hover:shadow-lg transform hover:-translate-y-1"
-                : "cursor-default"
-            }`}
-          >
-            <div
-              className={`flex items-center justify-center w-12 h-12 rounded-lg mb-4 transition-colors ${
-                isDoctorOrAdmin
-                  ? "bg-indigo-100 group-hover:bg-indigo-500"
-                  : "bg-slate-100"
-              }`}
-            >
-              <FileText
-                className={
+            className="group transform hover:-translate-y-1"
+            title={
+              <div
+                className={`flex items-center justify-center w-12 h-12 rounded-lg transition-colors ${
                   isDoctorOrAdmin
-                    ? "text-indigo-600 group-hover:text-white"
-                    : "text-slate-400"
-                }
-                size={24}
-              />
-            </div>
+                    ? "bg-indigo-100 group-hover:bg-indigo-500"
+                    : "bg-slate-100"
+                }`}
+              >
+                <FileText
+                  className={
+                    isDoctorOrAdmin
+                      ? "text-indigo-600 group-hover:text-white"
+                      : "text-slate-400"
+                  }
+                  size={24}
+                />
+              </div>
+            }
+          >
             <h2 className="text-lg font-bold text-gray-800">
               {template.treatment_name}
             </h2>
             <p className="text-sm text-gray-500 mt-1">
               Version {template.template.version}
             </p>
-          </div>
+          </Card>
         ))}
       </div>
     </div>
