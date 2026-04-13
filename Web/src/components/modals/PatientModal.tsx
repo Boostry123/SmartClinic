@@ -1,14 +1,17 @@
 import { useState } from "react";
-import { X } from "lucide-react";
+import { X, Mail, FileText, Loader } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { DateTime } from "luxon";
 import axios from "axios";
 //APIs
 import { updatePatient } from "../../api/patients";
+//hooks
+import useDocuments from "../../hooks/useDocuments";
 //types
 import type { Patient } from "../../api/types/patients";
 import Button from "../Button";
+import Hint from "../hint";
 
 interface PatientModalProps {
   isOpen: boolean;
@@ -19,6 +22,7 @@ interface PatientModalProps {
 const PatientModal = ({ isOpen, onClose, patient }: PatientModalProps) => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { data: documents, isLoading: documentsLoading } = useDocuments();
 
   // Helper to safely format date for input[type="date"]
   const formatDateForInput = (dateString?: string) => {
@@ -51,6 +55,12 @@ const PatientModal = ({ isOpen, onClose, patient }: PatientModalProps) => {
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSendEmail = (docName: string) => {
+    console.log(
+      `Document '${docName}' was sent to patient '${patient.patient_id}'`,
+    );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -88,208 +98,271 @@ const PatientModal = ({ isOpen, onClose, patient }: PatientModalProps) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6 relative max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-5 border-b pb-4">
-          <div className="flex flex-col">
-            <h3 className="text-xl font-bold text-gray-800">
-              Edit Patient Details
-            </h3>
-            <p className="text-sm text-gray-500">
-              {patient.first_name} {patient.last_name} • ID:{" "}
-              {patient.patient_id.slice(0, 8)}...
-            </p>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-hidden">
+      <div className="flex flex-col md:flex-row gap-4 w-full max-w-5xl max-h-[90vh]">
+        {/* Main Panel: Edit Patient */}
+        <div className="bg-white rounded-lg shadow-xl flex-[2] p-6 relative overflow-y-auto">
+          <div className="flex justify-between items-center mb-5 border-b pb-4">
+            <div className="flex flex-col">
+              <h3 className="text-xl font-bold text-gray-800">
+                Edit Patient Details
+              </h3>
+              <p className="text-sm text-gray-500">
+                {patient.first_name} {patient.last_name} • ID:{" "}
+                {patient.patient_id.slice(0, 8)}...
+              </p>
+            </div>
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 transition-colors p-1 md:hidden"
+              type="button"
+            >
+              <X size={24} />
+            </button>
           </div>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors p-1"
-            type="button"
-          >
-            <X size={24} />
-          </button>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+              <div className="col-span-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  First Name
+                </label>
+                <input
+                  type="text"
+                  name="first_name"
+                  value={formData.first_name}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4361ee] transition-all"
+                />
+              </div>
+              <div className="col-span-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Last Name
+                </label>
+                <input
+                  type="text"
+                  name="last_name"
+                  value={formData.last_name}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4361ee] transition-all"
+                />
+              </div>
+
+              <div className="col-span-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Date of Birth
+                </label>
+                <input
+                  type="date"
+                  name="date_of_birth"
+                  value={formData.date_of_birth || ""}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4361ee] transition-all"
+                />
+              </div>
+              <div className="col-span-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Gender
+                </label>
+                <select
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4361ee] transition-all"
+                >
+                  <option value="">Select Gender</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+
+              <div className="col-span-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  National ID Number
+                </label>
+                <input
+                  type="text"
+                  name="national_id_number"
+                  value={formData.national_id_number}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4361ee] transition-all"
+                />
+              </div>
+              <div className="col-span-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Phone Number
+                </label>
+                <input
+                  type="tel"
+                  name="phone_number"
+                  value={formData.phone_number}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4361ee] transition-all"
+                />
+              </div>
+
+              <div className="col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Address
+                </label>
+                <input
+                  type="text"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4361ee] transition-all"
+                />
+              </div>
+
+              <div className="col-span-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Blood Type
+                </label>
+                <select
+                  name="blood_type"
+                  value={formData.blood_type}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4361ee] transition-all"
+                >
+                  <option value="">Select Blood Type</option>
+                  <option value="A+">A+</option>
+                  <option value="A-">A-</option>
+                  <option value="B+">B+</option>
+                  <option value="B-">B-</option>
+                  <option value="AB+">AB+</option>
+                  <option value="AB-">AB-</option>
+                  <option value="O+">O+</option>
+                  <option value="O-">O-</option>
+                </select>
+              </div>
+
+              <div className="col-span-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Emergency Contact Name
+                </label>
+                <input
+                  type="text"
+                  name="emergency_contact_name"
+                  value={formData.emergency_contact_name}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4361ee] transition-all"
+                />
+              </div>
+              <div className="col-span-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Insurance Provider
+                </label>
+                <input
+                  type="text"
+                  name="insurance_provider"
+                  value={formData.insurance_provider}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4361ee] transition-all"
+                />
+              </div>
+              <div className="col-span-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Emergency Phone
+                </label>
+                <input
+                  type="tel"
+                  name="emergency_contact_phone"
+                  value={formData.emergency_contact_phone}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4361ee] transition-all"
+                />
+              </div>
+
+              <div className="col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Insurance Policy Number
+                </label>
+                <input
+                  type="text"
+                  name="insurance_policy_number"
+                  value={formData.insurance_policy_number}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4361ee] transition-all"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-6 border-t mt-6">
+              <Button
+                text="View Appointments"
+                color="gray"
+                onClick={() => {
+                  onClose();
+                  navigate(`/appointments?patient_id=${patient.patient_id}`);
+                }}
+                type="button"
+              />
+              <Button text="Cancel" onClick={onClose} color="gray" />
+              <Button type="submit" text="Save Changes" color="indigo" />
+            </div>
+          </form>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-            <div className="col-span-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                First Name
-              </label>
-              <input
-                type="text"
-                name="first_name"
-                value={formData.first_name}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4361ee] transition-all"
-              />
-            </div>
-            <div className="col-span-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Last Name
-              </label>
-              <input
-                type="text"
-                name="last_name"
-                value={formData.last_name}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4361ee] transition-all"
-              />
-            </div>
-
-            <div className="col-span-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Date of Birth
-              </label>
-              <input
-                type="date"
-                name="date_of_birth"
-                value={formData.date_of_birth || ""}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4361ee] transition-all"
-              />
-            </div>
-            <div className="col-span-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Gender
-              </label>
-              <select
-                name="gender"
-                value={formData.gender}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4361ee] transition-all"
+        {/* Side Panel: Clinical Documents */}
+        <div className="bg-white rounded-lg shadow-xl flex-1 p-6 relative overflow-y-auto border-l md:border-l-0">
+          <div className="mb-5 border-b pb-4 space-y-2">
+            <div className="flex justify-between items-center">
+              <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                <FileText size={20} className="text-[#4361ee]" />
+                Documents
+              </h3>
+              <button
+                onClick={onClose}
+                className="text-gray-400 hover:text-gray-600 transition-colors p-1"
+                type="button"
               >
-                <option value="">Select Gender</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="other">Other</option>
-              </select>
+                <X size={24} />
+              </button>
             </div>
-
-            <div className="col-span-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                National ID Number
-              </label>
-              <input
-                type="text"
-                name="national_id_number"
-                value={formData.national_id_number}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4361ee] transition-all"
-              />
-            </div>
-            <div className="col-span-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Phone Number
-              </label>
-              <input
-                type="tel"
-                name="phone_number"
-                value={formData.phone_number}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4361ee] transition-all"
-              />
-            </div>
-
-            <div className="col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Address
-              </label>
-              <input
-                type="text"
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4361ee] transition-all"
-              />
-            </div>
-
-            <div className="col-span-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Blood Type
-              </label>
-              <select
-                name="blood_type"
-                value={formData.blood_type}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4361ee] transition-all"
-              >
-                <option value="">Select Blood Type</option>
-                <option value="A+">A+</option>
-                <option value="A-">A-</option>
-                <option value="B+">B+</option>
-                <option value="B-">B-</option>
-                <option value="AB+">AB+</option>
-                <option value="AB-">AB-</option>
-                <option value="O+">O+</option>
-                <option value="O-">O-</option>
-              </select>
-            </div>
-
-            <div className="col-span-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Emergency Contact Name
-              </label>
-              <input
-                type="text"
-                name="emergency_contact_name"
-                value={formData.emergency_contact_name}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4361ee] transition-all"
-              />
-            </div>
-            <div className="col-span-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Insurance Provider
-              </label>
-              <input
-                type="text"
-                name="insurance_provider"
-                value={formData.insurance_provider}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4361ee] transition-all"
-              />
-            </div>
-            <div className="col-span-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Emergency Phone
-              </label>
-              <input
-                type="tel"
-                name="emergency_contact_phone"
-                value={formData.emergency_contact_phone}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4361ee] transition-all"
-              />
-            </div>
-
-            <div className="col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Insurance Policy Number
-              </label>
-              <input
-                type="text"
-                name="insurance_policy_number"
-                value={formData.insurance_policy_number}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#4361ee] transition-all"
-              />
-            </div>
+            <Hint text="Send the current patient an email of the chosen document" />
           </div>
 
-          <div className="flex justify-end gap-3 pt-6 border-t mt-6">
-            <Button
-             text="View Appointments"
-             color="gray"
-             onClick={() => {
-               onClose();
-               navigate(`/appointments?patient_id=${patient.patient_id}`);
-             }}
-             type="button"
-           />
-            <Button text="Cancel" onClick={onClose} color="gray" />
-            <Button type="submit" text="Save Changes" color="indigo" />
+          <div className="space-y-3">
+            {documentsLoading ? (
+              <div className="flex flex-col items-center justify-center py-10 text-gray-500">
+                <Loader size={32} className="animate-spin mb-2" />
+                <p>Loading documents...</p>
+              </div>
+            ) : !documents || documents.length === 0 ? (
+              <div className="text-center py-10 text-gray-500 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
+                <FileText size={40} className="mx-auto mb-2 opacity-20" />
+                <p>No documents found</p>
+              </div>
+            ) : (
+              documents.map((doc) => (
+                <div
+                  key={doc.path}
+                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors border border-gray-200 group"
+                >
+                  <div className="flex items-center gap-3 overflow-hidden">
+                    <div className="p-2 bg-white rounded-md border border-gray-200 text-[#4361ee]">
+                      <FileText size={18} />
+                    </div>
+                    <p
+                      className="text-sm font-medium text-gray-700 truncate"
+                      title={doc.name}
+                    >
+                      {doc.name}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => handleSendEmail(doc.name)}
+                    className="p-2 text-gray-400 hover:text-[#4361ee] hover:bg-white rounded-full transition-all border border-transparent hover:border-gray-200"
+                    title={`Send ${doc.name} via email`}
+                  >
+                    <Mail size={18} />
+                  </button>
+                </div>
+              ))
+            )}
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );
