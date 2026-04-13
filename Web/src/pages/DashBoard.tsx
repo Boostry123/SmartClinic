@@ -36,6 +36,10 @@ const DashBoard: React.FC = () => {
   const isDoctor = userData?.user_metadata.role === ClinicRoleEnum.doctor;
   const userId = isDoctor ? userData?.id : undefined;
 
+  const isAdminOrSecretary =
+    userData?.user_metadata.role === ClinicRoleEnum.admin ||
+    userData?.user_metadata.role === ClinicRoleEnum.secretary;
+
   const { data: doctorsData, isLoading } = useDoctors({
     user_id: userId || "",
   });
@@ -61,10 +65,16 @@ const DashBoard: React.FC = () => {
           ) : (
             <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 space-y-8">
               {/* Daily Workload Analytics Section */}
-              {isDoctor && doctorsData?.[0]?.id && (
+              {isDoctor && doctorsData?.[0]?.id ? (
                 <div className="w-full">
                   <DailyWorkload doctorId={doctorsData[0].id} />
                 </div>
+              ) : (
+                isAdminOrSecretary && (
+                  <div className="w-full">
+                    <DailyWorkload doctorId="" />
+                  </div>
+                )
               )}
 
               {/* Main Appointments Table Section */}

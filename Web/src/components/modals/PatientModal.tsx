@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { DateTime } from "luxon";
 import axios from "axios";
@@ -17,6 +18,7 @@ interface PatientModalProps {
 
 const PatientModal = ({ isOpen, onClose, patient }: PatientModalProps) => {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   // Helper to safely format date for input[type="date"]
   const formatDateForInput = (dateString?: string) => {
@@ -275,6 +277,15 @@ const PatientModal = ({ isOpen, onClose, patient }: PatientModalProps) => {
           </div>
 
           <div className="flex justify-end gap-3 pt-6 border-t mt-6">
+            <Button
+             text="View Appointments"
+             color="gray"
+             onClick={() => {
+               onClose();
+               navigate(`/appointments?patient_id=${patient.patient_id}`);
+             }}
+             type="button"
+           />
             <Button text="Cancel" onClick={onClose} color="gray" />
             <Button type="submit" text="Save Changes" color="indigo" />
           </div>

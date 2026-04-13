@@ -47,6 +47,7 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
+app.set("trust proxy", 1);
 // Parse incoming JSON requests
 app.use(express.json());
 // Apply general rate limiting to all routes
