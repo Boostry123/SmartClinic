@@ -11,6 +11,8 @@ import { ClinicRoleEnum, type UserProfile } from "../types/auth";
 import useDoctors from "../hooks/useDoctors";
 import DailyWorkload from "../components/DailyWorkload";
 
+import PatientDashboard from "./PatientDashboard";
+
 const DashBoard: React.FC = () => {
   // Memoize date calculations to prevent unnecessary re-renders
   const { startOfDay, endOfDay } = useMemo(
@@ -40,9 +42,15 @@ const DashBoard: React.FC = () => {
     userData?.user_metadata.role === ClinicRoleEnum.admin ||
     userData?.user_metadata.role === ClinicRoleEnum.secretary;
 
+  const isPatient = userData?.user_metadata.role === ClinicRoleEnum.patient;
+
   const { data: doctorsData, isLoading } = useDoctors({
     user_id: userId || "",
   });
+
+  if (isPatient) {
+    return <PatientDashboard />;
+  }
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen font-sans">

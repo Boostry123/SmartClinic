@@ -12,10 +12,7 @@ import {
 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useLocation } from "react-router-dom";
-// Store
 import { useAuthStore } from "../store/authStore";
-
-// Components
 import ProfileButton from "./ProfileButton";
 import DoctorProfileModal from "./modals/profile/DoctorProfileModal";
 import PatientProfileModal from "./modals/profile/PatientProfileModal";
@@ -38,7 +35,6 @@ const NavBar = () => {
   const isDoctorOrAdmin = userRole === "doctor" || userRole === "admin";
   const isPatient = userRole === "patient";
 
-  // Navigation Items
   const navItems = useMemo(
     () => [
       { name: "Home", icon: <Home size={18} />, path: "/" },
@@ -47,16 +43,9 @@ const NavBar = () => {
         icon: <Calendar size={18} />,
         path: "/appointments",
       },
-
       { name: "Patients", icon: <Users size={18} />, path: "/patients" },
-
       { name: "Treatments", icon: <Activity size={18} />, path: "/treatments" },
-
-      {
-        name: "Documents",
-        icon: <FileText size={18} />,
-        path: "/documents",
-      },
+      { name: "Documents", icon: <FileText size={18} />, path: "/documents" },
     ],
     [],
   );
@@ -90,41 +79,41 @@ const NavBar = () => {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-2">
-            {navItems.map((item) => {
-              const isActive = location.pathname === item.path;
-              return (
-                <button
-                  key={item.name}
-                  onClick={() => navigate(item.path)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 border border-transparent
-                    ${
-                      isActive
-                        ? "bg-white/10 text-cyan-300 border-white/10 shadow-[0_0_15px_rgba(34,211,238,0.15)] backdrop-blur-sm transform scale-105"
-                        : "text-indigo-300 hover:text-white hover:bg-white/5"
-                    }`}
-                >
-                  {item.icon}
-                  <span>{item.name}</span>
-                </button>
-              );
-            })}
-          </div>
+          {isPatient ? (
+            <div className="hidden md:flex flex-col items-center">
+              <span className="text-xs text-indigo-300 uppercase tracking-widest">
+                Welcome back
+              </span>
+              <span className="text-white font-semibold">
+                {user?.user_metadata?.name} {user?.user_metadata?.last_name}
+              </span>
+            </div>
+          ) : (
+            <div className="hidden md:flex items-center gap-2">
+              {navItems.map((item) => {
+                const isActive = location.pathname === item.path;
+                return (
+                  <button
+                    key={item.name}
+                    onClick={() => navigate(item.path)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 border border-transparent
+                      ${
+                        isActive
+                          ? "bg-white/10 text-cyan-300 border-white/10 shadow-[0_0_15px_rgba(34,211,238,0.15)] backdrop-blur-sm transform scale-105"
+                          : "text-indigo-300 hover:text-white hover:bg-white/5"
+                      }`}
+                  >
+                    {item.icon}
+                    <span>{item.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
           {/* Right Side Actions */}
           <div className="flex items-center gap-4">
-            <div className="hidden sm:flex items-center gap-3">
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-2 px-4 py-2 text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 rounded-full transition-colors text-xs font-bold border border-rose-500/10"
-              >
-                <LogOut size={14} />
-                <span>Exit</span>
-              </button>
-              <div className="w-px h-6 bg-indigo-800/50" />
-            </div>
-
-            {/* Profile Button Integration */}
+            {/* Profile Button */}
             {isDoctorOrAdmin && (
               <ProfileButton
                 onClick={() => setIsDoctorProfileModalOpen(true)}
@@ -136,13 +125,26 @@ const NavBar = () => {
               />
             )}
 
-            {/* Mobile Menu Toggle */}
-            <button
-              className="md:hidden p-2 text-indigo-200 hover:text-white"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            >
-              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
+            {/* Exit Button */}
+            <div className="hidden sm:flex items-center gap-3">
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-4 py-2 text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 rounded-full transition-colors text-xs font-bold border border-rose-500/10"
+              >
+                <LogOut size={14} />
+                <span>Exit</span>
+              </button>
+            </div>
+
+            {/* Mobile Menu Toggle — hidden for patients */}
+            {!isPatient && (
+              <button
+                className="md:hidden p-2 text-indigo-200 hover:text-white"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              >
+                {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
+            )}
           </div>
         </nav>
       </header>
@@ -181,7 +183,7 @@ const NavBar = () => {
         </div>
       )}
 
-      {/* Modal Component */}
+      {/* Modals */}
       {isDoctorOrAdmin ? (
         <DoctorProfileModal
           isModalOpen={isDoctorProfileModalOpen}
