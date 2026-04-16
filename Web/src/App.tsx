@@ -15,6 +15,7 @@ import Footer from "./components/Footer";
 import Chat from "./components/Chat";
 //types
 import { ClinicRoleEnum } from "./types/auth";
+import Documents from "./pages/Documents";
 
 function App() {
   const { isAuthenticated } = useAuthStore();
@@ -74,6 +75,10 @@ function App() {
             element={
               isAuthenticated ? <Treatments /> : <Navigate to="/login" />
             }
+          />
+          <Route
+            path="/documents"
+            element={isAuthenticated ? <Documents /> : <Navigate to="/login" />}
           />
         </Routes>
       </main>

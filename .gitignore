@@ -35,5 +35,6 @@ Thumbs.db
 #images
 /images/
 
-#claude ignore
+#models
 .claude/
+

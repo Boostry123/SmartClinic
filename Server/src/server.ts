@@ -12,6 +12,7 @@ import DoctorRoutes from "./routes/doctorRoutes.js";
 import ChatbotRoutes from "./routes/chatbot.js";
 import { rateLimiter, authRateLimiter } from "./middleware/security.js";
 import healthCheckRoutes from "./routes/healthCheckRoutes.js";
+import DocumentRoutes from "./routes/documentRoutes.js";
 
 // Load environment variables from .env file
 dotenv.config();
@@ -74,6 +75,8 @@ app.use("/treatments", TreatmentRoutes);
 app.use("/appointments", AppointmentRoutes);
 //the chatbot route
 app.use("/chatbot", ChatbotRoutes);
+//the documents route
+app.use("/documents", DocumentRoutes);
 //the auth route
 app.use("/auth", AuthRoutes);
 //health check route
