@@ -1,45 +1,27 @@
 import React, { useMemo } from "react";
 import { DateTime } from "luxon";
+import { PieChart } from "react-minimal-pie-chart";
 import Card from "./Card";
 import useAppointments from "../hooks/useAppointments";
-import {
-  AppointmentStatusEnum,
-  type AppointmentStatus,
-} from "../api/types/appointments";
+import useTreatments from "../hooks/useTreatments";
 
 interface DashboardMonthlySidebarProps {
   doctorId?: string;
   isDoctor: boolean;
 }
 
-const STATUS_ORDER: AppointmentStatus[] = [
-  AppointmentStatusEnum.SCHEDULED,
-  AppointmentStatusEnum.CONFIRMED,
-  AppointmentStatusEnum.CHECKED_IN,
-  AppointmentStatusEnum.COMPLETED,
-  AppointmentStatusEnum.CANCELLED,
+const CHART_COLORS = [
+  "#93c5fd",
+  "#c4b5fd",
+  "#fdba74",
+  "#86efac",
+  "#fca5a5",
+  "#6ee7b7",
+  "#fde68a",
+  "#a5b4fc",
+  "#f9a8d4",
+  "#67e8f9",
 ];
-
-const STATUS_LABELS: Record<AppointmentStatus, string> = {
-  scheduled: "Scheduled",
-  confirmed: "Confirmed",
-  checked_in: "Checked In",
-  completed: "Completed",
-  cancelled: "Cancelled",
-};
-
-const STATUS_COLORS: Record<AppointmentStatus, string> = {
-  scheduled: "#93c5fd",
-  confirmed: "#c4b5fd",
-  checked_in: "#fdba74",
-  completed: "#86efac",
-  cancelled: "#fca5a5",
-};
-
-const R = 42;
-const CX = 50;
-const CY = 50;
-const CIRCUMFERENCE = 2 * Math.PI * R;
 
 const DashboardMonthlySidebar: React.FC<DashboardMonthlySidebarProps> = ({
   doctorId,
@@ -63,36 +45,37 @@ const DashboardMonthlySidebar: React.FC<DashboardMonthlySidebarProps> = ({
     [startOfMonth, endOfMonth, isDoctor, doctorId],
   );
 
-  const { data: appointments, isLoading } = useAppointments(filters);
+  const { data: appointments, isLoading: isLoadingAppts } =
+    useAppointments(filters);
+  const { data: treatments, isLoading: isLoadingTreats } = useTreatments({});
 
-  const { statusCounts, total } = useMemo(() => {
-    if (!appointments)
-      return { statusCounts: {} as Record<string, number>, total: 0 };
-    const counts = appointments.reduce<Record<string, number>>((acc, a) => {
-      acc[a.status] = (acc[a.status] ?? 0) + 1;
-      return acc;
-    }, {});
-    return {
-      statusCounts: counts,
-      total: Object.values(counts).reduce((a, b) => a + b, 0),
-    };
-  }, [appointments]);
+  const { chartData, total } = useMemo(() => {
+    if (!appointments || !treatments) return { chartData: [], total: 0 };
 
-  const segments = useMemo(() => {
-    if (total === 0) return [];
-    const GAP = 2;
-    let accumulated = 0;
-    return STATUS_ORDER.filter((status) => (statusCounts[status] ?? 0) > 0).map(
-      (status) => {
-        const count = statusCounts[status] ?? 0;
-        const fullSlice = (count / total) * CIRCUMFERENCE;
-        const dashArray = fullSlice - GAP;
-        const dashOffset = -accumulated;
-        accumulated += fullSlice;
-        return { status, dashArray, dashOffset };
-      },
+    const treatmentMap = new Map(
+      treatments.map((t) => [t.id, t.treatment_name]),
     );
-  }, [statusCounts, total]);
+
+    const counts: Record<string, number> = {};
+    appointments.forEach((appt) => {
+      const name =
+        treatmentMap.get(appt.treatment_id ?? "") ?? "General Treatment";
+      counts[name] = (counts[name] ?? 0) + 1;
+    });
+
+    const entries = Object.entries(counts);
+    const totalCount = entries.reduce((sum, [, count]) => sum + count, 0);
+
+    const data = entries.map(([name, count], index) => ({
+      title: name,
+      value: count,
+      color: CHART_COLORS[index % CHART_COLORS.length],
+    }));
+
+    return { chartData: data, total: totalCount };
+  }, [appointments, treatments]);
+
+  const isLoading = isLoadingAppts || isLoadingTreats;
 
   return (
     <div className="lg:sticky lg:top-20">
@@ -108,37 +91,17 @@ const DashboardMonthlySidebar: React.FC<DashboardMonthlySidebarProps> = ({
           </div>
         ) : (
           <>
-            {/* Donut Chart */}
             <div className="relative flex justify-center">
-              <svg viewBox="0 0 100 100" className="w-36 h-36 -rotate-90">
-                {total === 0 ? (
-                  <circle
-                    cx={CX}
-                    cy={CY}
-                    r={R}
-                    fill="none"
-                    stroke="#e2e8f0"
-                    strokeWidth="12"
-                  />
-                ) : (
-                  segments.map(({ status, dashArray, dashOffset }) => (
-                    <circle
-                      key={status}
-                      cx={CX}
-                      cy={CY}
-                      r={R}
-                      fill="none"
-                      stroke={STATUS_COLORS[status]}
-                      strokeWidth="12"
-                      strokeDasharray={`${dashArray} ${CIRCUMFERENCE - dashArray}`}
-                      strokeDashoffset={dashOffset}
-                      strokeLinecap="butt"
-                    />
-                  ))
-                )}
-              </svg>
-              {/* Center label */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
+              {total === 0 ? (
+                <div className="w-36 h-36 rounded-full border-[12px] border-slate-100" />
+              ) : (
+                <PieChart
+                  data={chartData}
+                  lineWidth={35}
+                  className="w-36 h-36"
+                />
+              )}
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                 <span className="text-2xl font-bold text-slate-700">
                   {total}
                 </span>
@@ -148,24 +111,29 @@ const DashboardMonthlySidebar: React.FC<DashboardMonthlySidebarProps> = ({
               </div>
             </div>
 
-            {/* Legend */}
             <div className="mt-4 space-y-1.5">
-              {STATUS_ORDER.map((status) => (
-                <div key={status} className="flex items-center justify-between">
+              {chartData.map((item) => (
+                <div
+                  key={item.title}
+                  className="flex items-center justify-between"
+                >
                   <div className="flex items-center gap-2">
                     <span
                       className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                      style={{ backgroundColor: STATUS_COLORS[status] }}
+                      style={{ backgroundColor: item.color }}
                     />
-                    <span className="text-xs text-slate-600">
-                      {STATUS_LABELS[status]}
-                    </span>
+                    <span className="text-xs text-slate-600">{item.title}</span>
                   </div>
                   <span className="text-xs font-bold text-slate-700 tabular-nums">
-                    {statusCounts[status] ?? 0}
+                    {item.value}
                   </span>
                 </div>
               ))}
+              {chartData.length === 0 && (
+                <p className="text-xs text-slate-400 italic text-center">
+                  No appointments this month
+                </p>
+              )}
             </div>
           </>
         )}
