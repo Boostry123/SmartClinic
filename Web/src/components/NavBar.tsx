@@ -12,7 +12,10 @@ import {
 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useLocation } from "react-router-dom";
+// Store
 import { useAuthStore } from "../store/authStore";
+
+// Components
 import ProfileButton from "./ProfileButton";
 import DoctorProfileModal from "./modals/profile/DoctorProfileModal";
 import PatientProfileModal from "./modals/profile/PatientProfileModal";
@@ -35,6 +38,7 @@ const NavBar = () => {
   const isDoctorOrAdmin = userRole === "doctor" || userRole === "admin";
   const isPatient = userRole === "patient";
 
+  // Navigation Items
   const navItems = useMemo(
     () => [
       { name: "Home", icon: <Home size={18} />, path: "/" },
@@ -79,16 +83,7 @@ const NavBar = () => {
           </div>
 
           {/* Desktop Navigation */}
-          {isPatient ? (
-            <div className="hidden md:flex flex-col items-center">
-              <span className="text-xs text-indigo-300 uppercase tracking-widest">
-                Welcome back
-              </span>
-              <span className="text-white font-semibold">
-                {user?.user_metadata?.name} {user?.user_metadata?.last_name}
-              </span>
-            </div>
-          ) : (
+          {!isPatient && (
             <div className="hidden md:flex items-center gap-2">
               {navItems.map((item) => {
                 const isActive = location.pathname === item.path;

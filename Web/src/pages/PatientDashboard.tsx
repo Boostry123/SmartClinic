@@ -22,14 +22,27 @@ const PatientDashboard: React.FC = () => {
   });
 
   const patientId = patientsData?.[0]?.patient_id;
+  const patientName = patientsData?.[0]
+    ? `${patientsData[0].first_name} ${patientsData[0].last_name}`
+    : "";
 
   return (
     <div className="p-4 lg:p-6 bg-gray-50 min-h-screen font-sans">
       <Card className="border-none shadow-sm overflow-hidden bg-white">
-        <div className="px-6 py-4 border-b border-gray-100 flex items-center bg-white">
+        <div className="px-6 py-4 border-b border-gray-100 relative flex items-center justify-between bg-white">
           <div className="bg-indigo-50 px-4 py-2 rounded-xl">
             <LiveClock />
           </div>
+          {patientName && (
+            <div className="flex flex-col items-center absolute left-1/2 -translate-x-1/2">
+              <span className="text-xs text-indigo-400 uppercase tracking-widest">
+                Welcome back
+              </span>
+              <span className="text-sm font-semibold text-slate-700">
+                {patientName}
+              </span>
+            </div>
+          )}
         </div>
 
         <div className="p-6">
