@@ -15,21 +15,7 @@ interface DashboardStatsSidebarProps {
   isDoctor: boolean;
 }
 
-const STATUS_ORDER: AppointmentStatus[] = [
-  AppointmentStatusEnum.SCHEDULED,
-  AppointmentStatusEnum.CONFIRMED,
-  AppointmentStatusEnum.CHECKED_IN,
-  AppointmentStatusEnum.COMPLETED,
-  AppointmentStatusEnum.CANCELLED,
-];
-
-const STATUS_LABELS: Record<AppointmentStatus, string> = {
-  scheduled: "Scheduled",
-  confirmed: "Confirmed",
-  checked_in: "Checked In",
-  completed: "Completed",
-  cancelled: "Cancelled",
-};
+const STATUS_ORDER: AppointmentStatus[] = Object.values(AppointmentStatusEnum);
 
 const DashboardStatsSidebar: React.FC<DashboardStatsSidebarProps> = ({
   startOfDay,
@@ -59,7 +45,7 @@ const DashboardStatsSidebar: React.FC<DashboardStatsSidebarProps> = ({
   const today = DateTime.now().toFormat("dd MMM yyyy");
 
   return (
-    <div className="lg:sticky lg:top-20">
+    <div className="lg:sticky lg:top-20 z-10 self-start">
       <Card>
         <div className="mb-4">
           <h2 className="text-sm font-semibold text-slate-700">
@@ -87,7 +73,7 @@ const DashboardStatsSidebar: React.FC<DashboardStatsSidebarProps> = ({
                 <span
                   className={`px-2.5 py-1 rounded-full text-xs font-semibold ${statusStyles[status]}`}
                 >
-                  {STATUS_LABELS[status]}
+                  {status}
                 </span>
                 <span className="text-sm font-bold text-slate-700 tabular-nums">
                   {statusCounts[status] ?? 0}
