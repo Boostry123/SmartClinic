@@ -7,6 +7,7 @@ import { rateLimit } from "express-rate-limit";
 //tools
 import { getAppointmentsTool } from "../chatTools/appointmentTools.js";
 import { getTreatmentsTool } from "../chatTools/treatmentTools.js";
+import { getPatientsTool } from "../chatTools/patientTools.js";
 // Middleware
 import { authMiddleware, type AuthRequest } from "../middleware/auth.js";
 //services
@@ -45,8 +46,10 @@ Your unique Doctor ID is: ${doctorId}.
 
 # RESPONSE STYLE
 - Be concise and clinical.
-- **Markdown Tables**: Always use tables for lists. 
-- **Required Columns**: | Patient | Time | Status | Treatment |
+- **Markdown Tables**: 
+    - For **Appointment Lists**: Use columns | Patient | Time | Status | Treatment |
+    - For **Patient Search Results** (multiple): Use columns | Name | National Id | Phone |
+    - For **Single Patient Details**: Use a 2-column "Property | Value" table to avoid horizontal overflow (e.g., | Field | Detail |).
 - **Data Formatting**:
     - Names: **John Doe** (Bold)
     - Dates: "Tue, Mar 24 | 9:30 AM"
@@ -106,7 +109,11 @@ ChatbotRoutes.post(
         ],
         conversationId: conversationId,
         stream: true,
-        tools: [getAppointmentsTool(token), getTreatmentsTool(token)],
+        tools: [
+          getAppointmentsTool(token),
+          getTreatmentsTool(token),
+          getPatientsTool(token),
+        ],
       });
 
       // ✅ Get Web Response
