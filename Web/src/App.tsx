@@ -22,38 +22,42 @@ import Chat from "./components/Chat";
 import { ClinicRoleEnum } from "./types/auth";
 import Documents from "./pages/Documents";
 
-const SERVER_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+const SERVER_URL = import.meta.env.VITE_SERVER_URL || "http://localhost:3000";
 
-// Initialize Socket.io client
+// Initialize Socket.io client with autoConnect disabled
 const socket = io(SERVER_URL, {
   withCredentials: true,
-  autoConnect: true,
+  autoConnect: false,
 });
 
 function App() {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, accessToken } = useAuthStore();
   const userRole = useAuthStore((state) => state.user?.user_metadata.role);
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    if (!socket) return;
+    if (isAuthenticated && accessToken) {
+      // Set the token for authentication
+      socket.auth = { token: accessToken };
+      socket.connect();
 
-    const handleCacheInvalidation = (data: { type: string }) => {
-      const type = data?.type || "appointments";
-      console.log(`Cache invalidation received for: ${type}`);
-      queryClient.invalidateQueries({ queryKey: [type] });
-    };
+      const handleCacheInvalidation = (data: { type: string }) => {
+        const type = data?.type || "appointments";
+        console.log(`Cache invalidation received for: ${type}`);
+        queryClient.invalidateQueries({ queryKey: [type] });
+      };
 
-    // Listen for cache invalidation events from the server
-    socket.on("cacheInvalidation", handleCacheInvalidation);
+      socket.on("cacheInvalidation", handleCacheInvalidation);
 
-    // Cleanup on unmount
-    return () => {
-      socket.off("cacheInvalidation", handleCacheInvalidation);
-    };
-  }, [queryClient]);
+      return () => {
+        socket.off("cacheInvalidation", handleCacheInvalidation);
+        socket.disconnect();
+      };
+    }
+  }, [isAuthenticated, accessToken, queryClient]);
 
   return (
+
     <BrowserRouter>
       {/* Render NavBar only if the user is authenticated */}
       {isAuthenticated && <NavBar />}

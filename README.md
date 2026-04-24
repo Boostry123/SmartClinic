@@ -29,7 +29,8 @@
 
 - **Dashboard:** Real-time overview of clinic metrics and schedules.
 - **AI Operations Assistant:** A personal assistant for doctors that can fetch, summarize, and update clinic data via streaming SSE.
-- **Real-time Synchronization:** Automatic cache invalidation across all clients using Socket.io (No refresh needed).
+* **Real-time Synchronization:** Automatic cache invalidation across all clients using Socket.io (Secured with JWT handshake verification).
+
 - **Patient Management:** Comprehensive CRUD operations for patient records.
 - **Patient Overview:** Dedicated portal for patients to view their medical history.
 - **Treatment Templates:** Clinical treatment templates with dynamic field structures.

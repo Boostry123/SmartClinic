@@ -15,6 +15,7 @@ import ChatbotRoutes from "./routes/chatbot.js";
 import { rateLimiter, authRateLimiter } from "./middleware/security.js";
 import healthCheckRoutes from "./routes/healthCheckRoutes.js";
 import DocumentRoutes from "./routes/documentRoutes.js";
+import { getUserDetails } from "./services/auth.js";
 
 // Load environment variables from .env file
 dotenv.config();
@@ -50,6 +51,32 @@ const corsOptions = {
 const io = new Server(server, {
   cors: corsOptions,
 });
+
+// Authentication middleware for Socket.io
+io.use(async (socket, next) => {
+  const token = socket.handshake.auth?.token;
+
+  if (!token) {
+    return next(new Error("Authentication error: Token missing"));
+  }
+
+  try {
+    const {
+      data: { user },
+      error,
+    } = await getUserDetails(token);
+
+    if (error || !user) {
+      return next(new Error("Authentication error: Invalid session"));
+    }
+
+    socket.data.user = user;
+    next();
+  } catch (err) {
+    next(new Error("Authentication error: Verification failed"));
+  }
+});
+
 app.set("io", io);
 // Enable Cross-Origin Resource Sharing for requests from your frontend
 // --- Middleware ---
