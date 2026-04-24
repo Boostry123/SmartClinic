@@ -26,6 +26,15 @@ The application facilitates patient management, appointment scheduling, and incl
     *   **Database:** PostgreSQL, managed via Supabase.
     *   **Authentication:** JWT-based authentication via Supabase Auth.
     *   **API:** RESTful API with Server-Sent Events (SSE) support for AI streaming.
+    *   **Real-time:** `Socket.io` for live cache invalidation and state synchronization.
+
+## Real-time Synchronization
+
+The application uses `Socket.io` to ensure all clients stay in sync without manual refreshes.
+
+*   **Server-Side:** Initialized in `Server/src/server.ts`. A middleware uses `getUserDetails(token)` to verify the JWT from `socket.handshake.auth.token` before allowing a connection. A utility `emitCacheInvalidation` in `Server/src/utils/socketUtils.ts` is used to broadcast invalidation events.
+*   **Client-Side:** The `App.tsx` component manages the socket lifecycle. It only connects when `isAuthenticated` is true, providing the `accessToken` in the `auth` object.
+*   **Security:** Handshake-level JWT verification ensures only authenticated clinic staff can maintain a websocket connection.
 
 ## AI Chatbot Architecture
 

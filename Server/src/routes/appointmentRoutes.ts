@@ -19,6 +19,7 @@ import type {
 import type { MulterRequest } from "../middleware/multer.js";
 //services
 import { getUserDetails } from "../services/auth.js";
+import { emitCacheInvalidation } from "../utils/socketUtils.js";
 
 const AppointmentRoutes = Router();
 
@@ -40,6 +41,10 @@ AppointmentRoutes.post("/", authMiddleware, async (req: any, res) => {
   try {
     const { data, error } = await createAppointment(token, body);
     if (error) return res.status(400).json({ error });
+
+    // Emit socket event for cache invalidation
+    emitCacheInvalidation(req.app.get("io"), "appointments");
+
     return res.status(201).json(data);
   } catch (error) {
     return res.status(500).json({ error: "Internal Server Error" });
@@ -91,6 +96,9 @@ AppointmentRoutes.patch(
         multerReq.files,
       );
       if (error) return res.status(400).json({ error });
+
+      // Emit socket event for cache invalidation
+      emitCacheInvalidation(req.app.get("io"), "appointments");
 
       return res.status(200).json(data);
     } catch (error: any) {
