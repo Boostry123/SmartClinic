@@ -22,7 +22,7 @@ import Chat from "./components/Chat";
 import { ClinicRoleEnum } from "./types/auth";
 import Documents from "./pages/Documents";
 
-const SERVER_URL = import.meta.env.VITE_SERVER_URL || "http://localhost:3000";
+const SERVER_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
 // Initialize Socket.io client with autoConnect disabled
 const socket = io(SERVER_URL, {
@@ -57,7 +57,6 @@ function App() {
   }, [isAuthenticated, accessToken, queryClient]);
 
   return (
-
     <BrowserRouter>
       {/* Render NavBar only if the user is authenticated */}
       {isAuthenticated && <NavBar />}
