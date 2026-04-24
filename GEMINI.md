@@ -26,6 +26,15 @@ The application facilitates patient management, appointment scheduling, and incl
     *   **Database:** PostgreSQL, managed via Supabase.
     *   **Authentication:** JWT-based authentication via Supabase Auth.
     *   **API:** RESTful API with Server-Sent Events (SSE) support for AI streaming.
+    *   **Real-time:** `Socket.io` for live cache invalidation and state synchronization.
+
+## Real-time Synchronization
+
+The application uses `Socket.io` to ensure all clients stay in sync without manual refreshes.
+
+*   **Server-Side:** Initialized in `Server/src/server.ts`. A utility `emitCacheInvalidation` in `Server/src/utils/socketUtils.ts` is used to broadcast invalidation events.
+*   **Client-Side:** The `App.tsx` component initializes the socket client and listens for `cacheInvalidation` events.
+*   **Workflow:** When data is updated (e.g., an appointment is created), the server emits a `cacheInvalidation` event with a `type` (e.g., `"appointments"`). The frontend receives this and uses TanStack Query's `queryClient.invalidateQueries` to refetch the relevant data.
 
 ## AI Chatbot Architecture
 

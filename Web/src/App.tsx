@@ -7,7 +7,7 @@ import { useAuthStore } from "./store/authStore";
 //socket
 import io from "socket.io-client";
 //hooks
-import { useInvalidateAppointments } from "./hooks/useAppointments";
+import { useQueryClient } from "@tanstack/react-query";
 // Pages
 import DashBoard from "./pages/DashBoard";
 import { LoginPage } from "./pages/LoginPage";
@@ -22,7 +22,7 @@ import Chat from "./components/Chat";
 import { ClinicRoleEnum } from "./types/auth";
 import Documents from "./pages/Documents";
 
-const SERVER_URL = import.meta.env.VITE_SERVER_URL || "http://localhost:3000";
+const SERVER_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
 // Initialize Socket.io client
 const socket = io(SERVER_URL, {
@@ -33,22 +33,25 @@ const socket = io(SERVER_URL, {
 function App() {
   const { isAuthenticated } = useAuthStore();
   const userRole = useAuthStore((state) => state.user?.user_metadata.role);
-  const invalidateAppointments = useInvalidateAppointments();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (!socket) return;
 
+    const handleCacheInvalidation = (data: { type: string }) => {
+      const type = data?.type || "appointments";
+      console.log(`Cache invalidation received for: ${type}`);
+      queryClient.invalidateQueries({ queryKey: [type] });
+    };
+
     // Listen for cache invalidation events from the server
-    socket.on("cacheInvalidation", () => {
-      invalidateAppointments();
-      console.log("Cache invalidation received");
-    });
+    socket.on("cacheInvalidation", handleCacheInvalidation);
 
     // Cleanup on unmount
     return () => {
-      socket.off("cacheInvalidation", invalidateAppointments);
+      socket.off("cacheInvalidation", handleCacheInvalidation);
     };
-  }, [invalidateAppointments]);
+  }, [queryClient]);
 
   return (
     <BrowserRouter>
