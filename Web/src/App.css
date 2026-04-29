@@ -18,6 +18,23 @@
 .fc .fc-button-primary:hover {
   background-color: #4f46e5 !important;
 }
+/* 1. Modern Toolbar for Mobile */
+.fc-mobile-theme .fc-toolbar {
+  padding: 1rem;
+  background: #f9fafb; /* Subtle header background */
+  border-bottom: 1px solid #e5e7eb;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+/* 2. Soften the Buttons */
+.fc-mobile-theme .fc-button,
+.fc-desktop-theme .fc-button {
+  border-radius: 8px !important;
+  font-weight: 500;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+  text-transform: capitalize;
+}
+
 /* --- Simplest Chat Table Styling --- */
 
 /* Wrapper to provide separation and horizontal scroll */

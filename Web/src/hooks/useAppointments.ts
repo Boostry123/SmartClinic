@@ -1,4 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCallback } from "react";
 import { getAppointments } from "../api/appointments";
 //Types
 import type {
@@ -25,6 +26,14 @@ export const useAppointmentsForDoctor = (filters: AppointmentFilters) => {
     placeholderData: (previousData) => previousData,
     enabled: !!filters.doctor_id,
   });
+};
+
+export const useInvalidateAppointments = () => {
+  const queryClient = useQueryClient();
+  return useCallback(
+    () => queryClient.invalidateQueries({ queryKey: ["appointments"] }),
+    [queryClient]
+  );
 };
 
 export default useAppointments;

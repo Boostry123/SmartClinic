@@ -1,4 +1,4 @@
-import { lazy } from "react";
+import { lazy, useRef, useEffect, type ComponentRef } from "react";
 import { Loader } from "lucide-react";
 const FullCalendar = lazy(() => import("@fullcalendar/react"));
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -9,6 +9,7 @@ import UIconfig from "../../UIConfig";
 //hooks
 import { useAppointmentsForDoctor } from "../hooks/useAppointments";
 import useTreatments from "../hooks/useTreatments";
+import { useIsMobile } from "../hooks/useIsMobile";
 //types
 import type { Doctor } from "../api/types/doctors";
 import { AppointmentStatusEnum } from "../api/types/appointments";
@@ -28,6 +29,23 @@ const CreateAppointmentCalendar = ({
   selectAble = false,
 }: Props) => {
   //get the future appointments of the given doctor
+
+  //check if mobile to adjust calendar settings
+  const isMobile = useIsMobile();
+  const calendarRef = useRef<ComponentRef<typeof FullCalendar> | null>(null);
+
+  //an effect to change the calendar view by screen size
+  useEffect(() => {
+    const calendarApi = calendarRef.current?.getApi();
+
+    if (calendarApi) {
+      if (isMobile) {
+        calendarApi.changeView("timeGridDay");
+      } else {
+        calendarApi.changeView("timeGridWeek");
+      }
+    }
+  }, [isMobile]);
 
   const {
     data: existingAppointments,
@@ -140,10 +158,13 @@ const CreateAppointmentCalendar = ({
     );
   } else {
     return (
-      <div className="p-1 bg-white rounded-xl shadow-inner border border-slate-200 overflow-hidden">
+      <div
+        className={`${isMobile ? "fc-mobile-theme " : "fc-desktop-theme "} p-1 bg-white rounded-xl shadow-inner border border-slate-200 overflow-hidden`}
+      >
         <FullCalendar
+          ref={calendarRef}
           plugins={[timeGridPlugin, interactionPlugin]}
-          initialView="timeGridWeek"
+          initialView={isMobile ? "timeGridDay" : "timeGridWeek"}
           height="550px"
           handleWindowResize={true}
           expandRows={true}

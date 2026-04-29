@@ -1,8 +1,13 @@
+import { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 // CSS
 import "./App.css";
 // Stores
 import { useAuthStore } from "./store/authStore";
+//socket
+import io from "socket.io-client";
+//hooks
+import { useQueryClient } from "@tanstack/react-query";
 // Pages
 import DashBoard from "./pages/DashBoard";
 import { LoginPage } from "./pages/LoginPage";
@@ -17,9 +22,39 @@ import Chat from "./components/Chat";
 import { ClinicRoleEnum } from "./types/auth";
 import Documents from "./pages/Documents";
 
+const SERVER_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+
+// Initialize Socket.io client with autoConnect disabled
+const socket = io(SERVER_URL, {
+  withCredentials: true,
+  autoConnect: false,
+});
+
 function App() {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, accessToken } = useAuthStore();
   const userRole = useAuthStore((state) => state.user?.user_metadata.role);
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (isAuthenticated && accessToken) {
+      // Set the token for authentication
+      socket.auth = { token: accessToken };
+      socket.connect();
+
+      const handleCacheInvalidation = (data: { type: string }) => {
+        const type = data?.type || "appointments";
+        console.log(`Cache invalidation received for: ${type}`);
+        queryClient.invalidateQueries({ queryKey: [type] });
+      };
+
+      socket.on("cacheInvalidation", handleCacheInvalidation);
+
+      return () => {
+        socket.off("cacheInvalidation", handleCacheInvalidation);
+        socket.disconnect();
+      };
+    }
+  }, [isAuthenticated, accessToken, queryClient]);
 
   return (
     <BrowserRouter>

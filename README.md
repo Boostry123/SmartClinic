@@ -5,100 +5,120 @@
 ## 🚀 Tech Stack
 
 ### Frontend
-* **Framework:** React (via Vite)
-* **Styling:** Tailwind CSS
-* **State Management:** Zustand
-* **Caching:** React Query
+
+- **Framework:** React 19 (via Vite 7)
+- **Compiler:** React Compiler
+- **Styling:** Tailwind CSS
+- **Icons:** Lucide React
+- **State Management:** Zustand
+- **Caching:** TanStack React Query v5
+- **Real-time:** Socket.io-client
 
 ### Backend
-* **Runtime:** Node.js
-* **Framework:** Express.js
-* **Database:** PostgreSQL (via Supabase)
-* **Authentication:** Supabase Auth
+
+- **Runtime:** Node.js
+- **Framework:** Express.js 5
+- **Database:** PostgreSQL (via Supabase)
+- **Authentication:** Supabase Auth (JWT)
+- **AI Engine:** Google Gemini 2.5 Flash (via TanStack AI)
+- **Real-time:** Socket.io
 
 ---
 
 ## 🛠️ Features
 
-* **Dashboard:** Real-time overview of clinic metrics and schedules.
-* **AI chat BOT** The chat bot is a perssonal assistant of the doctor, It has access to the premade APIs to fetch ,summarize and update data.
-* **Patient Management:** Create, read and update patient records.
-* **Patient Overview:** Dedicated portal for patients to view their medical history and related information.
-* **Treatments:** Reading custom made treatments from JSON file.
-* **Appointments:** Creating and updating appointments , connected to a chosen custom treatment.
-* **Scheduling Management:** Full weekly calendar view for appointment scheduling.
-* **Secure Authentication:** Role-based access control (RBAC) for admins and staff + JWT token from SupaBase.
-* **DDos prevention:** Using Express-rate-limiter , limits both auth requests and API calls.
+- **Dashboard:** Real-time overview of clinic metrics and schedules.
+- **AI Operations Assistant:** A personal assistant for doctors that can fetch, summarize, and update clinic data via streaming SSE.
+* **Real-time Synchronization:** Automatic cache invalidation across all clients using Socket.io (Secured with JWT handshake verification).
+
+- **Patient Management:** Comprehensive CRUD operations for patient records.
+- **Patient Overview:** Dedicated portal for patients to view their medical history.
+- **Treatment Templates:** Clinical treatment templates with dynamic field structures.
+- **Appointment Engine:** Advanced scheduling system connected to custom treatments.
+- **Calendar Integration:** Interactive weekly/monthly views using FullCalendar.
+- **Documents Management:** Upload 'PDF' documents securely into a private bucket.
+- **Image Management:** Upload images into patients appointments securily saved inside a private bucket.
+- **Secure Authentication:** Role-based access control (RBAC) and JWT security.
+- **Security & Performance:** Rate limiting and DDoS protection via Express-rate-limit.
 
 ### 🚧 Roadmap (Upcoming Features)
-* [ ] **Document sending trough email:** Doctors will be able to upload and send documents to patients in an easy and interactive way.
-* [ ] **Custom Treatment builder:** Doctors will be able to create a custom treatment structure and it will be saved as a json on the DB.
+
+- [ ] **Document Sending:** Easy document sharing with patients via email.
+- [ ] **Custom Treatment Builder:** Dynamic UI for doctors to create custom treatment structures stored as JSON.
 
 ---
 
 ## 📦 Installation & Setup
 
 ### Prerequisites
+
 Ensure you have the following installed:
-* [Node.js](https://nodejs.org/) (v18+ recommended)
-* [npm](https://www.npmjs.com/)
+
+- [Node.js](https://nodejs.org/) (v20+ recommended)
+- [npm](https://www.npmjs.com/)
 
 ### 1. Clone the Repository
+
 ```bash
-git clone [https://github.com/yourusername/smart-clinic.git](https://github.com/yourusername/smart-clinic.git)
+git clone https://github.com/yourusername/smart-clinic.git
 cd smart-clinic
 ```
 
 ### 2. Install Dependencies
+
+```bash
 # Install Server Dependencies
-```
-cd server
+cd Server
+npm install
+
+# Install Web Dependencies
+cd ../Web
 npm install
 ```
-# Install Client Dependencies
-```
-cd ../client
-npm install
-```
+
 ### 3. Environment Variables
-Server Configuration (server/.env)
-```
+
+**Server Configuration (`Server/.env`)**
+
+```env
 PORT=3001
-JWT_SECRET=superSecretKey
-
-# Database Configuration (PostgreSQL)
-DB_USER=postgres
-DB_HOST=localhost
-DB_DATABASE=SmartClinic
-DB_PASSWORD={your_db_password}
-DB_PORT=5432
-
-# Frontend Connection
-BASE_FRONTEND_URL=http://localhost:5173
+DATABASE_URL={your_postgresql_url}
+FRONTEND_URL=http://localhost:5173
 
 # Supabase Configuration
 SUPABASE_URL={your_supabase_project_url}
 SUPABASE_ANON_KEY={your_supabase_anon_key}
-SUPABASE_SECRET_KEY={your_supabase_SECRET_key}
+SUPABASE_SECRET_KEY={your_supabase_service_role_key}
 
-#Gemini API key
-GEMINI_API_KEY={your Gemini API key}
+# Gemini API key
+GEMINI_API_KEY={your_gemini_api_key}
 ```
-Client Configuration (client/.env)
-```
+
+**Web Configuration (`Web/.env`)**
+
+```env
 VITE_API_URL=http://localhost:3001
 ```
+
 ### 4. Run the Application
-Terminal 1: Server
-```
-cd server
+
+**Terminal 1: Server**
+
+```bash
+cd Server
 npm run dev
 ```
-Terminal 2: Client
-```
-cd client
+
+**Terminal 2: Web**
+
+```bash
+cd Web
 npm run dev
 ```
-Access the app at http://localhost:5173.
-📄 License
+
+Access the app at `http://localhost:5173`.
+
+---
+
+📄 **License**
 All rights reserved to the developers of Smart Clinic AI
