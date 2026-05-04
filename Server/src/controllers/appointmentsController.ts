@@ -29,6 +29,8 @@ export const createAppointment = async (
       supabase,
       body,
     );
+    const { treatment_data, ...bodyFiltered } = body;
+    const treatmentDataKeys = Object.keys(treatment_data);
 
     if (error) throw error;
 
@@ -37,7 +39,7 @@ export const createAppointment = async (
       action: LogAction.CREATE_APPOINTMENT,
       entityType: LogEntityType.APPOINTMENT,
       entityId: data?.id,
-      metadata: { body },
+      metadata: { bodyFiltered, treatmentDataKeys },
     });
 
     return { data };
@@ -51,7 +53,6 @@ export const createAppointment = async (
       entityType: LogEntityType.APPOINTMENT,
       metadata: {
         error: errorMessage,
-        body,
       },
     });
 
@@ -212,12 +213,18 @@ export const updateAppointment = async (
       { id: appointmentId },
     );
 
+    // 7. LOGGING - Only log the changed fields for better traceability
+    const { treatment_data = {}, ...bodyFiltered } = finalUpdateDto;
+    const treatmentDataKeys = Object.keys(treatment_data).filter(
+      (treatment) => treatment_data[treatment] !== oldTreatmentData[treatment],
+    );
+
     await logInfo({
       userId,
       action: LogAction.UPDATE_APPOINTMENT,
       entityType: LogEntityType.APPOINTMENT,
       entityId: appointmentId,
-      metadata: { body },
+      metadata: { bodyFiltered, treatmentDataKeys },
     });
 
     return { data: (hydratedResults?.[0] || updatedRecord) as Appointment };
@@ -231,7 +238,7 @@ export const updateAppointment = async (
       action: LogAction.UPDATE_APPOINTMENT_FAILED,
       entityType: LogEntityType.APPOINTMENT,
       entityId: body.id,
-      metadata: { error: message, body },
+      metadata: { error: message },
     });
 
     return { data: null, error: message };

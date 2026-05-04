@@ -116,12 +116,13 @@ const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      console.log(formData);
       await createAppointment(formData);
       QueryClient.invalidateQueries({ queryKey: ["appointments"] });
       onClose();
     } catch (error) {
       console.log(error);
+    } finally {
+      setFormData(initFormData);
     }
   };
   const handleCancel = () => {

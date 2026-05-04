@@ -119,12 +119,13 @@ export const updatePatient = async (token: string, body: PatientUpdate) => {
       throw error;
     }
 
+    const updateDataKeys = Object.keys(updateData);
     await logInfo({
       userId,
       action: LogAction.UPDATE_PATIENT,
       entityType: LogEntityType.PATIENT,
       entityId: patient_id,
-      metadata: { body },
+      metadata: { updateDataKeys },
     });
 
     return { data };

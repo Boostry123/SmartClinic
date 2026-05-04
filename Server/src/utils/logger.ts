@@ -12,16 +12,17 @@ type LogInfoParams = {
   request_context?: Record<string, any> | null;
 };
 
-
 /**
  * Logic for handling user action logs.
  * This file provides high-level methods to log actions following the required schema.
  */
 
 export const logAction = async (data: ActionLog) => {
+  const today = new Date();
+  const date = `${today.toDateString()} | ${today.toTimeString().slice(0, 8)}`;
   const log: ActionLog = {
     ...data,
-    created_at: data.created_at || new Date().toISOString(),
+    created_at: data.created_at || date,
   };
 
   // Pass to the logger service (currently console only)

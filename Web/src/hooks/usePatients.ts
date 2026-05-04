@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 //DEVELOPED
 import { getPatients, getPatientsByIds, updatePatient } from "../api/patients";
 //TYPES
@@ -48,14 +48,8 @@ export const usePatientsByIds = (filters: patientByIdsFilterTypes) => {
 };
 
 export const useUpdatePatient = () => {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (data: PatientUpdate) => updatePatient(data),
-    onSuccess: () => {
-      // Invalidate the patients query to refetch the data
-      queryClient.invalidateQueries({ queryKey: ["patients"] });
-    },
   });
 };
 

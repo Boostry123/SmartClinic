@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import {
   getDocuments,
   uploadDocument,
@@ -26,18 +26,12 @@ const useDocuments = () => {
  * Hook to upload new forms or documents.
  */
 export const useUploadDocument = () => {
-  const queryClient = useQueryClient();
-
   return useMutation<
     DocumentUploadResponse,
     Error,
     { files: File | File[]; fileName?: string }
   >({
     mutationFn: ({ files, fileName }) => uploadDocument(files, fileName),
-    onSuccess: () => {
-      // Invalidate the documents list to show the new upload
-      queryClient.invalidateQueries({ queryKey: ["documents"] });
-    },
   });
 };
 
@@ -45,14 +39,8 @@ export const useUploadDocument = () => {
  * Hook to delete a document.
  */
 export const useDeleteDocument = () => {
-  const queryClient = useQueryClient();
-
   return useMutation<{ message: string }, Error, string>({
     mutationFn: (filePath: string) => deleteDocument(filePath),
-    onSuccess: () => {
-      // Invalidate the documents list to reflect the deletion
-      queryClient.invalidateQueries({ queryKey: ["documents"] });
-    },
   });
 };
 

@@ -61,12 +61,14 @@ export const updateDoctor = async (token: string, body: DoctorUpdate) => {
 
     const results = await updateDoctorService(supabase, body);
 
+    const updatedDataKeys = Object.keys(body).filter((key) => key !== "id");
+
     await logInfo({
       userId,
       action: LogAction.UPDATE_DOCTOR,
       entityType: LogEntityType.DOCTOR,
       entityId: body.id,
-      metadata: { body },
+      metadata: { updatedDataKeys },
     });
 
     return { data: results };
@@ -81,7 +83,6 @@ export const updateDoctor = async (token: string, body: DoctorUpdate) => {
       entityId: body.id,
       metadata: {
         error: errorMessage,
-        body,
       },
     });
 
