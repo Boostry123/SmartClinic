@@ -5,6 +5,8 @@ import {
   getPatientsByIds,
   updatePatient,
 } from "../controllers/patientsController.js";
+//socket
+import { emitCacheInvalidation } from "../utils/socketUtils.js";
 // types
 import type { AuthRequest } from "../middleware/auth.js";
 import type {
@@ -94,7 +96,7 @@ PatientRoutes.get("/byIds", authMiddleware, async (req: AuthRequest, res) => {
     // Ensure patient_id is an array
     const patientIds = Array.isArray(rawPatientIds)
       ? (rawPatientIds as string[])
-      : [(rawPatientIds as string)];
+      : [rawPatientIds as string];
 
     // Filter out empty strings and trim
     cleanFilter.patient_id = patientIds
@@ -133,7 +135,7 @@ PatientRoutes.patch("/", authMiddleware, async (req: AuthRequest, res) => {
     if (error) {
       return res.status(400).json({ error });
     }
-
+    emitCacheInvalidation(req.app.get("io"), "patients");
     return res.status(200).json(updatedPatient);
   } catch (error: any) {
     console.error(`Updating patient failed:`, error);
