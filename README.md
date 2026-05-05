@@ -120,5 +120,20 @@ Access the app at `http://localhost:5173`.
 
 ---
 
+**Gallery / Screenshots:**
+
+AI chat assistant, fetching appointments of an exact date plus filtering away appointments that are not related to the asking doctor.
+<img width="800" height="400" alt="list appointments by exact date" src="https://github.com/user-attachments/assets/8ffd9272-bb8c-41af-a2b7-234f7a0add18" />
+
+Creating a new appointment using a friendly Full calendar view, fully responsive for mobile view aswell.
+<img width="800" height="400" alt="Fullcalendar appointment creation" src="https://github.com/user-attachments/assets/492ef471-7c68-4ff2-96ba-34051a571026" />
+
+Custom made treatments, Images secured in a private bucket, aswell as document upload in a secured private bucket.
+<img width="800" height="400" alt="Screenshot 2026-03-22 123136" src="https://github.com/user-attachments/assets/461dbcc9-cbef-489f-9927-8a0ce2b729b7" />
+
+
+
+
+
 📄 **License**
 All rights reserved to the developers of Smart Clinic AI

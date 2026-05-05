@@ -11,6 +11,8 @@ import {
 } from "../controllers/documentController.js";
 //services
 import { getUserDetails } from "../services/auth.js";
+//socket
+import { emitCacheInvalidation } from "../utils/socketUtils.js";
 //types
 import type {
   DocumentUploadResult,
@@ -100,7 +102,7 @@ DocumentRoutes.delete(
         res.status(500).json({ error: result.error });
         return;
       }
-
+      emitCacheInvalidation(req.app.get("io"), "documents");
       res.status(200).json({ message: "Document deleted successfully" });
     } catch (err: any) {
       console.error("Error deleting document:", err);
@@ -183,7 +185,7 @@ DocumentRoutes.post(
         results,
         ...(errors.length > 0 ? { errors } : {}),
       };
-
+      emitCacheInvalidation(req.app.get("io"), "documents");
       res.status(200).json(response);
     } catch (err: any) {
       console.error("Internal Server Error in Document Upload:", err);

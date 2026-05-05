@@ -50,6 +50,17 @@ The project features a specialized AI Operations Assistant designed specifically
 *   **`fetch_appointments`** (`appointmentTools.ts`): Allows the AI to search and filter clinic appointments by date range, patient, status, or doctor.
 *   **`fetch_treatments`** (`treatmentTools.ts`): Allows the AI to retrieve clinical treatment templates and details available in the system.
 
+## Action Logging Architecture
+
+The system implements a robust action logging mechanism to track user activities for auditing and debugging.
+
+*   **Pino Integration:** Uses `pino` and `pino-pretty` for high-performance, structured logging.
+*   **Schema:** Every log follows a strict schema: `{id, user_id, action, entity_type, entity_id, severity, metadata, created_at}`.
+*   **Logic vs. Implementation:**
+    *   **Logic (`Server/src/utils/logger.ts`):** High-level abstraction providing `logInfo` and `logError` methods. This is where business logic for logging resides.
+    *   **Implementation (`Server/src/services/loggerService.ts`):** Low-level service that currently outputs logs to the console via Pino. This can be extended in the future to persist logs to the database.
+*   **Usage:** Controllers should use `logInfo` or `logError` to record significant state changes or failures.
+
 ## Key Features
 
 *   **Patient & Appointment Management:** CRUD operations for patients, doctors, treatments, and appointments.

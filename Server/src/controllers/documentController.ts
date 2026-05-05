@@ -1,8 +1,13 @@
 import { getSupabaseClient } from "../config/supaDb.js";
+import { getUserDetails } from "../services/auth.js";
+import { logInfo, logError } from "../utils/logger.js";
+
 //services
 import { StorageService } from "../services/storage.js";
 //types
 import type { DocumentUploadResult } from "../types/enums/documentTypes.js";
+import LogAction from "../types/enums/logActions.js";
+import { LogEntityType } from "../types/logs.js";
 
 const {
   uploadClinicalImage,
@@ -19,15 +24,41 @@ export const deleteDocument = async (
   token: string,
   filePath: string,
 ): Promise<{ success: boolean; error?: string }> => {
+  let userId = "unknown";
   try {
+    const { data: userData } = await getUserDetails(token);
+    userId = userData?.user?.id || "unknown";
+
     const supabase = getSupabaseClient(token);
     const { error } = await deleteFile(supabase, BUCKET_NAME, filePath);
 
     if (error) throw error;
+
+    await logInfo({
+      userId,
+      action: LogAction.DELETE_DOCUMENT,
+      entityType: LogEntityType.DOCUMENT,
+      entityId: filePath,
+      metadata: { filePath },
+    });
+
     return { success: true };
   } catch (err: any) {
-    console.error(`Deleting document failed: ${err?.message ?? err}`);
-    return { success: false, error: err?.message ?? "Unknown error" };
+    const errorMessage = err?.message ?? "Unknown error";
+    console.error(`Deleting document failed: ${errorMessage}`);
+
+    await logError({
+      userId,
+      action: LogAction.DELETE_DOCUMENT_FAILED,
+      entityType: LogEntityType.DOCUMENT,
+      entityId: filePath,
+      metadata: {
+        error: errorMessage,
+        filePath,
+      },
+    });
+
+    return { success: false, error: errorMessage };
   }
 };
 
@@ -38,7 +69,11 @@ export const uploadDocument = async (
   file: Express.Multer.File,
   fileName: string,
 ): Promise<Omit<DocumentUploadResult, "fileName">> => {
+  let actingUserId = "unknown";
   try {
+    const { data: userData } = await getUserDetails(token);
+    actingUserId = userData?.user?.id || "unknown";
+
     const supabase = getSupabaseClient(token);
     const fileExt = file.originalname.split(".").pop() || "pdf";
 
@@ -71,17 +106,38 @@ export const uploadDocument = async (
       );
     }
 
+    await logInfo({
+      userId: actingUserId,
+      action: LogAction.UPLOAD_DOCUMENT,
+      entityType: LogEntityType.DOCUMENT,
+      entityId: filePath,
+      metadata: { userId, fileName, filePath },
+    });
+
     // Return the path and signed URL of the uploaded document
     return {
       data: uploadData as { path: string },
       signedUrl: signedUrlData?.signedUrl,
     };
   } catch (err: any) {
-    console.error(`Document upload failed: ${err?.message ?? err}`);
+    const errorMessage = err?.message ?? "Unknown error";
+    console.error(`Document upload failed: ${errorMessage}`);
+
+    await logError({
+      userId: actingUserId,
+      action: LogAction.UPLOAD_DOCUMENT_FAILED,
+      entityType: LogEntityType.DOCUMENT,
+      metadata: {
+        error: errorMessage,
+        userId,
+        fileName,
+      },
+    });
+
     return {
       data: null,
       signedUrl: undefined,
-      error: err?.message ?? "Unknown error",
+      error: errorMessage,
     };
   }
 };

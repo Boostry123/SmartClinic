@@ -4,9 +4,12 @@ import { UserService } from "../services/userService.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { getSupabaseClient } from "../config/supaDb.js";
 import { createNewUser } from "../controllers/usersController.js";
+import { logInfo, logError } from "../utils/logger.js";
 //types
 import userTypes from "../types/enums/userTypes.js";
 import type { AuthRequest } from "../middleware/auth.js";
+import { LogEntityType } from "../types/logs.js";
+import LogAction from "../types/enums/logActions.js";
 
 const UserRoutes = Router();
 
@@ -16,8 +19,13 @@ const { getUsersByRole } = UserService;
 UserRoutes.get("/", authMiddleware, async (req: AuthRequest, res) => {
   const userRole = req.query.role as string;
   const token: string = req.token!;
+  let userId = "unknown";
 
   try {
+    const supabase = getSupabaseClient(token);
+    const { data: userData } = await supabase.auth.getUser();
+    userId = userData?.user?.id || "unknown";
+
     //  RUNTIME VALIDATION: Check if the string actually exists in your enum values
     // We check if 'userRole' is NOT included in the list of valid userTypes
     if (
@@ -26,14 +34,13 @@ UserRoutes.get("/", authMiddleware, async (req: AuthRequest, res) => {
     ) {
       return res.status(400).json({
         error: `Invalid role. Allowed values: ${Object.values(userTypes).join(
-          ", "
+          ", ",
         )}`,
       });
     }
 
     // Now it is safe to use
     const safeRole = userRole as userTypes;
-    const supabase = getSupabaseClient(token);
 
     if (!supabase) {
       return res.status(500).json({ error: "Supabase client not initialized" });
@@ -44,10 +51,26 @@ UserRoutes.get("/", authMiddleware, async (req: AuthRequest, res) => {
       throw error;
     }
 
+    await logInfo({
+      userId,
+      action: LogAction.FETCH_USERS,
+      entityType: LogEntityType.USER,
+      metadata: { role: safeRole },
+    });
+
     res.json(data);
   } catch (err: any) {
-    console.error(`Fetching users failed: ${err?.message ?? err}`);
-    res.status(500).json({ error: err?.message ?? "Unknown error" });
+    const errorMessage = err?.message ?? "Unknown error";
+    console.error(`Fetching users failed: ${errorMessage}`);
+
+    await logError({
+      userId,
+      action: LogAction.FETCH_USERS_FAILED,
+      entityType: LogEntityType.USER,
+      metadata: { error: errorMessage, role: userRole },
+    });
+
+    res.status(500).json({ error: errorMessage });
   }
 });
 
@@ -55,6 +78,7 @@ UserRoutes.get("/", authMiddleware, async (req: AuthRequest, res) => {
 
 UserRoutes.post("/create", authMiddleware, async (req: AuthRequest, res) => {
   const token = req.token!;
+  let callerId = "unknown";
 
   try {
     // 1. INPUT VALIDATION
@@ -84,6 +108,7 @@ UserRoutes.post("/create", authMiddleware, async (req: AuthRequest, res) => {
     if (authError || !caller) {
       return res.status(401).json({ error: "Invalid session." });
     }
+    callerId = caller.id;
 
     // Get Caller Profile (Check if Admin or Doctor)
     const { data: callerProfile } = await callerClient
@@ -129,25 +154,35 @@ UserRoutes.post("/create", authMiddleware, async (req: AuthRequest, res) => {
     }
 
     // 4. EXECUTION
-    const newUser = await createNewUser({
-      email,
-      password,
-      role,
-      name,
-      last_name,
-      national_id_number,
-      doctor_id: assignedDoctorId, // Pass the correctly looked-up ID
-    });
+    const newUser = await createNewUser(
+      {
+        email,
+        password,
+        role,
+        name,
+        last_name,
+        national_id_number,
+        doctor_id: assignedDoctorId, // Pass the correctly looked-up ID
+      },
+      caller.id,
+    );
 
     res
       .status(200)
       .json({ message: "User created successfully", user: newUser });
   } catch (err: any) {
-    console.error(`Create user failed: ${err.message}`);
+    const errorMessage = err.message ?? "Internal Server Error";
+    console.error(`Create user failed: ${errorMessage}`);
+
+    await logError({
+      userId: callerId,
+      action: LogAction.CREATE_USER_FAILED,
+      entityType: LogEntityType.USER,
+      metadata: { error: errorMessage, body: req.body },
+    });
+
     const statusCode = err.status || 500;
-    res
-      .status(statusCode)
-      .json({ error: err.message ?? "Internal Server Error" });
+    res.status(statusCode).json({ error: errorMessage });
   }
 });
 
