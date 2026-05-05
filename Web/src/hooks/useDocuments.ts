@@ -17,8 +17,8 @@ const useDocuments = () => {
   return useQuery<ClinicalDocument[], Error>({
     queryKey: ["documents"],
     queryFn: getDocuments,
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    gcTime: 1000 * 60 * 10, // 10 minutes
+    staleTime: Infinity,
+    gcTime: 1000 * 60 * 30, // 30 minutes
   });
 };
 

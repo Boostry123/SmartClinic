@@ -18,7 +18,7 @@ const useDoctors = (filters: doctorFilterTypes) => {
     // queryFn: The actual function that fetches the data.
     queryFn: () => getDoctors(filters),
     // This specific query will now stay "fresh" for 60 minutes
-    staleTime: 1000 * 60 * 60,
+    staleTime: Infinity,
     // Data remains in cache for 60 mins after component unmounts
     gcTime: 1000 * 60 * 60,
     enabled: !!filters, // Only run the query if filters are provided

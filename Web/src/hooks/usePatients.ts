@@ -19,9 +19,9 @@ const usePatients = (filters: patientFilterTypes) => {
     // queryFn: The actual function that fetches the data.
     queryFn: () => getPatients(filters),
     // This specific query will now stay "fresh" for 5 minutes
-    staleTime: 1000 * 60 * 5,
-    // Data remains in cache for 10 mins after component unmounts
-    gcTime: 1000 * 60 * 10,
+    staleTime: Infinity,
+    // Data remains in cache for 30 mins after component unmounts
+    gcTime: 1000 * 60 * 30,
 
     // Optional: Keep previous data while fetching new data (great for filters)
     placeholderData: (previousData) => previousData,
@@ -36,10 +36,8 @@ export const usePatientsByIds = (filters: patientByIdsFilterTypes) => {
 
     // queryFn: The actual function that fetches the data.
     queryFn: () => getPatientsByIds(filters),
-    // This specific query will now stay "fresh" for 5 minutes
-    staleTime: 1000 * 60 * 5,
-    // Data remains in cache for 10 mins after component unmounts
-    gcTime: 1000 * 60 * 10,
+    staleTime: Infinity,
+    gcTime: 1000 * 60 * 30,
     enabled: !!filters.patient_id && filters.patient_id.length > 0,
 
     // Optional: Keep previous data while fetching new data (great for filters)
