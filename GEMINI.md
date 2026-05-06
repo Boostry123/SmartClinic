@@ -52,7 +52,8 @@ The project features a specialized AI Operations Assistant designed specifically
 
 ## Key Features
 
-*   **Patient & Appointment Management:** CRUD operations for patients, doctors, treatments, and appointments.
+*   **Patient, Appointment & Room Management:** CRUD operations for patients, doctors, treatments, appointments, and clinic rooms.
+    *   **Room Schema:** IDs, room numbers, statuses (`Active` | `InActive`), and allowed treatment IDs.
 *   **Role-Based Access:** Specific functionalities tailored for Doctors, Patients, and Secretaries.
 *   **Real-time Calendar:** Interactive appointment scheduling via FullCalendar.
 
