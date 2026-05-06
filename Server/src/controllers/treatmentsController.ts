@@ -54,15 +54,41 @@ export const getTreatments = async (
   token: string,
   filter: Record<string, any>,
 ) => {
+  let userId = "unknown";
   try {
+    const { data: userData } = await getUserDetails(token);
+    userId = userData?.user?.id || "unknown";
+
     const supabase = getSupabaseClient(token);
     const { data, error } = await TreatmentsService.getTreatmentsService(
       supabase,
       filter,
     );
-    return { data, error };
+
+    if (error) throw error;
+
+    await logInfo({
+      userId,
+      action: LogAction.FETCH_TREATMENTS,
+      entityType: LogEntityType.TREATMENT,
+      metadata: { filter },
+    });
+
+    return { data };
   } catch (err: any) {
-    console.error(`Getting treatments failed: ${err?.message ?? err}`);
-    return { data: null, error: err?.message ?? "Unknown error" };
+    const errorMessage = err?.message ?? "Unknown error";
+    console.error(`Getting treatments failed: ${errorMessage}`);
+
+    await logError({
+      userId,
+      action: LogAction.FETCH_TREATMENTS_FAILED,
+      entityType: LogEntityType.TREATMENT,
+      metadata: {
+        error: errorMessage,
+        filter,
+      },
+    });
+
+    return { data: null, error: errorMessage };
   }
 };
