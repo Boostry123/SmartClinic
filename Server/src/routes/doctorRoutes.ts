@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { authMiddleware } from "../middleware/auth.js";
-
+//socket
+import { emitCacheInvalidation } from "../utils/socketUtils.js";
 // types
 import type { AuthRequest } from "../middleware/auth.js";
 import type {
@@ -85,7 +86,7 @@ DoctorRoutes.patch("/", authMiddleware, async (req: AuthRequest, res) => {
     if (error) {
       return res.status(400).json({ error });
     }
-
+    emitCacheInvalidation(req.app.get("io"), "doctor");
     return res.status(200).json(updatedDoctor);
   } catch (error: any) {
     console.error(`Updating doctor failed:`, error);

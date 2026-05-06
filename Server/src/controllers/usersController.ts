@@ -1,4 +1,7 @@
 import { supabaseAdmin } from "../config/supaAdmin.js";
+import { logInfo, logError } from "../utils/logger.js";
+import LogAction from "../types/enums/logActions.js";
+import { LogEntityType } from "../types/logs.js";
 
 // Define the shape of the data this controller expects
 interface CreateUserParams {
@@ -12,7 +15,10 @@ interface CreateUserParams {
   doctor_id?: string;
 }
 
-export const createNewUser = async (params: CreateUserParams) => {
+export const createNewUser = async (
+  params: CreateUserParams,
+  actingUserId: string = "admin",
+) => {
   const {
     email,
     password,
@@ -40,6 +46,14 @@ export const createNewUser = async (params: CreateUserParams) => {
   if (error) {
     throw error;
   }
+
+  await logInfo({
+    userId: actingUserId,
+    action: LogAction.CREATE_USER,
+    entityType: LogEntityType.USER,
+    entityId: data.user?.id,
+    metadata: { email, role },
+  });
 
   return data;
 };

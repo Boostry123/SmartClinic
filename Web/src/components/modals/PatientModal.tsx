@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { X, Mail, FileText, Loader } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useQueryClient } from "@tanstack/react-query";
 import { DateTime } from "luxon";
 import axios from "axios";
 //APIs
@@ -20,7 +19,6 @@ interface PatientModalProps {
 }
 
 const PatientModal = ({ isOpen, onClose, patient }: PatientModalProps) => {
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { data: documents, isLoading: documentsLoading } = useDocuments();
 
@@ -34,7 +32,7 @@ const PatientModal = ({ isOpen, onClose, patient }: PatientModalProps) => {
   const [formData, setFormData] = useState({
     first_name: patient.first_name || "",
     last_name: patient.last_name || "",
-    date_of_birth: formatDateForInput(patient.date_of_birth),
+    date_of_birth: formatDateForInput(patient.date_of_birth) || null,
     gender: patient.gender || "other",
     national_id_number: patient.national_id_number || "",
     phone_number: patient.phone_number || "",
@@ -69,19 +67,16 @@ const PatientModal = ({ isOpen, onClose, patient }: PatientModalProps) => {
     try {
       console.log("Submitting update for patient:", patient.patient_id);
 
-      const dobToSend = formData.date_of_birth || null;
+      // Only include fields that have changed to minimize payload and avoid unnecessary updates
+      const cleanedFormData = Object.entries(formData).filter(
+        ([key, value]) => patient[key as keyof Patient] !== value,
+      );
 
       const updateData = {
         patient_id: patient.patient_id,
-        ...formData,
-        date_of_birth: dobToSend,
+        ...Object.fromEntries(cleanedFormData),
       };
-
-      console.log("Cleaned Update Data for API:", updateData);
-
       await updatePatient(updateData);
-
-      queryClient.invalidateQueries({ queryKey: ["patients"] });
       onClose();
     } catch (error: unknown) {
       console.error("Failed to update patient:", error);

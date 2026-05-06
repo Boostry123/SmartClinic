@@ -5,6 +5,13 @@ import type {
   AppointmentFilters,
 } from "../types/enums/appointmentTypes.js";
 import { getAppointments } from "../controllers/appointmentsController.js";
+//services
+import { getUserDetails } from "../services/auth.js";
+//utils
+import { logInfo, logError } from "../utils/logger.js";
+//types
+import LogAction from "../types/enums/logActions.js";
+import { LogEntityType } from "../types/logs.js";
 
 export const getAppointmentsToolDef = toolDefinition({
   name: "fetch_appointments",
@@ -71,40 +78,67 @@ export const getAppointmentsToolDef = toolDefinition({
 
 export const getAppointmentsTool = (token: string) =>
   getAppointmentsToolDef.server(async (args) => {
-    const filters = { ...(args as Record<string, any>) } as AppointmentFilters;
+    let userId = "unknown";
+    try {
+      const { data: userData } = await getUserDetails(token);
+      userId = userData?.user?.id || "unknown";
 
-    const { data, error } = await getAppointments(token, filters);
+      const filters = {
+        ...(args as Record<string, any>),
+      } as AppointmentFilters;
 
-    if (error || !data) {
-      console.error("Tool Error:", error);
-      throw new Error(`Failed to fetch appointments: ${error}`);
-    }
-    // ----------------------------------------------
-    return {
-      appointments: data.map((appt: Appointment) => ({
-        id: appt.id,
-        patient_id: appt.patient_id,
-        doctor_id: appt.doctor_id,
-        treatment_id: appt.treatment_id,
-        treatment_data: appt.treatment_data || {},
-        start_time: appt.start_time,
-        end_time: appt.end_time,
-        status: appt.status,
-        notes: appt.notes || "",
-        created_at: appt.created_at,
+      const { data, error } = await getAppointments(token, filters);
 
-        patients: {
-          first_name: appt.patients?.first_name || "",
-          last_name: appt.patients?.last_name || "",
-        },
-        doctors: {
-          specialization: appt.doctors?.specialization || "",
-          users: {
-            name: appt.doctors?.users?.name || "",
-            last_name: appt.doctors?.users?.last_name || "",
-            email: appt.doctors?.users?.email || "",
+      if (error || !data) {
+        throw error;
+      }
+
+      await logInfo({
+        userId,
+        action: LogAction.FETCH_APPOINTMENTS,
+        entityType: LogEntityType.APPOINTMENT,
+        metadata: { filters },
+      });
+
+      // ----------------------------------------------
+      return {
+        appointments: data.map((appt: Appointment) => ({
+          id: appt.id,
+          patient_id: appt.patient_id,
+          doctor_id: appt.doctor_id,
+          treatment_id: appt.treatment_id,
+          treatment_data: appt.treatment_data || {},
+          start_time: appt.start_time,
+          end_time: appt.end_time,
+          status: appt.status,
+          notes: appt.notes || "",
+          created_at: appt.created_at,
+
+          patients: {
+            first_name: appt.patients?.first_name || "",
+            last_name: appt.patients?.last_name || "",
           },
-        },
-      })),
-    };
+          doctors: {
+            specialization: appt.doctors?.specialization || "",
+            users: {
+              name: appt.doctors?.users?.name || "",
+              last_name: appt.doctors?.users?.last_name || "",
+              email: appt.doctors?.users?.email || "",
+            },
+          },
+        })),
+      };
+    } catch (error: any) {
+      const errorMessage = error?.message ?? "Unknown error";
+      console.error("Tool Error:", errorMessage);
+
+      await logError({
+        userId,
+        action: LogAction.FETCH_APPOINTMENTS_FAILED,
+        entityType: LogEntityType.APPOINTMENT,
+        metadata: { error: errorMessage, filters: args },
+      });
+
+      throw new Error(`Failed to fetch appointments: ${errorMessage}`);
+    }
   });

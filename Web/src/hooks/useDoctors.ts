@@ -1,8 +1,12 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 //DEVELOPED
 import { getDoctors, updateDoctor } from "../api/doctors";
 //TYPES
-import type { Doctor, doctorFilterTypes, DoctorUpdate } from "../api/types/doctors";
+import type {
+  Doctor,
+  doctorFilterTypes,
+  DoctorUpdate,
+} from "../api/types/doctors";
 
 const useDoctors = (filters: doctorFilterTypes) => {
   // useQuery handles the loading, error, and data states for you
@@ -14,7 +18,7 @@ const useDoctors = (filters: doctorFilterTypes) => {
     // queryFn: The actual function that fetches the data.
     queryFn: () => getDoctors(filters),
     // This specific query will now stay "fresh" for 60 minutes
-    staleTime: 1000 * 60 * 60,
+    staleTime: Infinity,
     // Data remains in cache for 60 mins after component unmounts
     gcTime: 1000 * 60 * 60,
     enabled: !!filters, // Only run the query if filters are provided
@@ -24,14 +28,8 @@ const useDoctors = (filters: doctorFilterTypes) => {
 };
 
 export const useUpdateDoctor = () => {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (data: DoctorUpdate) => updateDoctor(data),
-    onSuccess: () => {
-      // Invalidate the doctors query to refetch the data
-      queryClient.invalidateQueries({ queryKey: ["doctors"] });
-    },
   });
 };
 

@@ -2,7 +2,12 @@ import { getSupabaseClient } from "../config/supaDb.js";
 //Services
 import { AppointmentsService } from "../services/appointment.js";
 import { StorageService } from "../services/storage.js";
+import { getUserDetails } from "../services/auth.js";
+//Utils
+import { logInfo, logError } from "../utils/logger.js";
 //Types
+import LogAction from "../types/enums/logActions.js";
+import { LogEntityType } from "../types/logs.js";
 import type {
   Appointment,
   AppointmentFilters,
@@ -14,18 +19,44 @@ export const createAppointment = async (
   token: string,
   body: CreateAppointmentDTO,
 ) => {
+  let userId = "unknown";
   try {
+    const { data: userData } = await getUserDetails(token);
+    userId = userData?.user?.id || "unknown";
+
     const supabase = getSupabaseClient(token);
     const { data, error } = await AppointmentsService.createAppointment(
       supabase,
       body,
     );
+    const { treatment_data, ...bodyFiltered } = body;
+    const treatmentDataKeys = Object.keys(treatment_data);
 
     if (error) throw error;
+
+    await logInfo({
+      userId,
+      action: LogAction.CREATE_APPOINTMENT,
+      entityType: LogEntityType.APPOINTMENT,
+      entityId: data?.id,
+      metadata: { bodyFiltered, treatmentDataKeys },
+    });
+
     return { data };
   } catch (err: any) {
-    console.error(`Creating appointment failed: ${err?.message ?? err}`);
-    return { data: null, error: err?.message ?? "Unknown error" };
+    const errorMessage = err?.message ?? "Unknown error";
+    console.error(`Creating appointment failed: ${errorMessage}`);
+
+    await logError({
+      userId,
+      action: LogAction.CREATE_APPOINTMENT_FAILED,
+      entityType: LogEntityType.APPOINTMENT,
+      metadata: {
+        error: errorMessage,
+      },
+    });
+
+    return { data: null, error: errorMessage };
   }
 };
 
@@ -38,7 +69,11 @@ export const updateAppointment = async (
   body: any,
   files: any[],
 ): Promise<{ data: Appointment | null; error?: string }> => {
+  let userId = "unknown";
   try {
+    const { data: userData } = await getUserDetails(token);
+    userId = userData?.user?.id || "unknown";
+
     const appointmentId = body.id;
     const supabase = getSupabaseClient(token);
 
@@ -178,11 +213,34 @@ export const updateAppointment = async (
       { id: appointmentId },
     );
 
+    // 7. LOGGING - Only log the changed fields for better traceability
+    const { treatment_data = {}, ...bodyFiltered } = finalUpdateDto;
+    const treatmentDataKeys = Object.keys(treatment_data).filter(
+      (treatment) => treatment_data[treatment] !== oldTreatmentData[treatment],
+    );
+
+    await logInfo({
+      userId,
+      action: LogAction.UPDATE_APPOINTMENT,
+      entityType: LogEntityType.APPOINTMENT,
+      entityId: appointmentId,
+      metadata: { bodyFiltered, treatmentDataKeys },
+    });
+
     return { data: (hydratedResults?.[0] || updatedRecord) as Appointment };
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Internal Server Error";
     console.error(`[Controller Error]`, message);
+
+    await logError({
+      userId,
+      action: LogAction.UPDATE_APPOINTMENT_FAILED,
+      entityType: LogEntityType.APPOINTMENT,
+      entityId: body.id,
+      metadata: { error: message },
+    });
+
     return { data: null, error: message };
   }
 };
@@ -191,7 +249,11 @@ export const getAppointments = async (
   token: string,
   filters?: AppointmentFilters,
 ) => {
+  let userId = "unknown";
   try {
+    const { data: userData } = await getUserDetails(token);
+    userId = userData?.user?.id || "unknown";
+
     const supabase = getSupabaseClient(token);
     const { data, error } = await AppointmentsService.getAppointments(
       supabase,
@@ -199,9 +261,26 @@ export const getAppointments = async (
     );
 
     if (error) throw error;
+
+    await logInfo({
+      userId,
+      action: LogAction.FETCH_APPOINTMENTS,
+      entityType: LogEntityType.APPOINTMENT,
+      metadata: { filters },
+    });
+
     return { data };
   } catch (err: any) {
-    console.error(`Fetching appointments failed: ${err?.message ?? err}`);
-    return { data: null, error: err?.message ?? "Unknown error" };
+    const errorMessage = err?.message ?? "Unknown error";
+    console.error(`Fetching appointments failed: ${errorMessage}`);
+
+    await logError({
+      userId,
+      action: LogAction.FETCH_APPOINTMENTS_FAILED,
+      entityType: LogEntityType.APPOINTMENT,
+      metadata: { error: errorMessage, filters },
+    });
+
+    return { data: null, error: errorMessage };
   }
 };
