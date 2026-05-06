@@ -7,6 +7,7 @@ import {
   Clock,
   ClipboardList,
   Stethoscope,
+  DoorOpen,
 } from "lucide-react";
 import { DateTime } from "luxon";
 //components
@@ -16,6 +17,7 @@ import Card from "./Card";
 //hooks
 import useAppointments from "../hooks/useAppointments";
 import useTreatments from "../hooks/useTreatments";
+import useRooms from "../hooks/useRooms";
 import { useIsMobile } from "../hooks/useIsMobile";
 //types
 import {
@@ -41,6 +43,7 @@ const Appointments: React.FC<AppointmentFilters> = (props) => {
     error,
   } = useAppointments(filters);
   const { data: treatments } = useTreatments({});
+  const { data: rooms } = useRooms();
 
   const [showIds, setShowIds] = useState(false);
   const [selectedAppointment, setSelectedAppointment] =
@@ -66,6 +69,12 @@ const Appointments: React.FC<AppointmentFilters> = (props) => {
     (a: Appointment) =>
       treatments?.find((t) => t.id === a.treatment_id)?.treatment_name || "N/A",
     [treatments],
+  );
+
+  const getRoomNumber = useCallback(
+    (a: Appointment) =>
+      rooms?.find((r) => r.id === a.room_id)?.room_number ?? null,
+    [rooms],
   );
 
   const treatmentTemplate = useMemo(
@@ -123,8 +132,22 @@ const Appointments: React.FC<AppointmentFilters> = (props) => {
         ),
       },
       { header: "NOTES", accessor: (a: Appointment) => a.notes || "-" },
+      {
+        header: "ROOM",
+        accessor: (a: Appointment) => {
+          const roomNumber = getRoomNumber(a);
+          return roomNumber ? (
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
+              <DoorOpen size={12} />
+              {roomNumber}
+            </span>
+          ) : (
+            <span className="text-slate-400">—</span>
+          );
+        },
+      },
     ],
-    [showIds, getPatientName, getDoctorName, getTreatmentName],
+    [showIds, getPatientName, getDoctorName, getTreatmentName, getRoomNumber],
   );
 
   if (isLoading)
@@ -160,7 +183,6 @@ const Appointments: React.FC<AppointmentFilters> = (props) => {
         <h2 className="text-2xl font-bold text-slate-800 tracking-tight">
           Appointments
         </h2>
-
         <div className="bg-white px-4 py-2.5 rounded-xl border border-slate-200 shadow-sm text-sm text-slate-600 flex items-center gap-2">
           Total:
           <span className="font-bold text-indigo-600">
@@ -199,12 +221,18 @@ const Appointments: React.FC<AppointmentFilters> = (props) => {
                       {getDoctorName(appointment)}
                     </span>
                   </div>
-
                   <div className="flex items-center gap-2">
                     <ClipboardList size={16} className="text-slate-400" />
                     <span>{getTreatmentName(appointment)}</span>
                   </div>
-
+                  {getRoomNumber(appointment) && (
+                    <div className="flex items-center gap-2">
+                      <DoorOpen size={16} className="text-slate-400" />
+                      <span className="font-medium text-indigo-600">
+                        Room {getRoomNumber(appointment)}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex items-center gap-2">
                     <Clock size={16} className="text-slate-400" />
                     <span className="font-medium text-indigo-600">
@@ -213,13 +241,11 @@ const Appointments: React.FC<AppointmentFilters> = (props) => {
                       )}
                     </span>
                   </div>
-
                   {appointment.notes && (
                     <div className="pt-2 border-t border-slate-100 text-xs italic text-slate-500 line-clamp-2">
                       {appointment.notes}
                     </div>
                   )}
-
                   <div
                     className="flex justify-between items-center pt-2 border-t border-slate-100"
                     onClick={(e) => e.stopPropagation()}

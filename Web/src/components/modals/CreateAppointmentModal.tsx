@@ -6,6 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import usePatients from "../../hooks/usePatients";
 import useTreatments from "../../hooks/useTreatments";
 import useDoctors from "../../hooks/useDoctors";
+import useRooms from "../../hooks/useRooms";
 //developed
 import CreateAppointmentCalendar from "../CreateAppointmentCalendar";
 //types
@@ -25,6 +26,7 @@ const initFormData = {
   start_time: "",
   end_time: "",
   notes: "",
+  room_id: "",
 };
 
 const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
@@ -47,6 +49,7 @@ const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
     isLoading: doctorsLoading,
     isError: doctorError,
   } = useDoctors({});
+  const { data: rooms } = useRooms({ status: "Active" });
   const [formData, setFormData] = useState(initFormData);
   const [selectedTreatment, setSelectedTreatment] = useState<
     Treatment | undefined
@@ -89,7 +92,7 @@ const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
             case "checkbox":
               treatmentData[field.id] = field.defaultValue ?? false;
               break;
-            default: // text, textarea, select
+            default:
               treatmentData[field.id] = field.defaultValue ?? "";
               break;
           }
@@ -125,6 +128,7 @@ const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
       setFormData(initFormData);
     }
   };
+
   const handleCancel = () => {
     setFormData(initFormData);
     onClose();
@@ -144,6 +148,11 @@ const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
     }
 
     const selectedDoctor = doctors?.find((d) => d.id === formData.doctor_id);
+    const availableRooms = rooms?.filter(
+      (r) =>
+        r.allowed_treatments.length === 0 ||
+        r.allowed_treatments.includes(formData.treatment_id),
+    );
 
     return (
       <form
@@ -230,11 +239,40 @@ const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
             <textarea
               id="notes"
               name="notes"
-              rows={12}
+              rows={6}
               value={formData.notes}
               onChange={handleChange}
               className="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             ></textarea>
+          </div>
+          <div className="mb-4">
+            <label
+              htmlFor="room_id"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Room
+            </label>
+            <select
+              id="room_id"
+              name="room_id"
+              value={formData.room_id}
+              onChange={handleChange}
+              disabled={!formData.start_time || !formData.treatment_id}
+              className="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <option value="">
+                {!formData.treatment_id
+                  ? "Select a treatment first"
+                  : !formData.start_time
+                    ? "Select a time slot first"
+                    : "No room (optional)"}
+              </option>
+              {availableRooms?.map((r) => (
+                <option key={r.id} value={r.id}>
+                  Room {r.room_number}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="mt-6 flex justify-end">
             <button
@@ -290,6 +328,7 @@ const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
           <h2 className="text-xl font-bold">New Appointment</h2>
           <button
             onClick={handleCancel}
+            aria-label="Close"
             className="text-gray-400 hover:text-gray-600 transition-colors"
           >
             <X size={20} />
