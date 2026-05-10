@@ -7,7 +7,7 @@ export const emitCacheInvalidation = (
     | "patients"
     | "treatments"
     | "doctor"
-    | "documents" = "appointments",
+    | "documents" | "rooms" = "appointments",
 ) => {
   if (io) {
     io.emit("cacheInvalidation", { type });

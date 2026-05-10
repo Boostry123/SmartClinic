@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, type UseQueryOptions } from "@tanstack/react-query";
 import { getAppointments } from "../api/appointments";
 //Types
 import type {
@@ -6,13 +6,17 @@ import type {
   AppointmentFilters,
 } from "../api/types/appointments";
 
-const useAppointments = (filters: AppointmentFilters) => {
+const useAppointments = (
+  filters: AppointmentFilters,
+  options?: Partial<UseQueryOptions<Appointment[], Error>>,
+) => {
   return useQuery<Appointment[], Error>({
     queryKey: ["appointments", filters],
     queryFn: () => getAppointments(filters),
     staleTime: Infinity,
     gcTime: 1000 * 60 * 30, // 30 minutes
     placeholderData: (previousData) => previousData,
+    ...options,
   });
 };
 

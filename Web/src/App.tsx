@@ -21,6 +21,7 @@ import Chat from "./components/Chat";
 //types
 import { ClinicRoleEnum } from "./types/auth";
 import Documents from "./pages/Documents";
+import Rooms from "./pages/Rooms";
 
 const SERVER_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -114,6 +115,10 @@ function App() {
           <Route
             path="/documents"
             element={isAuthenticated ? <Documents /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/rooms"
+            element={isAuthenticated ? <Rooms /> : <Navigate to="/login" />}
           />
         </Routes>
       </main>

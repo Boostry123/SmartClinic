@@ -35,6 +35,7 @@ export interface Appointment {
   status: AppointmentStatus;
   notes: string;
   created_at: string;
+  room_id?: string | null;
   patients?: {
     first_name: string;
     last_name: string;
@@ -58,6 +59,7 @@ export interface CreateAppointmentDTO {
   notes?: string;
   treatment_id: string;
   treatment_data: Record<string, string | number | boolean | File>;
+  room_id?: string | null;
 }
 
 export interface UpdateAppointmentDTO {

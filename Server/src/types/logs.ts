@@ -15,6 +15,7 @@ export enum LogEntityType {
   TREATMENT = "treatment",
   DOCUMENT = "document",
   SECRETARY = "secretary",
+  ROOM = "room",
 }
 
 export interface ActionLog {

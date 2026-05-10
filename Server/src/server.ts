@@ -15,6 +15,7 @@ import ChatbotRoutes from "./routes/chatbot.js";
 import { rateLimiter, authRateLimiter } from "./middleware/security.js";
 import healthCheckRoutes from "./routes/healthCheckRoutes.js";
 import DocumentRoutes from "./routes/documentRoutes.js";
+import RoomRoutes from "./routes/roomRoutes.js";
 import { getUserDetails } from "./services/auth.js";
 
 // Load environment variables from .env file
@@ -118,6 +119,8 @@ app.use("/chatbot", ChatbotRoutes);
 app.use("/documents", DocumentRoutes);
 //the auth route
 app.use("/auth", AuthRoutes);
+//the rooms route
+app.use("/rooms", RoomRoutes);
 //health check route
 app.use("/healthCheck", healthCheckRoutes);
 // --- Server Activation ---
