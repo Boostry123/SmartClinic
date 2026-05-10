@@ -58,4 +58,5 @@ export interface AppointmentFilters {
   doctor_id?: string;
   start_time?: string; // ISO String
   end_time?: string; // ISO String
+  excludeTreatmentData?: boolean;
 }

@@ -25,47 +25,50 @@ export const AppointmentsService = {
     filters?: AppointmentFilters,
     skipHydration: boolean = false,
   ) => {
-    // 1. Initialize query with joined relations
-    let query = client.from("appointments").select(`
-        *,
-        patients ( first_name, last_name ),
-        doctors ( 
-            specialization,
-            users (
-                name,
-                last_name,
-                email
-            )
-        )
-      `);
+    // 1. Define relationship joins (to keep the main query clean)
+    const relations = `
+      patients ( first_name, last_name ),
+      doctors ( 
+          specialization,
+          users ( name, last_name, email )
+      )
+    `;
 
-    // 2. Apply Equality Filters
+    // 2. Define fields to select
+    const fields = filters?.excludeTreatmentData
+      ? `id, patient_id, doctor_id, treatment_id, start_time, end_time, status, notes, created_at, ${relations}`
+      : `*, ${relations}`;
+
+    // 3. Initialize query
+    let query = client.from("appointments").select(fields);
+
+    // 4. Apply Equality Filters
     if (filters?.id) query = query.eq("id", filters.id);
     if (filters?.status) query = query.eq("status", filters.status);
     if (filters?.patient_id) query = query.eq("patient_id", filters.patient_id);
     if (filters?.doctor_id) query = query.eq("doctor_id", filters.doctor_id);
 
-    // 3. Apply Date Range Filters (Time Query)
-    // CRITICAL: Ensure the assignment back to 'query' exists
-    if (filters?.start_time) {
+    // 5. Apply Date Range Filters (Time Query)
+    if (filters?.start_time)
       query = query.gte("start_time", filters.start_time);
-    }
+    if (filters?.end_time) query = query.lte("start_time", filters.end_time);
 
-    if (filters?.end_time) {
-      query = query.lte("start_time", filters.end_time);
-    }
-
-    // 4. Execute the query
+    // 6. Execute the query
     const { data: appointments, error } = await query.order("start_time", {
       ascending: true,
     });
 
-    // Handle DB errors or cases where we explicitly don't want to sign URLs (like internal cleanup)
-    if (error || !appointments || skipHydration) {
+    // Handle DB errors or cases where we explicitly don't want to sign URLs
+    if (
+      error ||
+      !appointments ||
+      skipHydration ||
+      filters?.excludeTreatmentData
+    ) {
       return { data: appointments, error };
     }
 
-    // 5. HYDRATION: Convert paths to Signed URLs for the Frontend
+    // 7. HYDRATION: Convert paths to Signed URLs for the Frontend
     const hydratedAppointments = await Promise.all(
       appointments.map(async (app: Appointment) => {
         // Create a shallow copy of treatment_data to avoid mutating the original reference
