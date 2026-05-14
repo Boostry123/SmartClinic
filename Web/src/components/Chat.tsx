@@ -113,7 +113,7 @@ const Chat: React.FC = () => {
       {/* --- Simple Toggle Button --- */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-16 h-16 rounded-full shadow-lg flex items-center justify-center border-2 border-indigo-600 bg-indigo-50 overflow-hidden active:bg-slate-50"
+        className="w-16 h-16 rounded-full shadow-lg flex items-center justify-center border-2 border-indigo-600 bg-indigo-50 active:bg-slate-50"
       >
         {isOpen ? (
           <X size={32} className="text-indigo-600" />
