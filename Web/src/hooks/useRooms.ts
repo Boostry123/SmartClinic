@@ -1,6 +1,6 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 // API
-import { getRooms, createRoom, updateRoom } from "../api/rooms";
+import { getRooms, createRoom, updateRoom, deleteRoom } from "../api/rooms";
 // Types
 import type {
   Room,
@@ -37,6 +37,15 @@ export const useCreateRoom = () => {
 export const useUpdateRoom = () => {
   return useMutation({
     mutationFn: (data: UpdateRoomDTO) => updateRoom(data),
+  });
+};
+
+/**
+ * Hook for deleting a room.
+ */
+export const useDeleteRoom = () => {
+  return useMutation({
+    mutationFn: (id: string) => deleteRoom(id),
   });
 };
 
