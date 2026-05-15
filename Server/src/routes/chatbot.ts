@@ -2,6 +2,7 @@ import { Router } from "express";
 // Tanstack AI
 import { chat, toServerSentEventsResponse } from "@tanstack/ai";
 import { geminiText } from "@tanstack/ai-gemini";
+import { ollamaText } from "@tanstack/ai-ollama";
 // third-party
 import { rateLimit } from "express-rate-limit";
 //tools
@@ -55,6 +56,14 @@ Your unique Doctor ID is: ${doctorId}.
     - Dates: "Tue, Mar 24 | 9:30 AM"
     - Status: Human-friendly (e.g., "Checked In", "Scheduled", "Completed")
 - **Privacy**: No medical notes unless specifically requested.
+
+CRITICAL FORMATTING RULES:
+- Always format your responses using rich, clean Markdown.
+- Avoid things like Ids or serial numbers and emojys in the output unless explicitly asked for.
+- Use headers (###) to separate distinct sections of your analysis or patient data.
+- Use bold text (**word**) to highlight critical items like patient names, medication dosages, or urgent dates.
+- Use bullet points (-) when listing appointments, medical history, or treatments. Never write lists as flat paragraphs.
+- Keep text concise and layout-driven so the doctor can read it at a glance.
 `;
 };
 
@@ -96,17 +105,28 @@ ChatbotRoutes.post(
       }
 
       // 3. API KEY CHECK
-      if (!process.env.GEMINI_API_KEY) {
-        return res.status(500).json({ error: "No API key provided" });
+      if (!process.env.GEMINI_API_KEY && !process.env.OLLAMA_HOST) {
+        return res.status(500).json({
+          error:
+            "Server configuration error: Missing Gemini API key or Ollama URL.",
+        });
       }
+
+      const selectedAdapter = process.env.OLLAMA_HOST
+        ? ollamaText("qwen3:8B")
+        : geminiText("gemini-2.5-flash");
 
       // 4. Initialize stream
       const stream = chat({
-        adapter: geminiText("gemini-2.5-flash"),
+        adapter: selectedAdapter,
         messages: [
           { role: "system", content: getSystemPrompt(doctorId) },
           ...(Array.isArray(messages) ? messages : [messages]),
         ],
+        modelOptions: {
+          num_ctx: 8192,
+          temperature: 0.3,
+        },
         conversationId: conversationId,
         stream: true,
         tools: [
