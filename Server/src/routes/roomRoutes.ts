@@ -4,6 +4,7 @@ import {
   createRoom,
   getRooms,
   updateRoom,
+  deleteRoom,
 } from "../controllers/roomsController.js";
 import { authMiddleware } from "../middleware/auth.js";
 // Types
@@ -85,10 +86,38 @@ RoomRoutes.get("/", authMiddleware, async (req: any, res) => {
   try {
     const { data, error } = await getRooms(token, filters);
     if (error) return res.status(400).json({ error });
-    
+
     return res.status(200).json(data);
   } catch (error) {
     return res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+// Delete Room
+RoomRoutes.delete("/", authMiddleware, async (req: any, res) => {
+  const token = req.token;
+  const { id } = req.query;
+
+  if (!token) return res.status(401).json({ error: "Unauthorized" });
+
+  if (!id) {
+    return res
+      .status(400)
+      .json({ error: "Room ID is required as a query parameter" });
+  }
+
+  try {
+    const { data, error } = await deleteRoom(token, id as string);
+    if (error) return res.status(400).json({ error });
+
+    emitCacheInvalidation(req.app.get("io"), "rooms");
+
+    return res.status(200).json(data);
+  } catch (error: any) {
+    return res.status(500).json({
+      error: "Internal Server Error",
+      message: error.message,
+    });
   }
 });
 

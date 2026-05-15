@@ -63,7 +63,8 @@ The system implements a robust action logging mechanism to track user activities
 
 ## Key Features
 
-*   **Patient, Appointment & Room Management:** CRUD operations for patients, doctors, treatments, appointments, and clinic rooms.
+*   **Patient, Appointment & Room Management:** Full CRUD operations for patients, doctors, treatments, appointments, and clinic rooms.
+    *   **Room Management:** Managed via `roomsController.ts` and `roomService.ts`. Supports creating, updating, fetching (filtered by ID, number, or status), and deleting rooms.
     *   **Room Schema:** IDs, room numbers, statuses (`Active` | `InActive`), and allowed treatment IDs.
 *   **Role-Based Access:** Specific functionalities tailored for Doctors, Patients, and Secretaries.
 *   **Real-time Calendar:** Interactive appointment scheduling via FullCalendar.

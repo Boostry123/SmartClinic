@@ -20,7 +20,8 @@ export const RoomsService = {
     let query = client.from("rooms").select("*");
 
     if (filters?.id) query = query.eq("id", filters.id);
-    if (filters?.room_number) query = query.eq("room_number", filters.room_number);
+    if (filters?.room_number)
+      query = query.eq("room_number", filters.room_number);
     if (filters?.status) query = query.eq("status", filters.status);
 
     return query.order("room_number", { ascending: true });
@@ -38,5 +39,13 @@ export const RoomsService = {
       .eq("id", id)
       .select()
       .single();
+  },
+
+  /**
+   * Delete an existing room
+   *
+   */
+  deleteRoom: (client: any, id: string) => {
+    return client.from("rooms").delete().eq("id", id);
   },
 };

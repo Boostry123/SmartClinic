@@ -40,3 +40,19 @@ export const updateRoom = async (roomData: UpdateRoomDTO): Promise<Room> => {
     throw err;
   }
 };
+
+// Delete a room
+export const deleteRoom = async (id: string): Promise<boolean> => {
+  if (!id) {
+    throw new Error("Room ID is required for deletion");
+  }
+  try {
+    const response = await apiClient.delete<boolean>("/rooms", {
+      params: { id },
+    });
+    return response.data;
+  } catch (err) {
+    console.error("deleteRoom error:", err);
+    throw err;
+  }
+};
