@@ -16,6 +16,7 @@ export interface Appointment {
   status: AppointmentStatus;
   notes: string;
   created_at: string;
+  room_id?: string;
   patients?: {
     first_name: string;
     last_name: string;
@@ -49,6 +50,7 @@ export type UpdateAppointmentDTO = { id: string } & Partial<
     | "end_time"
     | "status"
     | "notes"
+    | "room_id"
   >
 >;
 export interface AppointmentFilters {
@@ -59,4 +61,5 @@ export interface AppointmentFilters {
   start_time?: string; // ISO String
   end_time?: string; // ISO String
   excludeTreatmentData?: boolean;
+  room_id?: string;
 }

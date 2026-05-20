@@ -6,7 +6,10 @@ import { ollamaText } from "@tanstack/ai-ollama";
 // third-party
 import { rateLimit } from "express-rate-limit";
 //tools
-import { getAppointmentsTool } from "../chatTools/appointmentTools.js";
+import {
+  createAppointmentsTool,
+  getAppointmentsTool,
+} from "../chatTools/appointmentTools.js";
 import { getTreatmentsTool } from "../chatTools/treatmentTools.js";
 import { getPatientsTool } from "../chatTools/patientTools.js";
 // Middleware
@@ -15,6 +18,7 @@ import { authMiddleware, type AuthRequest } from "../middleware/auth.js";
 import { getUserDetails } from "../services/auth.js";
 //controllers
 import { getDoctors } from "../controllers/doctorsController.js";
+import { getCurrentDateTool } from "../chatTools/getdateTool.js";
 
 const ChatbotRoutes = Router();
 
@@ -41,7 +45,7 @@ Your unique Doctor ID is: ${doctorId}.
 - **Reference Time**: ${new Date().toLocaleString()} (Current Day: ${new Intl.DateTimeFormat("en-US", { weekday: "long" }).format(new Date())})
 
 # GUIDELINES
-- Assisting Doctor ID: ${doctorId}. 
+- Assisting Doctor ID: ${doctorId}.
 - Use this ID to filter "my schedule" or "my appointments".
 - **Empty States**: If no appointments are found for a requested period, say: "You have no appointments scheduled for [Date/Period]."
 
@@ -105,36 +109,72 @@ ChatbotRoutes.post(
       }
 
       // 3. API KEY CHECK
-      if (!process.env.GEMINI_API_KEY && !process.env.OLLAMA_HOST) {
+      const geminiKey = process.env.GEMINI_API_KEY;
+      const ollamaHost = process.env.OLLAMA_HOST;
+      const aiProvider =
+        process.env.AI_PROVIDER || (ollamaHost ? "ollama" : "gemini");
+
+      if (aiProvider === "gemini" && !geminiKey) {
         return res.status(500).json({
-          error:
-            "Server configuration error: Missing Gemini API key or Ollama URL.",
+          error: "Server configuration error: Missing Gemini API key.",
         });
       }
 
-      const selectedAdapter = process.env.OLLAMA_HOST
-        ? ollamaText("qwen3:8B")
-        : geminiText("gemini-2.5-flash");
+      if (aiProvider === "ollama" && !ollamaHost) {
+        return res.status(500).json({
+          error: "Server configuration error: Missing Ollama URL.",
+        });
+      }
 
-      // 4. Initialize stream
-      const stream = chat({
-        adapter: selectedAdapter,
-        messages: [
-          { role: "system", content: getSystemPrompt(doctorId) },
-          ...(Array.isArray(messages) ? messages : [messages]),
-        ],
-        modelOptions: {
-          num_ctx: 8192,
-          temperature: 0.3,
-        },
-        conversationId: conversationId,
-        stream: true,
-        tools: [
-          getAppointmentsTool(token),
-          getTreatmentsTool(token),
-          getPatientsTool(token),
-        ],
-      });
+      // 4. Select Adapter
+      const adapter =
+        aiProvider === "ollama"
+          ? ollamaText("qwen3:4b")
+          : geminiText("gemini-2.5-flash");
+
+      console.log(`[Chatbot] Using AI Provider: ${aiProvider}`);
+
+      let stream = undefined;
+
+      if (aiProvider === "ollama") {
+        // Initialize stream for ollama
+        stream = chat({
+          adapter,
+          systemPrompts: [getSystemPrompt(doctorId)],
+          messages: [...(Array.isArray(messages) ? messages : [messages])],
+          conversationId: conversationId,
+          modelOptions: {
+            num_ctx: 8192,
+            temperature: 0,
+            top_p: 0.1,
+          },
+          stream: true,
+          tools: [
+            getAppointmentsTool(token),
+            getTreatmentsTool(token),
+            getPatientsTool(token),
+            createAppointmentsTool(token),
+            getCurrentDateTool,
+          ],
+        });
+      } else if (aiProvider === "gemini") {
+        // Initialize stream for gemini
+        stream = chat({
+          adapter: geminiText("gemini-2.5-flash"),
+          messages: [
+            { role: "system", content: getSystemPrompt(doctorId) },
+            ...(Array.isArray(messages) ? messages : [messages]),
+          ],
+          conversationId: conversationId,
+          stream: true,
+          tools: [
+            getAppointmentsTool(token),
+            getTreatmentsTool(token),
+            getPatientsTool(token),
+            createAppointmentsTool(token),
+          ],
+        });
+      }
 
       // ✅ Get Web Response
       const response = toServerSentEventsResponse(stream);

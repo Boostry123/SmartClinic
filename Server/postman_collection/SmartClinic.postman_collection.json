@@ -549,6 +549,159 @@
       ]
     },
     {
+      "name": "Rooms",
+      "item": [
+        {
+          "name": "Create room",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"room_number\": \"101\",\r\n    \"allowed_treatments\": []\r\n}\r\n\r\n   ",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}rooms",
+              "host": [
+                "{{baseURL}}rooms"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get room",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}rooms/?id=e58dc391-03a8-4aed-95ce-26139dcb8dc6",
+              "host": [
+                "{{baseURL}}rooms"
+              ],
+              "path": [
+                ""
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "e58dc391-03a8-4aed-95ce-26139dcb8dc6"
+                },
+                {
+                  "key": "room_number",
+                  "value": null,
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": null,
+                  "type": "text",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "update room",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"id\": \"e58dc391-03a8-4aed-95ce-26139dcb8dc6\",\r\n    \"room_number\": \"101\"\r\n   // \"status\":\"InActive\",\r\n    //\"allowed_treatments\": []\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseURL}}rooms",
+              "host": [
+                "{{baseURL}}rooms"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete room",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseURL}}rooms/?id=cc1b40fd-80ae-4c37-999f-e7633921e3b3",
+              "host": [
+                "{{baseURL}}rooms"
+              ],
+              "path": [
+                ""
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "cc1b40fd-80ae-4c37-999f-e7633921e3b3"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
       "name": "healthCheck",
       "protocolProfileBehavior": {
         "disableBodyPruning": true
