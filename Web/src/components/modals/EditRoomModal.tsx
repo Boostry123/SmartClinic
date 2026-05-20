@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { X, Loader } from "lucide-react";
-import { useQueryClient } from "@tanstack/react-query";
-import { useUpdateRoom } from "../../hooks/useRooms";
+import { useUpdateRoom, useDeleteRoom } from "../../hooks/useRooms";
 import useTreatments from "../../hooks/useTreatments";
 import Button from "../Button";
 import type { Room } from "../../api/types/rooms";
@@ -13,8 +12,9 @@ interface EditRoomModalProps {
 }
 
 const EditRoomModal = ({ isOpen, onClose, room }: EditRoomModalProps) => {
-  const queryClient = useQueryClient();
   const { mutateAsync: updateRoom, isPending } = useUpdateRoom();
+  const { mutateAsync: deleteRoom, isPending: isDeleting } = useDeleteRoom();
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const { data: treatments } = useTreatments();
 
   const [formData, setFormData] = useState({
@@ -41,11 +41,24 @@ const EditRoomModal = ({ isOpen, onClose, room }: EditRoomModalProps) => {
     }));
   };
 
+  const handleDelete = async () => {
+    if (!confirmDelete) {
+      setConfirmDelete(true);
+      return;
+    }
+    try {
+      await deleteRoom(room.id);
+      onClose();
+    } catch (error) {
+      console.error("Failed to delete room:", error);
+      alert("Failed to delete room. Please try again.");
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       await updateRoom({ id: room.id, ...formData });
-      queryClient.invalidateQueries({ queryKey: ["rooms"] });
       onClose();
     } catch (error) {
       console.error("Failed to update room:", error);
@@ -131,18 +144,27 @@ const EditRoomModal = ({ isOpen, onClose, room }: EditRoomModalProps) => {
           </div>
 
           {/* Footer */}
-          <div className="flex justify-end gap-3 pt-4 border-t">
+          <div className="flex justify-between items-center pt-4 border-t">
             <Button
-              text="Cancel"
-              onClick={onClose}
-              color="gray"
+              text={confirmDelete ? "Confirm Delete?" : "Delete Room"}
+              onClick={handleDelete}
+              color="red"
               type="button"
+              disabled={isDeleting}
             />
-            <Button
-              type="submit"
-              text={isPending ? "Saving..." : "Save Changes"}
-              color="indigo"
-            />
+            <div className="flex gap-3">
+              <Button
+                text="Cancel"
+                onClick={() => { onClose(); setConfirmDelete(false); }}
+                color="gray"
+                type="button"
+              />
+              <Button
+                type="submit"
+                text={isPending ? "Saving..." : "Save Changes"}
+                color="indigo"
+              />
+            </div>
           </div>
         </form>
 

@@ -118,3 +118,38 @@ export const getRooms = async (token: string, filters?: RoomFilters) => {
     return { data: null, error: errorMessage };
   }
 };
+
+export const deleteRoom = async (token: string, id: string) => {
+  let userId = "unknown";
+  try {
+    const { data: userData } = await getUserDetails(token);
+    userId = userData?.user?.id || "unknown";
+
+    const supabase = getSupabaseClient(token);
+
+    const { error } = await RoomsService.deleteRoom(supabase, id);
+    if (error) throw error;
+
+    await logInfo({
+      userId,
+      action: LogAction.DELETE_ROOM,
+      entityType: LogEntityType.ROOM,
+      entityId: id,
+    });
+
+    return { data: true };
+  } catch (err: any) {
+    const errorMessage = err?.message ?? "Unknown error";
+    console.error(`Deleting room failed: ${errorMessage}`);
+
+    await logError({
+      userId,
+      action: LogAction.DELETE_ROOM_FAILED,
+      entityType: LogEntityType.ROOM,
+      entityId: id,
+      metadata: { error: errorMessage },
+    });
+
+    return { data: null, error: errorMessage };
+  }
+};
