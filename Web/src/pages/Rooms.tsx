@@ -8,11 +8,15 @@ import useTreatments from "../hooks/useTreatments";
 // Components
 import Card from "../components/Card";
 import Hint from "../components/hint";
+import EditRoomModal from "../components/modals/EditRoomModal";
+// Types
+import type { Room } from "../api/types/rooms";
 
 const Rooms = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [roomNumber, setRoomNumber] = useState("");
   const [selectedTreatments, setSelectedTreatments] = useState<string[]>([]);
+  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
 
   const { data: rooms, isLoading, isError, error } = useRooms();
   const { data: treatments } = useTreatments({});
@@ -83,7 +87,7 @@ const Rooms = () => {
 
       <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
         <div className="w-full sm:w-auto">
-          <Hint text="View and manage clinic rooms and their allowed treatments." />
+          <Hint text="Click on a room to edit it." />
         </div>
         {isDoctorOrAdmin && (
           <button
@@ -188,6 +192,7 @@ const Rooms = () => {
           {rooms.map((room) => (
             <Card
               key={room.id}
+              onClick={() => setSelectedRoom(room)}
               title={
                 <div className="flex justify-between items-center w-full">
                   <div className="p-3 bg-indigo-50 rounded-lg">
@@ -233,6 +238,15 @@ const Rooms = () => {
             </Card>
           ))}
         </div>
+      )}
+
+      {/* Edit Room Modal */}
+      {selectedRoom && (
+        <EditRoomModal
+          isOpen={!!selectedRoom}
+          onClose={() => setSelectedRoom(null)}
+          room={selectedRoom}
+        />
       )}
     </div>
   );

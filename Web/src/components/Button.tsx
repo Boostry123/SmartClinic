@@ -3,7 +3,8 @@ interface ButtonProps {
   text: string;
   onClick?: () => void;
   className?: string;
-  color?: "indigo" | "gray" | "red"; // Define your options
+  color?: "indigo" | "gray" | "red";
+  disabled?: boolean;
 }
 
 const Button = ({
@@ -12,6 +13,7 @@ const Button = ({
   onClick,
   className = "",
   color = "indigo",
+  disabled = false,
 }: ButtonProps) => {
   // Map colors to specific Tailwind classes
   const colorClasses = {
@@ -27,7 +29,8 @@ const Button = ({
     <button
       type={type}
       onClick={onClick}
-      className={`${baseStyles} ${colorClasses[color]} ${className}`}
+      disabled={disabled}
+      className={`${baseStyles} ${colorClasses[color]} ${className} disabled:opacity-50 disabled:cursor-not-allowed`}
     >
       {text}
     </button>
