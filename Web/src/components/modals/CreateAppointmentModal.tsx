@@ -60,12 +60,12 @@ const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
     useAppointments(
       {
         start_time: formData.start_time
-          ? DateTime.fromISO(formData.start_time).startOf("day").toISO() ??
-            undefined
+          ? (DateTime.fromISO(formData.start_time).startOf("day").toISO() ??
+            undefined)
           : undefined,
         end_time: formData.start_time
-          ? DateTime.fromISO(formData.start_time).endOf("day").toISO() ??
-            undefined
+          ? (DateTime.fromISO(formData.start_time).endOf("day").toISO() ??
+            undefined)
           : undefined,
       },
       { enabled: !!formData.start_time },
@@ -124,7 +124,6 @@ const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
   }, [availableRooms, formData.room_id]);
 
   if (!isOpen) return null;
-
 
   const handleSlotSelect = (isoString: string) => {
     const start = DateTime.fromISO(isoString);
@@ -195,11 +194,13 @@ const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
       console.log(error);
     } finally {
       setFormData(initFormData);
+      setSelectedTreatment(undefined);
     }
   };
 
   const handleCancel = () => {
     setFormData(initFormData);
+    setSelectedTreatment(undefined);
     onClose();
   };
 
