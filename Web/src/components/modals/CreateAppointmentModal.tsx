@@ -189,11 +189,12 @@ const CreateAppointmentModal: React.FC<CreateAppointmentModalProps> = ({
     try {
       await createAppointment(formData);
       QueryClient.invalidateQueries({ queryKey: ["appointments"] });
-      setFormData(initFormData);
-      setSelectedTreatment(undefined);
       onClose();
     } catch (error) {
-      console.error(error);
+      console.log(error);
+    } finally {
+      setFormData(initFormData);
+      setSelectedTreatment(undefined);
     }
   };
 

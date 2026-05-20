@@ -9,9 +9,18 @@ import remarkGfm from "remark-gfm";
 import { useAuthStore } from "../store/authStore";
 import DoctorIcon from "./Icons/DoctorIcon";
 
+{
+  /* Define the type inline or import it */
+}
+interface ChatMessage {
+  id: string;
+  role: string;
+  parts: Array<{ type: string; content: string }>;
+}
+
 const API_URL = import.meta.env.VITE_API_URL;
 
-const Chat: React.FC = () => {
+function Chat() {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [input, setInput] = useState<string>("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -54,7 +63,7 @@ const Chat: React.FC = () => {
 
           {/* Messages Area */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50">
-            {messages.map((msg) => (
+            {messages.map((msg: ChatMessage) => (
               <div
                 key={msg.id}
                 className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
@@ -66,16 +75,18 @@ const Chat: React.FC = () => {
                       : "bg-white border border-slate-200 text-slate-800 w-full"
                   }`}
                 >
-                  {msg.parts.map(
-                    (p, i) =>
-                      p.type === "text" && (
-                        <div key={i} className="prose prose-sm max-w-none">
-                          <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                            {p.content}
-                          </ReactMarkdown>
-                        </div>
-                      ),
-                  )}
+                  {msg.parts.map((p, i) => {
+                    // Explicitly guard and narrow types, returning null for non-text parts
+                    if (p.type !== "text") return null;
+
+                    return (
+                      <div key={i} className="prose prose-sm max-w-none">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                          {p.content}
+                        </ReactMarkdown>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             ))}
@@ -113,7 +124,7 @@ const Chat: React.FC = () => {
       {/* --- Simple Toggle Button --- */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-16 h-16 rounded-full shadow-lg flex items-center justify-center border-2 border-indigo-600 bg-indigo-50 active:bg-slate-50"
+        className="w-16 h-16 rounded-full shadow-lg flex items-center justify-center border-2 border-indigo-600 bg-indigo-50 overflow-hidden active:bg-slate-50"
       >
         {isOpen ? (
           <X size={32} className="text-indigo-600" />
@@ -123,6 +134,6 @@ const Chat: React.FC = () => {
       </button>
     </div>
   );
-};
+}
 
 export default Chat;
