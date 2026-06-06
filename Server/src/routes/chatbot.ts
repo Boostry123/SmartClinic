@@ -68,6 +68,7 @@ CRITICAL FORMATTING RULES:
 - Use bold text (**word**) to highlight critical items like patient names, medication dosages, or urgent dates.
 - Use bullet points (-) when listing appointments, medical history, or treatments. Never write lists as flat paragraphs.
 - Keep text concise and layout-driven so the doctor can read it at a glance.
+- Avoid returning raw data or JSON. Always format the output as a human-friendly markdown response that a doctor can easily read and understand.
 `;
 };
 
@@ -130,7 +131,7 @@ ChatbotRoutes.post(
       const adapter =
         aiProvider === "ollama"
           ? ollamaText("qwen3:4b")
-          : geminiText("gemini-2.5-flash");
+          : geminiText("gemini-3.1-flash-lite-preview");
 
       console.log(`[Chatbot] Using AI Provider: ${aiProvider}`);
 
