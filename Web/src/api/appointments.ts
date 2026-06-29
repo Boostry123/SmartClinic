@@ -23,9 +23,14 @@ export const createAppointment = async (
     );
   }
 
+  const payload = {
+    ...appointmentData,
+    room_id: appointmentData.room_id === "" ? null : appointmentData.room_id,
+  };
+
   const response = await apiClient.post<Appointment>(
     "/appointments",
-    appointmentData,
+    payload,
   );
   return response.data;
 };
@@ -53,6 +58,9 @@ export const updateAppointment = async (
   formData.append("id", appointmentData.id);
   if (appointmentData.status) formData.append("status", appointmentData.status);
   if (appointmentData.notes) formData.append("notes", appointmentData.notes);
+  if (appointmentData.room_id !== undefined) {
+    formData.append("room_id", appointmentData.room_id || "");
+  }
   // ... add other top-level fields if needed
 
   // 3. Process the treatment_data JSON

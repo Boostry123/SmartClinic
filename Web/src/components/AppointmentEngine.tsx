@@ -6,7 +6,9 @@ import { updateAppointment } from "../api/appointments";
 import type { Treatment, Field, FormValues } from "../api/types/treatments";
 import useAppointments from "../hooks/useAppointments";
 import useDoctors from "../hooks/useDoctors";
-import { Loader } from "lucide-react";
+import useRooms from "../hooks/useRooms";
+import { Loader, DoorOpen } from "lucide-react";
+import { DateTime } from "luxon";
 import {
   AppointmentStatusEnum,
   statusStyles,
@@ -48,6 +50,86 @@ const AppointmentEngine = ({
 
   const appointment = appointmentInfo?.[0];
   const currentDoctorProfile = doctors?.[0];
+
+  const [selectedRoomId, setSelectedRoomId] = useState<string>("");
+  const [prevRoomAppointmentId, setPrevRoomAppointmentId] = useState<string>("");
+
+  // Initialize selectedRoomId once the appointment loads
+  if (appointment && appointment.id !== prevRoomAppointmentId) {
+    setPrevRoomAppointmentId(appointment.id);
+    setSelectedRoomId(appointment.room_id || "");
+  }
+
+  // Fetch active rooms
+  const { data: rooms } = useRooms();
+
+  // Fetch appointments for the same day to validate occupancy
+  const { data: dayAppointments, isFetching: isFetchingDayApps } =
+    useAppointments(
+      {
+        start_time: appointment?.start_time
+          ? (DateTime.fromISO(appointment.start_time).startOf("day").toISO() ??
+            undefined)
+          : undefined,
+        end_time: appointment?.start_time
+          ? (DateTime.fromISO(appointment.start_time).endOf("day").toISO() ??
+            undefined)
+          : undefined,
+      },
+      { enabled: !!appointment?.start_time },
+    );
+
+  // Calculate available rooms reactively using the same validation logic as when creating a new appointment
+  const availableRooms = useMemo(() => {
+    if (!rooms || !appointment) return [];
+
+    return rooms.filter((r) => {
+      // Keep currently assigned room, even if it's inactive or has compatibility/occupancy check
+      if (r.id === appointment.room_id) return true;
+
+      // Only allow active rooms
+      if (r.status !== "Active") return false;
+
+      // 1. Treatment compatibility filter
+      const isTreatmentAllowed =
+        r.allowed_treatments.length === 0 ||
+        r.allowed_treatments.includes(appointment.treatment_id);
+
+      if (!isTreatmentAllowed) return false;
+
+      // 2. Precise Time-Interval Occupancy filter
+      if (appointment.start_time && appointment.end_time && dayAppointments) {
+        const requestedStart = DateTime.fromISO(appointment.start_time);
+        const requestedEnd = DateTime.fromISO(appointment.end_time);
+
+        const isOccupied = dayAppointments.some((app) => {
+          // EXCLUDE the current appointment itself from occupancy checks
+          if (app.id === appointment.id) return false;
+          if (app.room_id !== r.id || app.status === "cancelled") return false;
+
+          const appStart = DateTime.fromISO(app.start_time);
+          const appEnd = DateTime.fromISO(app.end_time);
+
+          // Standard Overlap Check: (StartA < EndB) AND (EndA > StartB)
+          return requestedStart < appEnd && requestedEnd > appStart;
+        });
+
+        return !isOccupied;
+      }
+
+      return true;
+    });
+  }, [rooms, appointment, dayAppointments]);
+
+  // Reset room selection if it becomes occupied due to any changes
+  const isSelectedRoomStillAvailable = useMemo(() => {
+    if (!selectedRoomId || selectedRoomId === appointment?.room_id) return true;
+    return availableRooms.some((r) => r.id === selectedRoomId);
+  }, [selectedRoomId, availableRooms, appointment?.room_id]);
+
+  if (!isSelectedRoomStillAvailable && selectedRoomId !== "") {
+    setSelectedRoomId("");
+  }
 
   const canEdit = useMemo(() => {
     if (userRole === "admin") return true;
@@ -92,6 +174,7 @@ const AppointmentEngine = ({
         id: appointmentId,
         treatment_data: values,
         status: finalStatus,
+        room_id: selectedRoomId || null,
       });
       await queryClient.invalidateQueries({ queryKey: ["appointments"] });
       setSuccessLoading(false);
@@ -243,6 +326,41 @@ const AppointmentEngine = ({
               )}
             </div>
           ))}
+        </div>
+        <div className="border-t mt-5 pt-5">
+          <label
+            htmlFor="room_id"
+            className="flex items-center gap-1.5 text-sm font-medium text-gray-800 mb-2"
+          >
+            <DoorOpen size={16} className="text-slate-400" />
+            <span>Room</span>
+            {isFetchingDayApps && (
+              <span className="text-xs text-indigo-500 animate-pulse font-normal ml-2">
+                (Checking availability...)
+              </span>
+            )}
+          </label>
+          <div className="relative">
+            <select
+              id="room_id"
+              name="room_id"
+              value={selectedRoomId}
+              onChange={(e) => setSelectedRoomId(e.target.value)}
+              disabled={!canEdit || isFetchingDayApps}
+              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed bg-white"
+            >
+              <option value="">
+                {isFetchingDayApps
+                  ? "Calculating..."
+                  : "No room (optional)"}
+              </option>
+              {availableRooms?.map((r) => (
+                <option key={r.id} value={r.id}>
+                  Room {r.room_number} {r.status === "InActive" ? "(Inactive)" : ""}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
         <div className="border-t mt-5 pt-5 text-center">
           <label className="block mb-4 text-sm font-medium text-gray-800">

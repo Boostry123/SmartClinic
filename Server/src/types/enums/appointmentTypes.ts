@@ -16,7 +16,7 @@ export interface Appointment {
   status: AppointmentStatus;
   notes: string;
   created_at: string;
-  room_id?: string;
+  room_id?: string | null;
   patients?: {
     first_name: string;
     last_name: string;

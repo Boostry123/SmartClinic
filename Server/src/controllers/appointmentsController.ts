@@ -25,9 +25,13 @@ export const createAppointment = async (
     userId = userData?.user?.id || "unknown";
 
     const supabase = getSupabaseClient(token);
+    const cleanedBody: CreateAppointmentDTO = { ...body };
+    if (body.room_id === "") {
+      cleanedBody.room_id = null;
+    }
     const { data, error } = await AppointmentsService.createAppointment(
       supabase,
-      body,
+      cleanedBody,
     );
     const { treatment_data, ...bodyFiltered } = body;
     const treatmentDataKeys = Object.keys(treatment_data);
@@ -189,6 +193,7 @@ export const updateAppointment = async (
       end_time: body.end_time,
       treatment_id: body.treatment_id,
       patient_id: body.patient_id,
+      room_id: body.room_id === "" ? null : body.room_id,
     };
 
     Object.keys(finalUpdateDto).forEach((key) => {

@@ -29,12 +29,12 @@ const PatientDashboard: React.FC = () => {
   return (
     <div className="p-4 lg:p-6 bg-gray-50 min-h-screen font-sans">
       <Card className="border-none shadow-sm overflow-hidden bg-white">
-        <div className="px-6 py-4 border-b border-gray-100 relative flex items-center justify-between bg-white">
-          <div className="bg-indigo-50 px-4 py-2 rounded-xl">
+        <div className="px-6 py-4 border-b border-gray-100 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-white">
+          <div className="bg-indigo-50 px-4 py-2 rounded-xl self-start sm:self-auto">
             <LiveClock />
           </div>
           {patientName && (
-            <div className="flex flex-col items-center absolute left-1/2 -translate-x-1/2">
+            <div className="flex flex-col items-start sm:items-end">
               <span className="text-xs text-indigo-400 uppercase tracking-widest">
                 Welcome back
               </span>

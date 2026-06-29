@@ -123,7 +123,7 @@ const NavBar = () => {
             )}
 
             {/* Exit Button */}
-            <div className="hidden sm:flex items-center gap-3">
+            <div className={`${isPatient ? "flex" : "hidden sm:flex"} items-center gap-3`}>
               <button
                 onClick={handleLogout}
                 className="flex items-center gap-2 px-4 py-2 text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 rounded-full transition-colors text-xs font-bold border border-rose-500/10"
