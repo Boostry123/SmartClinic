@@ -1,0 +1,21 @@
+services:
+  server:
+    build:
+      context: ./Server
+    ports:
+      - "3001:3001"
+    env_file:
+      - ./Server/.env
+    environment:
+      - PORT=3001
+      - FRONTEND_URL=https://your-production-url.com
+
+  web:
+    build:
+      context: ./Web
+      args:
+        - VITE_API_URL=https://api.your-production-url.com
+    ports:
+      - "80:80" # Nginx production port
+    depends_on:
+      - server

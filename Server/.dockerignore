@@ -1,0 +1,14 @@
+# Dependencies
+node_modules
+
+# Build outputs
+dist
+build
+
+# Secrets
+.env
+.env.*
+
+# Git history
+.git
+.gitignore
