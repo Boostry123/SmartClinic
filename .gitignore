@@ -38,3 +38,6 @@ Thumbs.db
 #models
 /.claude/
 
+
+#docker development
+docker-compose.override.yml
