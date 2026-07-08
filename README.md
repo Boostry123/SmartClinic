@@ -29,7 +29,7 @@
 ## 🛠️ Features
 
 - **Dashboard:** Real-time overview of clinic metrics and schedules.
-- **AI Operations Assistant:** A personal assistant for doctors that can fetch, summarize, and update clinic data via streaming SSE.
+- **AI Operations Assistant:** A personal assistant for doctors that can fetch, summarize, and update clinic data via streaming SSE. ( able to run either with API key or private Ollama model )
 * **Real-time Synchronization:** Automatic cache invalidation across all clients using Socket.io (Secured with JWT handshake verification).
 
 - **Patient Management:** Comprehensive CRUD operations for patient records.
@@ -43,21 +43,29 @@
 - **Secure Authentication:** Role-based access control (RBAC) and JWT security.
 - **Security & Performance:** Rate limiting and DDoS protection via Express-rate-limit.
 
+- **Local development:** This project uses Docker to provide a seamless, hot-reloading local development environment.
+
 ### 🚧 Roadmap (Upcoming Features)
 - [ ] **Custom Treatment Builder:** Dynamic UI for doctors to create custom treatment structures stored as JSON.
 - [ ] **AI Tools:** The current AI Toolkit is (Appointments, Treatments) fetching. More tools will be added.
 - [ ] **Admin dashboard:** Currently, most of the work is done on the overall CRM experience with a few features for the admin Role.
 - [ ] **Automatic Reminders:** Patients will be able to receive automatic reminders before their appointment.
-- [ ] **Private AI model:** Current AI model is the Gemini free tier API key. In a real-world CRM, we would want to use ollama with our own AI model.
 
 ---
+
+## 📦 Local Development (Docker)
+
+This project uses Docker to provide a seamless, hot-reloading local development environment. 
+
+> **Note:** The live version of SmartClinic is deployed via Render and Cloudflare. However, production-ready Docker configurations are included if you wish to self-host.
 
 ## 📦 Installation & Setup
 
 ### Prerequisites
 
 Ensure you have the following installed:
-
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (not a must)
+- [Git](https://git-scm.com/)
 - [Node.js](https://nodejs.org/) (v20+ recommended)
 - [npm](https://www.npmjs.com/)
 
@@ -82,30 +90,15 @@ npm install
 
 ### 3. Environment Variables
 
-**Server Configuration (`Server/.env`)**
+`cp Server/.env.example Server/.env`
 
-```env
-PORT=3001
-DATABASE_URL={your_postgresql_url}
-FRONTEND_URL=http://localhost:5173
+`cp Web/.env.example Web/.env`
 
-# Supabase Configuration
-SUPABASE_URL={your_supabase_project_url}
-SUPABASE_ANON_KEY={your_supabase_anon_key}
-SUPABASE_SECRET_KEY={your_supabase_service_role_key}
-
-# Gemini API key
-GEMINI_API_KEY={your_gemini_api_key}
-```
-
-**Web Configuration (`Web/.env`)**
-
-```env
-VITE_API_URL=http://localhost:3001
-```
-
+If using Docker, otherwise ignore : 
+`cp docker-compose.override.yml.example docker-compose.override.yml`
 ### 4. Run the Application
 
+### Without Docker:
 **Terminal 1: Server**
 
 ```bash
@@ -119,6 +112,10 @@ npm run dev
 cd Web
 npm run dev
 ```
+
+### With Docker development (local):
+
+`docker compose watch`
 
 Access the app at `http://localhost:5173`.
 
