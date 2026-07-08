@@ -1,0 +1,49 @@
+services:
+  server:
+    build:
+      context: ./Server
+      target: build
+    ports:
+      - "3001:3001"
+    env_file:
+      - ./Server/.env
+    environment:
+      - PORT=3001
+      - FRONTEND_URL=http://localhost:5173
+    command: npm run dev
+
+    develop:
+      watch:
+        # 1. If you install a new package, Docker automatically rebuilds the image
+        - action: rebuild
+          path: ./Server/package.json
+
+        # 2. For any other file save, instantly sync it into the container
+        - action: sync
+          path: ./Server
+          target: /app
+          ignore:
+            - node_modules/ # Never sync the local Mac/Windows node_modules!
+            - .git/
+
+  web:
+    build:
+      context: ./Web
+      target: build
+      args:
+        - VITE_API_URL=http://localhost:3001
+    ports:
+      - "5173:5173"
+    command: npm run dev -- --host
+    develop:
+      watch:
+        - action: rebuild
+          path: ./Web/package.json
+        - action: sync
+          path: ./Web
+          target: /app
+          ignore:
+            - node_modules/
+            - .git/
+    depends_on:
+      - server
